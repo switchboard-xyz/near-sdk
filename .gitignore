@@ -1,0 +1,12 @@
+# Javascript
+node_modules/
+dist/
+lib/
+build/
+tsconfig.tsbuildinfo
+
+# Rust
+target/
+
+# Near
+neardev/
