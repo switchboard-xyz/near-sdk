@@ -34,6 +34,7 @@ import base58 from "bs58";
 // export const MAINNET_PROGRAM_ID = "dev-1661444952413-29070842546310";
 export const TESTNET_PROGRAM_ID = "switchboard-v2.testnet";
 export const MAINNET_PROGRAM_ID = "switchboard-v2.testnet";
+export const LOCALNET_PROGRAM_ID = "switchboard-v2.test.near";
 export const PID = TESTNET_PROGRAM_ID;
 
 export const DEFAULT_ESCROW_SEED: string = "UserWalletSeed";
@@ -83,6 +84,9 @@ export const getProgramId = (networkId: string): string => {
     case "mainnet": {
       return MAINNET_PROGRAM_ID;
     }
+    case "localnet": {
+      return LOCALNET_PROGRAM_ID;
+    }
     default: {
       throw new Error(
         `Failed to find Switchboard programID for networkId ${networkId}`
@@ -101,6 +105,9 @@ export const getWrappedMint = (networkId: string): string => {
     }
     case "betanet": {
       return "wrap.beta";
+    }
+    case "localnet": {
+      return "token.test.near";
     }
     default: {
       throw new Error(

@@ -23,8 +23,9 @@ if (process.argv.length > 2) {
 
 (async function main() {
   const program = await sbv2.SwitchboardProgram.loadFromFs(
-    "testnet",
-    "https://rpc.testnet.near.org",
+    "localnet",
+    //"https://rpc.testnet.near.org",
+    "http://127.0.0.1:8332",
     keypairName
   );
   console.log(`Signer: ${program.account.accountId}`);
