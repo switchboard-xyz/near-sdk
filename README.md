@@ -2,6 +2,8 @@
 
 SDK for interacting with Switchboard V2 on Near.
 
+Typedocs: [https://switchboard-xyz.github.io/sbv2-near/](https://switchboard-xyz.github.io/sbv2-near/)
+
 ## Load the Switchboard Program
 
 ```ts
