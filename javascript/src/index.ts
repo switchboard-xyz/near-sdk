@@ -914,7 +914,7 @@ export class QueueAccount {
 
   async loadData(): Promise<any> {
     const data = await roClient(this.program.connection).viewFunction({
-      contractId: PID,
+      contractId: this.program.programId,
       methodName: "view_queue",
       args: {
         ix: { address: [...this.address] },
@@ -981,7 +981,7 @@ export class CrankAccount {
 
   async loadData(): Promise<any> {
     const data = await roClient(this.program.connection).viewFunction({
-      contractId: PID,
+      contractId: this.program.programId,
       methodName: "view_crank",
       args: {
         ix: { address: [...this.address] },
@@ -1091,7 +1091,7 @@ export class JobAccount {
 
   async loadData(): Promise<any> {
     const data = await roClient(this.program.connection).viewFunction({
-      contractId: PID,
+      contractId: this.program.programId,
       methodName: "view_job",
       args: {
         ix: { address: [...this.address] },
@@ -1110,7 +1110,7 @@ export class JobAccount {
     }
     const parsed = [];
     const results = await roClient(program.connection).viewFunction({
-      contractId: PID,
+      contractId: program.programId,
       methodName: "view_jobs",
       args: {
         ix: { addresses },
@@ -1190,7 +1190,7 @@ export class OracleAccount {
 
   async loadData(): Promise<any> {
     const data = await roClient(this.program.connection).viewFunction({
-      contractId: PID,
+      contractId: this.program.programId,
       methodName: "view_oracle",
       args: {
         ix: { address: [...this.address] },
@@ -1301,7 +1301,7 @@ export class EscrowAccount {
       return escrowAccount;
     } catch (error) {
       await program.account.functionCall({
-        contractId: PID,
+        contractId: program.programId,
         methodName: "escrow_init",
         args: {
           ix: {
@@ -1321,7 +1321,7 @@ export class EscrowAccount {
 
   async loadData(): Promise<any> {
     const data = await roClient(this.program.connection).viewFunction({
-      contractId: PID,
+      contractId: this.program.programId,
       methodName: "view_escrow",
       args: {
         ix: { address: [...this.address] },
@@ -1445,7 +1445,7 @@ export class PermissionAccount {
 
   async loadData(): Promise<any> {
     const data = await roClient(this.program.connection).viewFunction({
-      contractId: PID,
+      contractId: this.program.programId,
       methodName: "view_permission",
       args: {
         ix: { address: [...this.address] },
