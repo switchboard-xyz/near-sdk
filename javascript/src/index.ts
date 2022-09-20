@@ -30,14 +30,18 @@ import path from "path";
 import { homedir } from "os";
 import base58 from "bs58";
 
-// export const TESTNET_PROGRAM_ID = "dev-1661444952413-29070842546310";
-// export const MAINNET_PROGRAM_ID = "dev-1661444952413-29070842546310";
+// 1 Tgas = 0.1 milliNear = 0.0001 NEAR
+// maxGas = 300 Tgas = 0.03 NEAR
+// 1 yOcto = 10^-24 NEAR
+// 300 Tgas = 3e22 yocto NEAR
+// export const MAX_GAS_YOCTO = "30000000000000000000000";
+
 export const TESTNET_PROGRAM_ID = "switchboard-v2.testnet";
 export const MAINNET_PROGRAM_ID = "switchboard-v2.testnet";
 export const LOCALNET_PROGRAM_ID = "switchboard-v2.test.near";
 export const PID = TESTNET_PROGRAM_ID;
 
-export const DEFAULT_ESCROW_SEED: string = "UserWalletSeed";
+export const DEFAULT_ESCROW_SEED: string = "DefaultEscrowSeed";
 
 export const toBase58 = (address: Uint8Array): string => {
   return bs58.encode(address);
@@ -116,103 +120,6 @@ export const getWrappedMint = (networkId: string): string => {
     }
   }
 };
-
-// over estimations
-export const SWITCHBOARD_GAS_ESTIMATIONS = new Map<
-  string,
-  { gas: BN; Tgas: number }
->([
-  [
-    "job_init",
-    {
-      gas: new BN(
-        utils.format.parseNearAmount((40 * Math.pow(10, -4)).toString())
-      ),
-      Tgas: 40, // ~10, size dependent
-    },
-  ],
-  [
-    "aggregator_init",
-    {
-      gas: new BN(
-        utils.format.parseNearAmount((30 * Math.pow(10, -4)).toString())
-      ),
-      Tgas: 30, // ~8, history size dependent
-    },
-  ],
-  [
-    "permission_init",
-    {
-      gas: new BN(
-        utils.format.parseNearAmount((20 * Math.pow(10, -4)).toString())
-      ),
-      Tgas: 20, // ~7
-    },
-  ],
-  [
-    "aggregator_add_job",
-    {
-      gas: new BN(
-        utils.format.parseNearAmount((25 * Math.pow(10, -4)).toString())
-      ),
-      Tgas: 25, // ~7
-    },
-  ],
-  [
-    "crank_push",
-    {
-      gas: new BN(
-        utils.format.parseNearAmount((25 * Math.pow(10, -4)).toString())
-      ),
-      Tgas: 25, // ~8, crank size dependent
-    },
-  ],
-]);
-
-export function estimateTgas(
-  actions: [string, Action][],
-  defaultTgas = 10
-): number {
-  return actions.reduce((prev, curr) => {
-    const gas = SWITCHBOARD_GAS_ESTIMATIONS.has(curr[0])
-      ? SWITCHBOARD_GAS_ESTIMATIONS.get(curr[0]).Tgas
-      : defaultTgas;
-    return prev + gas;
-  }, 0);
-}
-
-export function batchActionsByTgas(
-  actions: [string, Action][],
-  defaultTgas = 10,
-  tgasLimit = 300
-): Action[][] {
-  const batches: Action[][] = [];
-
-  const tgasEstimation = estimateTgas(actions, defaultTgas);
-  if (tgasEstimation < tgasLimit) {
-    return [actions.map((a) => a[1])];
-  }
-
-  let currTgas = 0;
-  let batch: Action[] = [];
-  for (const action of actions) {
-    const tGas = SWITCHBOARD_GAS_ESTIMATIONS.has(action[0])
-      ? SWITCHBOARD_GAS_ESTIMATIONS.get(action[0]).Tgas
-      : defaultTgas;
-    if (currTgas + tGas > tgasLimit) {
-      batches.push(batch);
-      batch = [];
-      currTgas = 0;
-    }
-    batch.push(action[1]);
-    currTgas += tGas;
-  }
-  if (batch.length) {
-    batches.push(batch);
-  }
-
-  return batches;
-}
 
 export class SwitchboardProgramReadOnly extends Error {
   constructor(
@@ -737,7 +644,7 @@ export class QueueAccount {
     permission: PermissionAccount;
     jobs: JobAccount[];
     actions: [string, Action][];
-    batches: Action[][];
+    // batches: Action[][];
   }> {
     const actions: [string, Action][] = [];
 
@@ -901,7 +808,6 @@ export class QueueAccount {
       permission,
       jobs,
       actions,
-      batches: batchActionsByTgas(actions.filter((n) => Boolean(n[1]))),
     };
   }
 
