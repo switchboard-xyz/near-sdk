@@ -1287,6 +1287,13 @@
   dependencies:
     "@aws-sdk/client-s3" "^3.32.0"
 
+"near-units@^0.1.9":
+  "integrity" "sha512-xiuBjpNsi+ywiu7P6iWRZdgFm7iCr/cfWlVO6+e5uaAqH4mE1rrurElyrL91llNDSnMwogd9XmlZOw5KbbHNsA=="
+  "resolved" "https://registry.npmjs.org/near-units/-/near-units-0.1.9.tgz"
+  "version" "0.1.9"
+  dependencies:
+    "bn.js" "^5.2.0"
+
 "node-fetch@^2.6.1":
   "integrity" "sha512-ZjMPFEfVx5j+y2yF35Kzx5sF7kDzxuDj6ziH4FFbOp87zKDZNx8yExJIb05OGF4Nlt9IHFIMBkRl41VdvcNdbQ=="
   "resolved" "https://registry.npmjs.org/node-fetch/-/node-fetch-2.6.7.tgz"
