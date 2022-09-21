@@ -35,6 +35,7 @@
     "events": "^3.3.0",
     "near-api-js": "^1.0.0",
     "near-lake-framework": "^1.0.4",
+    "near-units": "^0.1.9",
     "wait-for-event": "^2.0.1"
   },
   "devDependencies": {

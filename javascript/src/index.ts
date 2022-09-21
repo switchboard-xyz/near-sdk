@@ -46,6 +46,9 @@ export const DEFAULT_ESCROW_SEED: string = "DefaultEscrowSeed";
 export const toBase58 = (address: Uint8Array): string => {
   return bs58.encode(address);
 };
+export const fromBase58 = (value: string): Uint8Array => {
+  return bs58.decode(value);
+};
 
 export const isBase58 = (value: string): boolean =>
   /^[A-HJ-NP-Za-km-z1-9]*$/.test(value);
