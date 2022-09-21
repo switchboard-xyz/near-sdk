@@ -1589,7 +1589,7 @@ export class SwitchboardDecimal {
   }
 
   toNearDecimal(): any {
-    return { mantissa: this.mantissa.toNumber(), scale: this.scale };
+    return { mantissa: this.mantissa.toString(), scale: this.scale };
   }
 }
 
