@@ -6,7 +6,7 @@ description = "A Rust library to interact with Switchboard V2 accounts on Near."
 readme = "README.md"
 keywords = ["switchboard", "oracle", "near"]
 homepage = "https://docs.switchboard.xyz"
-repository = "https://github.com/switchboard-xyz/sbv2-near/tree/main/rust"
+repository = "https://github.com/switchboard-xyz/sbv2-near/tree/main/rust/sbv2-near"
 license = "MIT"
 documentation = "https://docs.rs/sbv2-near/"
 

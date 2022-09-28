@@ -4,7 +4,9 @@ dist/
 lib/
 build/
 tsconfig.tsbuildinfo
-javascript/docs
+javascript/near.js/docs
+./docs
+
 
 # Rust
 target/

@@ -25,7 +25,7 @@
     "watch": "tsc -p tsconfig.cjs.json --watch",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepublishOnly": "shx rm -rf lib && npm run build",
-    "docs": "typedoc ../docs src/index.ts --githubPages --cleanOutputDir"
+    "docs": "typedoc src/index.ts --githubPages --cleanOutputDir"
   },
   "dependencies": {
     "@switchboard-xyz/common": "^2.0.0",
