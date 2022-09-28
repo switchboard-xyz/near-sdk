@@ -1,11 +1,11 @@
-import * as sbv2 from "./src";
-import { keyStores, Account } from "near-api-js";
+import * as sbv2 from "./lib/cjs";
 import Big from "big.js";
-import { homedir } from "os";
-import bs58 from "bs58";
 import { waitFor } from "wait-for-event";
 import { EventEmitter } from "events";
 import { OracleJob } from "@switchboard-xyz/common";
+import { KeyPair } from "near-api-js";
+import { BN } from "bn.js";
+import { QueueAccount } from "./lib/cjs";
 
 export function waitForever(): Promise<void> {
   return waitFor("", new EventEmitter());
@@ -18,7 +18,7 @@ let keypairName: string;
 if (process.argv.length > 2) {
   keypairName = process.argv[2];
 } else {
-  keypairName = sbv2.PID;
+  keypairName = sbv2.PROGRAM_ID;
 }
 
 (async function main() {
@@ -49,7 +49,41 @@ if (process.argv.length > 2) {
     unpermissionedFeeds: true,
   });
   console.log(`queue (base58): ${sbv2.toBase58(queue.address)}`);
-  console.log("queue", await queue.loadData());
+  const queueState = await queue.loadData();
+  console.log("queue", queueState.toJSON());
+
+  // build another queue action then send
+  // const newQueueAddress = KeyPair.fromRandom("ed25519").getPublicKey().data;
+  // const queueInitAction = new sbv2.actions.OracleQueueInitAction(
+  //   sbv2.types.OracleQueueInit.fromJSON({
+  //     address: [...newQueueAddress],
+  //     authority: program.account.accountId,
+  //     mint: "wrap.test",
+  //     reward: "0",
+  //     minStake: "100",
+  //     queueSize: 100,
+  //     oracleTimeout: 180,
+  //     unpermissionedFeeds: true,
+  //     // optionals
+  //     name: [...new Uint8Array([...(Buffer.from("My Queue") ?? [])])],
+  //     metadata: [
+  //       ...new Uint8Array([...(Buffer.from("My Queue metadata ...") ?? [])]),
+  //     ],
+  //     feedProbationPeriod: 0,
+  //     slashingEnabled: false,
+  //     unpermissionedVrf: false,
+  //     enableBufferRelayers: false,
+  //     varianceToleranceMultiplier: { mantissa: "0", scale: 0 },
+  //     consecutiveFeedFailureLimit: "0",
+  //     consecutiveOracleFailureLimit: "0",
+  //     maxGasCost: "0",
+  //   })
+  // );
+  // const queueReceipt = await queueInitAction.send(program);
+  // console.log(queueReceipt);
+  // const newQueue = new QueueAccount({ program, address: newQueueAddress });
+  // const newQueueState = await newQueue.loadData();
+  // console.log(newQueueState.toJSON());
 
   // Create Crank
   console.log(`Creating crank ...`);
@@ -58,7 +92,8 @@ if (process.argv.length > 2) {
     maxRows: 100,
   });
   console.log(`crank (base58): ${sbv2.toBase58(crank.address)}`);
-  console.log("crank", await crank.loadData());
+  const crankState = await crank.loadData();
+  console.log("crank", crankState.toJSON());
   //
   // Create Escrow
   console.log(`Creating escrow ...`);
@@ -67,7 +102,8 @@ if (process.argv.length > 2) {
     mint: "wrap.test",
   });
   console.log(`escrow (base58): ${sbv2.toBase58(escrow.address)}`);
-  console.log("escrow", await escrow.loadData());
+  const escrowState = await escrow.loadData();
+  console.log("escrow", escrowState.toJSON());
 
   // Create Aggregator
   console.log(`Creating aggregator ...`);
@@ -87,6 +123,7 @@ if (process.argv.length > 2) {
     rewardEscrow: escrow.address,
     historyLimit: 1000,
   });
+
   // Create Oracle
   console.log(`Creating oracle ...`);
   const oracle = await sbv2.OracleAccount.create(program, {
@@ -175,7 +212,7 @@ if (process.argv.length > 2) {
   // Start Near Event Listener
   const event = await sbv2.NearEvent.fromNetwork(
     "testnet",
-    sbv2.PID,
+    sbv2.PROGRAM_ID,
     "AggregatorOpenRoundEvent"
   );
   event.start(
