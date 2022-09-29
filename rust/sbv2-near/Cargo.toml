@@ -1,0 +1,33 @@
+[package]
+name = "sbv2-near"
+version = "0.1.0"
+edition = "2021"
+description = "A Rust library to interact with Switchboard V2 accounts on Near."
+readme = "README.md"
+keywords = ["switchboard", "oracle", "near"]
+homepage = "https://docs.switchboard.xyz"
+repository = "https://github.com/switchboard-xyz/sbv2-near/tree/main/rust/sbv2-near"
+license = "MIT"
+documentation = "https://docs.rs/sbv2-near/"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "sbv2_near"
+doctest = false
+
+[features]
+default = ["cpi"]
+no-entrypoint = []
+cpi = ["no-entrypoint"]
+testnet = []
+
+[dependencies]
+rust_decimal = { version = "1.18.0" }
+bytemuck = "1.7.2"
+superslice = "1"
+near-contract-standards = "4.0.0"
+near-sdk = "4.0.0"
+serde = "1.0.144"
+subtle = { version = "^2.2.1", default-features = false }
+zeroize = { version = "1", default-features = false }
+custom_error = "1.9.2"
