@@ -51,25 +51,9 @@ if (process.argv.length > 2) {
   const rootNear = await sbv2.loadNear("localnet",rootKeystore,"http://127.0.0.1:8332");
   const root = await rootNear.account("test.near");
 
-  // await program.account.functionCall({
-  // contractId: sbv2.PID,
-  // methodName: "init",
-  // args: {},
-  // });
-
-  // Create Escrow
-
-  /*console.log(`Creating escrow ...`);
-  const escrow = await sbv2.EscrowAccount.create(program, {
-    authority: program.account.accountId,
-    mint: "token.test.near",
-  });
-  console.log(`escrow (base58): ${sbv2.toBase58(escrow.address)}`);
-  console.log("escrow", await escrow.loadData());*/
-
   const escrow = new sbv2.EscrowAccount({
     program: program, 
-    address: sbv2.fromBase58("B2MU2VUojrexgeknUKpEJqufnsSvxYRNAsUbpFZVTkit")
+    address: sbv2.fromBase58("35CNeR8mTzapUuKT4ukiRDjgXAzFQNK4ZJashdrmsomo")
   });
 
   console.log(await escrow.loadData());
@@ -107,12 +91,17 @@ if (process.argv.length > 2) {
     args: {
       receiver_id: "switchboard-v2.test.near",
       amount: '100',
-      msg: "B2MU2VUojrexgeknUKpEJqufnsSvxYRNAsUbpFZVTkit"
+      msg: JSON.stringify({
+        "address": "35CNeR8mTzapUuKT4ukiRDjgXAzFQNK4ZJashdrmsomo",
+        "amount": 100,
+      }),
     },
     //gas: Gas.parse('10 Tgas'),
     gas: Gas.parse('100 Tgas'),
     attachedDeposit: new BN(1),
   });
+
+  await
 
   console.log(await escrow.loadData());
 
