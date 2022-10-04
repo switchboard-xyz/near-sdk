@@ -11,7 +11,7 @@ export interface CrankPopJSON {
   rewardRecipient: Array<number>;
 }
 
-export interface CrankPopBorsh {
+export interface CrankPopSerde {
   crank: Array<number>;
   reward_recipient: Array<number>;
 }
@@ -32,7 +32,7 @@ export class CrankPop implements ICrankPop {
     };
   }
 
-  toBorsh(): CrankPopBorsh {
+  toSerde(): CrankPopSerde {
     return {
       crank: [...this.crank],
       reward_recipient: [...this.rewardRecipient],
@@ -46,7 +46,7 @@ export class CrankPop implements ICrankPop {
     });
   }
 
-  static fromBorsh(obj: CrankPopBorsh) {
+  static fromSerde(obj: CrankPopSerde) {
     return new CrankPop({
       crank: new Uint8Array(obj.crank),
       rewardRecipient: new Uint8Array(obj.reward_recipient),

@@ -43,7 +43,7 @@ export interface OracleQueueInitJSON {
   maxGasCost: string;
 }
 
-export interface OracleQueueInitBorsh {
+export interface OracleQueueInitSerde {
   address: Array<number>;
   authority: string;
   mint: string;
@@ -54,7 +54,7 @@ export interface OracleQueueInitBorsh {
   feed_probation_period: number;
   oracle_timeout: number;
   slashing_enabled: boolean;
-  variance_tolerance_multiplier: types.SwitchboardDecimalBorsh;
+  variance_tolerance_multiplier: types.SwitchboardDecimalSerde;
   consecutive_feed_failure_limit: number;
   consecutive_oracle_failure_limit: number;
   queue_size: number;
@@ -129,7 +129,7 @@ export class OracleQueueInit implements IOracleQueueInit {
     };
   }
 
-  toBorsh(): OracleQueueInitBorsh {
+  toSerde(): OracleQueueInitSerde {
     return {
       address: [...this.address],
       authority: this.authority,
@@ -141,7 +141,7 @@ export class OracleQueueInit implements IOracleQueueInit {
       feed_probation_period: this.feedProbationPeriod,
       oracle_timeout: this.oracleTimeout,
       slashing_enabled: this.slashingEnabled,
-      variance_tolerance_multiplier: this.varianceToleranceMultiplier.toBorsh(),
+      variance_tolerance_multiplier: this.varianceToleranceMultiplier.toSerde(),
       consecutive_feed_failure_limit:
         this.consecutiveFeedFailureLimit.toNumber(),
       consecutive_oracle_failure_limit:
@@ -179,7 +179,7 @@ export class OracleQueueInit implements IOracleQueueInit {
     });
   }
 
-  static fromBorsh(obj: OracleQueueInitBorsh) {
+  static fromSerde(obj: OracleQueueInitSerde) {
     return new OracleQueueInit({
       address: new Uint8Array(obj.address),
       authority: obj.authority,
@@ -191,7 +191,7 @@ export class OracleQueueInit implements IOracleQueueInit {
       feedProbationPeriod: obj.feed_probation_period,
       oracleTimeout: obj.oracle_timeout,
       slashingEnabled: obj.slashing_enabled,
-      varianceToleranceMultiplier: types.SwitchboardDecimal.fromBorsh(
+      varianceToleranceMultiplier: types.SwitchboardDecimal.fromSerde(
         obj.variance_tolerance_multiplier
       ),
       consecutiveFeedFailureLimit: new BN(obj.consecutive_feed_failure_limit),

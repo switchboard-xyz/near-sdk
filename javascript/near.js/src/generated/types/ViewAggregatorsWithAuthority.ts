@@ -9,7 +9,7 @@ export interface ViewAggregatorsWithAuthorityJSON {
   authority: string;
 }
 
-export interface ViewAggregatorsWithAuthorityBorsh {
+export interface ViewAggregatorsWithAuthoritySerde {
   authority: string;
 }
 
@@ -28,7 +28,7 @@ export class ViewAggregatorsWithAuthority
     };
   }
 
-  toBorsh(): ViewAggregatorsWithAuthorityBorsh {
+  toSerde(): ViewAggregatorsWithAuthoritySerde {
     return {
       authority: this.authority,
     };
@@ -40,7 +40,7 @@ export class ViewAggregatorsWithAuthority
     });
   }
 
-  static fromBorsh(obj: ViewAggregatorsWithAuthorityBorsh) {
+  static fromSerde(obj: ViewAggregatorsWithAuthoritySerde) {
     return new ViewAggregatorsWithAuthority({
       authority: obj.authority,
     });

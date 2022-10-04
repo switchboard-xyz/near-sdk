@@ -75,7 +75,7 @@ export interface AggregatorJSON {
   _ebuf: Array<number>;
 }
 
-export interface AggregatorBorsh {
+export interface AggregatorSerde {
   address: Array<number>;
   name: Array<number>;
   metadata: Array<number>;
@@ -85,7 +85,7 @@ export interface AggregatorBorsh {
   min_job_results: number;
   min_update_delay_seconds: number;
   start_after: number;
-  variance_threshold: types.SwitchboardDecimalBorsh;
+  variance_threshold: types.SwitchboardDecimalSerde;
   force_report_period: number;
   expiration: number;
   consecutive_failure_count: number;
@@ -93,15 +93,15 @@ export interface AggregatorBorsh {
   is_locked: boolean;
   crank: Array<number>;
   crank_row_count: number;
-  latest_confirmed_round: types.AggregatorRoundBorsh;
-  current_round: types.AggregatorRoundBorsh;
+  latest_confirmed_round: types.AggregatorRoundSerde;
+  current_round: types.AggregatorRoundSerde;
   jobs: Array<Array<number>>;
   jobs_checksum: Array<number>;
   authority: string;
-  history: Array<types.AggregatorHistoryRowBorsh>;
+  history: Array<types.AggregatorHistoryRowSerde>;
   history_limit: number;
   history_write_idx: number;
-  previous_confirmed_round_result: types.SwitchboardDecimalBorsh;
+  previous_confirmed_round_result: types.SwitchboardDecimalSerde;
   previous_confirmed_round_slot: number;
   job_weights: Array<number>;
   creation_timestamp: number;
@@ -224,7 +224,7 @@ export class Aggregator implements IAggregator {
     };
   }
 
-  toBorsh(): AggregatorBorsh {
+  toSerde(): AggregatorSerde {
     return {
       address: [...this.address],
       name: [...this.name],
@@ -235,7 +235,7 @@ export class Aggregator implements IAggregator {
       min_job_results: this.minJobResults,
       min_update_delay_seconds: this.minUpdateDelaySeconds,
       start_after: this.startAfter.toNumber(),
-      variance_threshold: this.varianceThreshold.toBorsh(),
+      variance_threshold: this.varianceThreshold.toSerde(),
       force_report_period: this.forceReportPeriod.toNumber(),
       expiration: this.expiration.toNumber(),
       consecutive_failure_count: this.consecutiveFailureCount.toNumber(),
@@ -243,16 +243,16 @@ export class Aggregator implements IAggregator {
       is_locked: this.isLocked,
       crank: [...this.crank],
       crank_row_count: this.crankRowCount,
-      latest_confirmed_round: this.latestConfirmedRound.toBorsh(),
-      current_round: this.currentRound.toBorsh(),
+      latest_confirmed_round: this.latestConfirmedRound.toSerde(),
+      current_round: this.currentRound.toSerde(),
       jobs: this.jobs.map((item) => [...item]),
       jobs_checksum: [...this.jobsChecksum],
       authority: this.authority,
-      history: this.history.map((item) => item.toBorsh()),
+      history: this.history.map((item) => item.toSerde()),
       history_limit: this.historyLimit.toNumber(),
       history_write_idx: this.historyWriteIdx.toNumber(),
       previous_confirmed_round_result:
-        this.previousConfirmedRoundResult.toBorsh(),
+        this.previousConfirmedRoundResult.toSerde(),
       previous_confirmed_round_slot: this.previousConfirmedRoundSlot.toNumber(),
       job_weights: [...this.jobWeights],
       creation_timestamp: this.creationTimestamp.toNumber(),
@@ -313,7 +313,7 @@ export class Aggregator implements IAggregator {
     });
   }
 
-  static fromBorsh(obj: AggregatorBorsh) {
+  static fromSerde(obj: AggregatorSerde) {
     return new Aggregator({
       address: new Uint8Array(obj.address),
       name: new Uint8Array(obj.name),
@@ -324,7 +324,7 @@ export class Aggregator implements IAggregator {
       minJobResults: obj.min_job_results,
       minUpdateDelaySeconds: obj.min_update_delay_seconds,
       startAfter: new BN(obj.start_after),
-      varianceThreshold: types.SwitchboardDecimal.fromBorsh(
+      varianceThreshold: types.SwitchboardDecimal.fromSerde(
         obj.variance_threshold
       ),
       forceReportPeriod: new BN(obj.force_report_period),
@@ -334,19 +334,19 @@ export class Aggregator implements IAggregator {
       isLocked: obj.is_locked,
       crank: new Uint8Array(obj.crank),
       crankRowCount: obj.crank_row_count,
-      latestConfirmedRound: types.AggregatorRound.fromBorsh(
+      latestConfirmedRound: types.AggregatorRound.fromSerde(
         obj.latest_confirmed_round
       ),
-      currentRound: types.AggregatorRound.fromBorsh(obj.current_round),
+      currentRound: types.AggregatorRound.fromSerde(obj.current_round),
       jobs: obj.jobs.map((item) => new Uint8Array(item)),
       jobsChecksum: new Uint8Array(obj.jobs_checksum),
       authority: obj.authority,
       history: obj.history.map((item) =>
-        types.AggregatorHistoryRow.fromBorsh(item)
+        types.AggregatorHistoryRow.fromSerde(item)
       ),
       historyLimit: new BN(obj.history_limit),
       historyWriteIdx: new BN(obj.history_write_idx),
-      previousConfirmedRoundResult: types.SwitchboardDecimal.fromBorsh(
+      previousConfirmedRoundResult: types.SwitchboardDecimal.fromSerde(
         obj.previous_confirmed_round_result
       ),
       previousConfirmedRoundSlot: new BN(obj.previous_confirmed_round_slot),

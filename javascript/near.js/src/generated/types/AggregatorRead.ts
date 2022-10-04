@@ -11,7 +11,7 @@ export interface AggregatorReadJSON {
   payer: Array<number>;
 }
 
-export interface AggregatorReadBorsh {
+export interface AggregatorReadSerde {
   address: Array<number>;
   payer: Array<number>;
 }
@@ -32,7 +32,7 @@ export class AggregatorRead implements IAggregatorRead {
     };
   }
 
-  toBorsh(): AggregatorReadBorsh {
+  toSerde(): AggregatorReadSerde {
     return {
       address: [...this.address],
       payer: [...this.payer],
@@ -46,7 +46,7 @@ export class AggregatorRead implements IAggregatorRead {
     });
   }
 
-  static fromBorsh(obj: AggregatorReadBorsh) {
+  static fromSerde(obj: AggregatorReadSerde) {
     return new AggregatorRead({
       address: new Uint8Array(obj.address),
       payer: new Uint8Array(obj.payer),

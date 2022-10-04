@@ -11,7 +11,7 @@ export interface CrankRowJSON {
   nextTimestamp: string;
 }
 
-export interface CrankRowBorsh {
+export interface CrankRowSerde {
   uuid: Array<number>;
   next_timestamp: number;
 }
@@ -32,7 +32,7 @@ export class CrankRow implements ICrankRow {
     };
   }
 
-  toBorsh(): CrankRowBorsh {
+  toSerde(): CrankRowSerde {
     return {
       uuid: [...this.uuid],
       next_timestamp: this.nextTimestamp.toNumber(),
@@ -46,7 +46,7 @@ export class CrankRow implements ICrankRow {
     });
   }
 
-  static fromBorsh(obj: CrankRowBorsh) {
+  static fromSerde(obj: CrankRowSerde) {
     return new CrankRow({
       uuid: new Uint8Array(obj.uuid),
       nextTimestamp: new BN(obj.next_timestamp),

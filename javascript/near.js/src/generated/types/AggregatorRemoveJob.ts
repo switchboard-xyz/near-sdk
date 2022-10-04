@@ -11,7 +11,7 @@ export interface AggregatorRemoveJobJSON {
   idx: number;
 }
 
-export interface AggregatorRemoveJobBorsh {
+export interface AggregatorRemoveJobSerde {
   address: Array<number>;
   idx: number;
 }
@@ -32,7 +32,7 @@ export class AggregatorRemoveJob implements IAggregatorRemoveJob {
     };
   }
 
-  toBorsh(): AggregatorRemoveJobBorsh {
+  toSerde(): AggregatorRemoveJobSerde {
     return {
       address: [...this.address],
       idx: this.idx,
@@ -46,7 +46,7 @@ export class AggregatorRemoveJob implements IAggregatorRemoveJob {
     });
   }
 
-  static fromBorsh(obj: AggregatorRemoveJobBorsh) {
+  static fromSerde(obj: AggregatorRemoveJobSerde) {
     return new AggregatorRemoveJob({
       address: new Uint8Array(obj.address),
       idx: obj.idx,

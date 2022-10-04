@@ -13,7 +13,7 @@ export interface AggregatorFundJSON {
   amount: string;
 }
 
-export interface AggregatorFundBorsh {
+export interface AggregatorFundSerde {
   address: Array<number>;
   funder: Array<number>;
   amount: number;
@@ -38,7 +38,7 @@ export class AggregatorFund implements IAggregatorFund {
     };
   }
 
-  toBorsh(): AggregatorFundBorsh {
+  toSerde(): AggregatorFundSerde {
     return {
       address: [...this.address],
       funder: [...this.funder],
@@ -54,7 +54,7 @@ export class AggregatorFund implements IAggregatorFund {
     });
   }
 
-  static fromBorsh(obj: AggregatorFundBorsh) {
+  static fromSerde(obj: AggregatorFundSerde) {
     return new AggregatorFund({
       address: new Uint8Array(obj.address),
       funder: new Uint8Array(obj.funder),

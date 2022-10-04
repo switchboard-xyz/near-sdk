@@ -31,7 +31,7 @@ export interface OracleJSON {
   features: Array<number>;
 }
 
-export interface OracleBorsh {
+export interface OracleSerde {
   address: Array<number>;
   name: Array<number>;
   metadata: Array<number>;
@@ -39,7 +39,7 @@ export interface OracleBorsh {
   last_heartbeat: number;
   num_in_use: number;
   queue: Array<number>;
-  metrics: types.OracleMetricsBorsh;
+  metrics: types.OracleMetricsSerde;
   creation_timestamp: number;
   total_delegated_stake: number;
   _ebuf: Array<number>;
@@ -92,7 +92,7 @@ export class Oracle implements IOracle {
     };
   }
 
-  toBorsh(): OracleBorsh {
+  toSerde(): OracleSerde {
     return {
       address: [...this.address],
       name: [...this.name],
@@ -101,7 +101,7 @@ export class Oracle implements IOracle {
       last_heartbeat: this.lastHeartbeat.toNumber(),
       num_in_use: this.numInUse,
       queue: [...this.queue],
-      metrics: this.metrics.toBorsh(),
+      metrics: this.metrics.toSerde(),
       creation_timestamp: this.creationTimestamp.toNumber(),
       total_delegated_stake: this.totalDelegatedStake.toNumber(),
       _ebuf: [...this._ebuf],
@@ -126,7 +126,7 @@ export class Oracle implements IOracle {
     });
   }
 
-  static fromBorsh(obj: OracleBorsh) {
+  static fromSerde(obj: OracleSerde) {
     return new Oracle({
       address: new Uint8Array(obj.address),
       name: new Uint8Array(obj.name),
@@ -135,7 +135,7 @@ export class Oracle implements IOracle {
       lastHeartbeat: new BN(obj.last_heartbeat),
       numInUse: obj.num_in_use,
       queue: new Uint8Array(obj.queue),
-      metrics: types.OracleMetrics.fromBorsh(obj.metrics),
+      metrics: types.OracleMetrics.fromSerde(obj.metrics),
       creationTimestamp: new BN(obj.creation_timestamp),
       totalDelegatedStake: new BN(obj.total_delegated_stake),
       _ebuf: new Uint8Array(obj._ebuf),

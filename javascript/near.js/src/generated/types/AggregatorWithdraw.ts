@@ -13,7 +13,7 @@ export interface AggregatorWithdrawJSON {
   amount: string;
 }
 
-export interface AggregatorWithdrawBorsh {
+export interface AggregatorWithdrawSerde {
   address: Array<number>;
   destination: Array<number>;
   amount: number;
@@ -38,7 +38,7 @@ export class AggregatorWithdraw implements IAggregatorWithdraw {
     };
   }
 
-  toBorsh(): AggregatorWithdrawBorsh {
+  toSerde(): AggregatorWithdrawSerde {
     return {
       address: [...this.address],
       destination: [...this.destination],
@@ -54,7 +54,7 @@ export class AggregatorWithdraw implements IAggregatorWithdraw {
     });
   }
 
-  static fromBorsh(obj: AggregatorWithdrawBorsh) {
+  static fromSerde(obj: AggregatorWithdrawSerde) {
     return new AggregatorWithdraw({
       address: new Uint8Array(obj.address),
       destination: new Uint8Array(obj.destination),

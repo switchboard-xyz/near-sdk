@@ -19,7 +19,7 @@ export interface JobInitJSON {
   expiration: string;
 }
 
-export interface JobInitBorsh {
+export interface JobInitSerde {
   address: Array<number>;
   authority: string;
   name: Array<number>;
@@ -56,7 +56,7 @@ export class JobInit implements IJobInit {
     };
   }
 
-  toBorsh(): JobInitBorsh {
+  toSerde(): JobInitSerde {
     return {
       address: [...this.address],
       authority: this.authority,
@@ -78,7 +78,7 @@ export class JobInit implements IJobInit {
     });
   }
 
-  static fromBorsh(obj: JobInitBorsh) {
+  static fromSerde(obj: JobInitSerde) {
     return new JobInit({
       address: new Uint8Array(obj.address),
       authority: obj.authority,

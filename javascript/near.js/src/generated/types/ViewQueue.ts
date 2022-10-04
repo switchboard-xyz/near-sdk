@@ -9,7 +9,7 @@ export interface ViewQueueJSON {
   address: Array<number>;
 }
 
-export interface ViewQueueBorsh {
+export interface ViewQueueSerde {
   address: Array<number>;
 }
 
@@ -26,7 +26,7 @@ export class ViewQueue implements IViewQueue {
     };
   }
 
-  toBorsh(): ViewQueueBorsh {
+  toSerde(): ViewQueueSerde {
     return {
       address: [...this.address],
     };
@@ -38,7 +38,7 @@ export class ViewQueue implements IViewQueue {
     });
   }
 
-  static fromBorsh(obj: ViewQueueBorsh) {
+  static fromSerde(obj: ViewQueueSerde) {
     return new ViewQueue({
       address: new Uint8Array(obj.address),
     });

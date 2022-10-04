@@ -25,7 +25,7 @@ export interface OracleMetricsJSON {
   totalLateResponse: string;
 }
 
-export interface OracleMetricsBorsh {
+export interface OracleMetricsSerde {
   consecutive_success: number;
   consecutive_error: number;
   consecutive_disagreement: number;
@@ -74,7 +74,7 @@ export class OracleMetrics implements IOracleMetrics {
     };
   }
 
-  toBorsh(): OracleMetricsBorsh {
+  toSerde(): OracleMetricsSerde {
     return {
       consecutive_success: this.consecutiveSuccess.toNumber(),
       consecutive_error: this.consecutiveError.toNumber(),
@@ -102,7 +102,7 @@ export class OracleMetrics implements IOracleMetrics {
     });
   }
 
-  static fromBorsh(obj: OracleMetricsBorsh) {
+  static fromSerde(obj: OracleMetricsSerde) {
     return new OracleMetrics({
       consecutiveSuccess: new BN(obj.consecutive_success),
       consecutiveError: new BN(obj.consecutive_error),

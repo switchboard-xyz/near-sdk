@@ -51,7 +51,7 @@ export interface OracleQueueViewJSON {
   data: Array<Array<number>>;
 }
 
-export interface OracleQueueViewBorsh {
+export interface OracleQueueViewSerde {
   address: Array<number>;
   name: Array<number>;
   metadata: Array<number>;
@@ -60,7 +60,7 @@ export interface OracleQueueViewBorsh {
   reward: number;
   min_stake: number;
   slashing_enabled: boolean;
-  variance_tolerance_multiplier: types.SwitchboardDecimalBorsh;
+  variance_tolerance_multiplier: types.SwitchboardDecimalSerde;
   feed_probation_period: number;
   curr_idx: number;
   gc_idx: number;
@@ -68,7 +68,7 @@ export interface OracleQueueViewBorsh {
   consecutive_oracle_failure_limit: number;
   unpermissioned_feeds_enabled: boolean;
   unpermissioned_vrf_enabled: boolean;
-  curator_reward_cut: types.SwitchboardDecimalBorsh;
+  curator_reward_cut: types.SwitchboardDecimalSerde;
   lock_lease_funding: boolean;
   mint: string;
   enable_buffer_relayers: boolean;
@@ -153,7 +153,7 @@ export class OracleQueueView implements IOracleQueueView {
     };
   }
 
-  toBorsh(): OracleQueueViewBorsh {
+  toSerde(): OracleQueueViewSerde {
     return {
       address: [...this.address],
       name: [...this.name],
@@ -163,7 +163,7 @@ export class OracleQueueView implements IOracleQueueView {
       reward: this.reward.toNumber(),
       min_stake: this.minStake.toNumber(),
       slashing_enabled: this.slashingEnabled,
-      variance_tolerance_multiplier: this.varianceToleranceMultiplier.toBorsh(),
+      variance_tolerance_multiplier: this.varianceToleranceMultiplier.toSerde(),
       feed_probation_period: this.feedProbationPeriod,
       curr_idx: this.currIdx.toNumber(),
       gc_idx: this.gcIdx.toNumber(),
@@ -173,7 +173,7 @@ export class OracleQueueView implements IOracleQueueView {
         this.consecutiveOracleFailureLimit.toNumber(),
       unpermissioned_feeds_enabled: this.unpermissionedFeedsEnabled,
       unpermissioned_vrf_enabled: this.unpermissionedVrfEnabled,
-      curator_reward_cut: this.curatorRewardCut.toBorsh(),
+      curator_reward_cut: this.curatorRewardCut.toSerde(),
       lock_lease_funding: this.lockLeaseFunding,
       mint: this.mint,
       enable_buffer_relayers: this.enableBufferRelayers,
@@ -211,7 +211,7 @@ export class OracleQueueView implements IOracleQueueView {
     });
   }
 
-  static fromBorsh(obj: OracleQueueViewBorsh) {
+  static fromSerde(obj: OracleQueueViewSerde) {
     return new OracleQueueView({
       address: new Uint8Array(obj.address),
       name: new Uint8Array(obj.name),
@@ -221,7 +221,7 @@ export class OracleQueueView implements IOracleQueueView {
       reward: new BN(obj.reward),
       minStake: new BN(obj.min_stake),
       slashingEnabled: obj.slashing_enabled,
-      varianceToleranceMultiplier: types.SwitchboardDecimal.fromBorsh(
+      varianceToleranceMultiplier: types.SwitchboardDecimal.fromSerde(
         obj.variance_tolerance_multiplier
       ),
       feedProbationPeriod: obj.feed_probation_period,
@@ -233,7 +233,7 @@ export class OracleQueueView implements IOracleQueueView {
       ),
       unpermissionedFeedsEnabled: obj.unpermissioned_feeds_enabled,
       unpermissionedVrfEnabled: obj.unpermissioned_vrf_enabled,
-      curatorRewardCut: types.SwitchboardDecimal.fromBorsh(
+      curatorRewardCut: types.SwitchboardDecimal.fromSerde(
         obj.curator_reward_cut
       ),
       lockLeaseFunding: obj.lock_lease_funding,

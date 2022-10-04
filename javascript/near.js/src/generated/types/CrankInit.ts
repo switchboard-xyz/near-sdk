@@ -17,7 +17,7 @@ export interface CrankInitJSON {
   maxRows: string;
 }
 
-export interface CrankInitBorsh {
+export interface CrankInitSerde {
   address: Array<number>;
   name: Array<number>;
   metadata: Array<number>;
@@ -50,7 +50,7 @@ export class CrankInit implements ICrankInit {
     };
   }
 
-  toBorsh(): CrankInitBorsh {
+  toSerde(): CrankInitSerde {
     return {
       address: [...this.address],
       name: [...this.name],
@@ -70,7 +70,7 @@ export class CrankInit implements ICrankInit {
     });
   }
 
-  static fromBorsh(obj: CrankInitBorsh) {
+  static fromSerde(obj: CrankInitSerde) {
     return new CrankInit({
       address: new Uint8Array(obj.address),
       name: new Uint8Array(obj.name),

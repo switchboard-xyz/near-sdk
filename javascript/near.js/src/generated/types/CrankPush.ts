@@ -11,7 +11,7 @@ export interface CrankPushJSON {
   aggregator: Array<number>;
 }
 
-export interface CrankPushBorsh {
+export interface CrankPushSerde {
   crank: Array<number>;
   aggregator: Array<number>;
 }
@@ -32,7 +32,7 @@ export class CrankPush implements ICrankPush {
     };
   }
 
-  toBorsh(): CrankPushBorsh {
+  toSerde(): CrankPushSerde {
     return {
       crank: [...this.crank],
       aggregator: [...this.aggregator],
@@ -46,7 +46,7 @@ export class CrankPush implements ICrankPush {
     });
   }
 
-  static fromBorsh(obj: CrankPushBorsh) {
+  static fromSerde(obj: CrankPushSerde) {
     return new CrankPush({
       crank: new Uint8Array(obj.crank),
       aggregator: new Uint8Array(obj.aggregator),

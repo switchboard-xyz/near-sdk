@@ -7,7 +7,7 @@ import { DEFAULT_MAX_GAS } from "./sbv2.js";
 export abstract class SwitchboardAction<
   T extends
     | {
-        toBorsh(): Record<string, any>;
+        toSerde(): Record<string, any>;
       }
     | {
         toJSON(): Record<string, any>;
@@ -22,8 +22,8 @@ export abstract class SwitchboardAction<
     deposit = new BN(0)
   ) {
     const ix =
-      "toBorsh" in params
-        ? params.toBorsh()
+      "toSerde" in params
+        ? params.toSerde()
         : "toJSON" in params
         ? params.toJSON()
         : undefined;

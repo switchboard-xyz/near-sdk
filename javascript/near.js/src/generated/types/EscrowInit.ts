@@ -13,7 +13,7 @@ export interface EscrowInitJSON {
   mint: string;
 }
 
-export interface EscrowInitBorsh {
+export interface EscrowInitSerde {
   seed: Array<number>;
   authority: string;
   mint: string;
@@ -38,7 +38,7 @@ export class EscrowInit implements IEscrowInit {
     };
   }
 
-  toBorsh(): EscrowInitBorsh {
+  toSerde(): EscrowInitSerde {
     return {
       seed: [...this.seed],
       authority: this.authority,
@@ -54,7 +54,7 @@ export class EscrowInit implements IEscrowInit {
     });
   }
 
-  static fromBorsh(obj: EscrowInitBorsh) {
+  static fromSerde(obj: EscrowInitSerde) {
     return new EscrowInit({
       seed: new Uint8Array(obj.seed),
       authority: obj.authority,

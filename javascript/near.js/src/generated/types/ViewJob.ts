@@ -9,7 +9,7 @@ export interface ViewJobJSON {
   address: Array<number>;
 }
 
-export interface ViewJobBorsh {
+export interface ViewJobSerde {
   address: Array<number>;
 }
 
@@ -26,7 +26,7 @@ export class ViewJob implements IViewJob {
     };
   }
 
-  toBorsh(): ViewJobBorsh {
+  toSerde(): ViewJobSerde {
     return {
       address: [...this.address],
     };
@@ -38,7 +38,7 @@ export class ViewJob implements IViewJob {
     });
   }
 
-  static fromBorsh(obj: ViewJobBorsh) {
+  static fromSerde(obj: ViewJobSerde) {
     return new ViewJob({
       address: new Uint8Array(obj.address),
     });

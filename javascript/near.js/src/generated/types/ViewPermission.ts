@@ -9,7 +9,7 @@ export interface ViewPermissionJSON {
   address: Array<number>;
 }
 
-export interface ViewPermissionBorsh {
+export interface ViewPermissionSerde {
   address: Array<number>;
 }
 
@@ -26,7 +26,7 @@ export class ViewPermission implements IViewPermission {
     };
   }
 
-  toBorsh(): ViewPermissionBorsh {
+  toSerde(): ViewPermissionSerde {
     return {
       address: [...this.address],
     };
@@ -38,7 +38,7 @@ export class ViewPermission implements IViewPermission {
     });
   }
 
-  static fromBorsh(obj: ViewPermissionBorsh) {
+  static fromSerde(obj: ViewPermissionSerde) {
     return new ViewPermission({
       address: new Uint8Array(obj.address),
     });

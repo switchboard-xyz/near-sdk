@@ -13,7 +13,7 @@ export interface EscrowWithdrawJSON {
   destination: string;
 }
 
-export interface EscrowWithdrawBorsh {
+export interface EscrowWithdrawSerde {
   address: Array<number>;
   amount: number;
   destination: string;
@@ -38,7 +38,7 @@ export class EscrowWithdraw implements IEscrowWithdraw {
     };
   }
 
-  toBorsh(): EscrowWithdrawBorsh {
+  toSerde(): EscrowWithdrawSerde {
     return {
       address: [...this.address],
       amount: this.amount.toNumber(),
@@ -54,7 +54,7 @@ export class EscrowWithdraw implements IEscrowWithdraw {
     });
   }
 
-  static fromBorsh(obj: EscrowWithdrawBorsh) {
+  static fromSerde(obj: EscrowWithdrawSerde) {
     return new EscrowWithdraw({
       address: new Uint8Array(obj.address),
       amount: new BN(obj.amount),

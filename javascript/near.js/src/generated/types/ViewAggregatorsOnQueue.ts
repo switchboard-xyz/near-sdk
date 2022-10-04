@@ -9,7 +9,7 @@ export interface ViewAggregatorsOnQueueJSON {
   queue: Array<number>;
 }
 
-export interface ViewAggregatorsOnQueueBorsh {
+export interface ViewAggregatorsOnQueueSerde {
   queue: Array<number>;
 }
 
@@ -26,7 +26,7 @@ export class ViewAggregatorsOnQueue implements IViewAggregatorsOnQueue {
     };
   }
 
-  toBorsh(): ViewAggregatorsOnQueueBorsh {
+  toSerde(): ViewAggregatorsOnQueueSerde {
     return {
       queue: [...this.queue],
     };
@@ -38,7 +38,7 @@ export class ViewAggregatorsOnQueue implements IViewAggregatorsOnQueue {
     });
   }
 
-  static fromBorsh(obj: ViewAggregatorsOnQueueBorsh) {
+  static fromSerde(obj: ViewAggregatorsOnQueueSerde) {
     return new ViewAggregatorsOnQueue({
       queue: new Uint8Array(obj.queue),
     });

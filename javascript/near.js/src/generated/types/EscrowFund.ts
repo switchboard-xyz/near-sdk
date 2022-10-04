@@ -11,7 +11,7 @@ export interface EscrowFundJSON {
   amount: string;
 }
 
-export interface EscrowFundBorsh {
+export interface EscrowFundSerde {
   address: Array<number>;
   amount: number;
 }
@@ -32,7 +32,7 @@ export class EscrowFund implements IEscrowFund {
     };
   }
 
-  toBorsh(): EscrowFundBorsh {
+  toSerde(): EscrowFundSerde {
     return {
       address: [...this.address],
       amount: this.amount.toNumber(),
@@ -46,7 +46,7 @@ export class EscrowFund implements IEscrowFund {
     });
   }
 
-  static fromBorsh(obj: EscrowFundBorsh) {
+  static fromSerde(obj: EscrowFundSerde) {
     return new EscrowFund({
       address: new Uint8Array(obj.address),
       amount: new BN(obj.amount),

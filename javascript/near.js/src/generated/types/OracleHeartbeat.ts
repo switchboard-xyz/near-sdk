@@ -9,7 +9,7 @@ export interface OracleHeartbeatJSON {
   address: Array<number>;
 }
 
-export interface OracleHeartbeatBorsh {
+export interface OracleHeartbeatSerde {
   address: Array<number>;
 }
 
@@ -26,7 +26,7 @@ export class OracleHeartbeat implements IOracleHeartbeat {
     };
   }
 
-  toBorsh(): OracleHeartbeatBorsh {
+  toSerde(): OracleHeartbeatSerde {
     return {
       address: [...this.address],
     };
@@ -38,7 +38,7 @@ export class OracleHeartbeat implements IOracleHeartbeat {
     });
   }
 
-  static fromBorsh(obj: OracleHeartbeatBorsh) {
+  static fromSerde(obj: OracleHeartbeatSerde) {
     return new OracleHeartbeat({
       address: new Uint8Array(obj.address),
     });

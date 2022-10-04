@@ -31,7 +31,7 @@ export interface JobJSON {
   features: Array<number>;
 }
 
-export interface JobBorsh {
+export interface JobSerde {
   address: Array<number>;
   name: Array<number>;
   metadata: Array<number>;
@@ -92,7 +92,7 @@ export class Job implements IJob {
     };
   }
 
-  toBorsh(): JobBorsh {
+  toSerde(): JobSerde {
     return {
       address: [...this.address],
       name: [...this.name],
@@ -126,7 +126,7 @@ export class Job implements IJob {
     });
   }
 
-  static fromBorsh(obj: JobBorsh) {
+  static fromSerde(obj: JobSerde) {
     return new Job({
       address: new Uint8Array(obj.address),
       name: new Uint8Array(obj.name),

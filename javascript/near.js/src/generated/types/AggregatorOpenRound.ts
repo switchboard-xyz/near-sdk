@@ -13,7 +13,7 @@ export interface AggregatorOpenRoundJSON {
   rewardRecipient: Array<number>;
 }
 
-export interface AggregatorOpenRoundBorsh {
+export interface AggregatorOpenRoundSerde {
   aggregator: Array<number>;
   jitter: number;
   reward_recipient: Array<number>;
@@ -38,7 +38,7 @@ export class AggregatorOpenRound implements IAggregatorOpenRound {
     };
   }
 
-  toBorsh(): AggregatorOpenRoundBorsh {
+  toSerde(): AggregatorOpenRoundSerde {
     return {
       aggregator: [...this.aggregator],
       jitter: this.jitter,
@@ -54,7 +54,7 @@ export class AggregatorOpenRound implements IAggregatorOpenRound {
     });
   }
 
-  static fromBorsh(obj: AggregatorOpenRoundBorsh) {
+  static fromSerde(obj: AggregatorOpenRoundSerde) {
     return new AggregatorOpenRound({
       aggregator: new Uint8Array(obj.aggregator),
       jitter: obj.jitter,

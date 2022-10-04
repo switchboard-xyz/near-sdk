@@ -9,7 +9,7 @@ export interface ViewEscrowJSON {
   address: Array<number>;
 }
 
-export interface ViewEscrowBorsh {
+export interface ViewEscrowSerde {
   address: Array<number>;
 }
 
@@ -26,7 +26,7 @@ export class ViewEscrow implements IViewEscrow {
     };
   }
 
-  toBorsh(): ViewEscrowBorsh {
+  toSerde(): ViewEscrowSerde {
     return {
       address: [...this.address],
     };
@@ -38,7 +38,7 @@ export class ViewEscrow implements IViewEscrow {
     });
   }
 
-  static fromBorsh(obj: ViewEscrowBorsh) {
+  static fromSerde(obj: ViewEscrowSerde) {
     return new ViewEscrow({
       address: new Uint8Array(obj.address),
     });

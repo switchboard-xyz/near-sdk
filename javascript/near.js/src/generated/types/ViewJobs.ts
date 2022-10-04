@@ -9,7 +9,7 @@ export interface ViewJobsJSON {
   addresses: Array<Array<number>>;
 }
 
-export interface ViewJobsBorsh {
+export interface ViewJobsSerde {
   addresses: Array<Array<number>>;
 }
 
@@ -26,7 +26,7 @@ export class ViewJobs implements IViewJobs {
     };
   }
 
-  toBorsh(): ViewJobsBorsh {
+  toSerde(): ViewJobsSerde {
     return {
       addresses: this.addresses.map((item) => [...item]),
     };
@@ -38,7 +38,7 @@ export class ViewJobs implements IViewJobs {
     });
   }
 
-  static fromBorsh(obj: ViewJobsBorsh) {
+  static fromSerde(obj: ViewJobsSerde) {
     return new ViewJobs({
       addresses: obj.addresses.map((item) => new Uint8Array(item)),
     });

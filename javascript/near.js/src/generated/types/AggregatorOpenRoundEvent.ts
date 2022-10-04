@@ -13,7 +13,7 @@ export interface AggregatorOpenRoundEventJSON {
   jobs: Array<Array<number>>;
 }
 
-export interface AggregatorOpenRoundEventBorsh {
+export interface AggregatorOpenRoundEventSerde {
   feed_key: Array<number>;
   oracles: Array<Array<number>>;
   jobs: Array<Array<number>>;
@@ -38,7 +38,7 @@ export class AggregatorOpenRoundEvent implements IAggregatorOpenRoundEvent {
     };
   }
 
-  toBorsh(): AggregatorOpenRoundEventBorsh {
+  toSerde(): AggregatorOpenRoundEventSerde {
     return {
       feed_key: [...this.feedKey],
       oracles: this.oracles.map((item) => [...item]),
@@ -54,7 +54,7 @@ export class AggregatorOpenRoundEvent implements IAggregatorOpenRoundEvent {
     });
   }
 
-  static fromBorsh(obj: AggregatorOpenRoundEventBorsh) {
+  static fromSerde(obj: AggregatorOpenRoundEventSerde) {
     return new AggregatorOpenRoundEvent({
       feedKey: new Uint8Array(obj.feed_key),
       oracles: obj.oracles.map((item) => new Uint8Array(item)),

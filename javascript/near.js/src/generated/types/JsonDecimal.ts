@@ -11,7 +11,7 @@ export interface JsonDecimalJSON {
   scale: number;
 }
 
-export interface JsonDecimalBorsh {
+export interface JsonDecimalSerde {
   mantissa: number;
   scale: number;
 }
@@ -32,7 +32,7 @@ export class JsonDecimal implements IJsonDecimal {
     };
   }
 
-  toBorsh(): JsonDecimalBorsh {
+  toSerde(): JsonDecimalSerde {
     return {
       mantissa: this.mantissa.toNumber(),
       scale: this.scale,
@@ -46,7 +46,7 @@ export class JsonDecimal implements IJsonDecimal {
     });
   }
 
-  static fromBorsh(obj: JsonDecimalBorsh) {
+  static fromSerde(obj: JsonDecimalSerde) {
     return new JsonDecimal({
       mantissa: new BN(obj.mantissa),
       scale: obj.scale,

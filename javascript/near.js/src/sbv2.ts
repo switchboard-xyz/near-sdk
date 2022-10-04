@@ -407,7 +407,7 @@ export class AggregatorAccount {
   }
 
   async loadData(): Promise<types.AggregatorView> {
-    const data: types.AggregatorViewBorsh = await roClient(
+    const data: types.AggregatorViewSerde = await roClient(
       this.program.connection
     ).viewFunction({
       contractId: this.program.programId,
@@ -416,7 +416,7 @@ export class AggregatorAccount {
         ix: { address: [...this.address] },
       },
     });
-    return types.AggregatorView.fromBorsh(data);
+    return types.AggregatorView.fromSerde(data);
   }
 
   async setConfigs(params: {
@@ -930,7 +930,7 @@ export class QueueAccount {
   }
 
   async loadData(): Promise<types.OracleQueueView> {
-    const data: types.OracleQueueViewBorsh = await roClient(
+    const data: types.OracleQueueViewSerde = await roClient(
       this.program.connection
     ).viewFunction({
       contractId: this.program.programId,
@@ -939,7 +939,7 @@ export class QueueAccount {
         ix: { address: [...this.address] },
       },
     });
-    return types.OracleQueueView.fromBorsh(data);
+    return types.OracleQueueView.fromSerde(data);
   }
 }
 
@@ -999,7 +999,7 @@ export class CrankAccount {
   }
 
   async loadData(): Promise<types.CrankView> {
-    const data: types.CrankViewBorsh = await roClient(
+    const data: types.CrankViewSerde = await roClient(
       this.program.connection
     ).viewFunction({
       contractId: this.program.programId,
@@ -1008,7 +1008,7 @@ export class CrankAccount {
         ix: { address: [...this.address] },
       },
     });
-    return types.CrankView.fromBorsh(data);
+    return types.CrankView.fromSerde(data);
   }
 
   async push(params: {
@@ -1111,7 +1111,7 @@ export class JobAccount {
   }
 
   async loadData(): Promise<types.Job> {
-    const data: types.JobBorsh = await roClient(
+    const data: types.JobSerde = await roClient(
       this.program.connection
     ).viewFunction({
       contractId: this.program.programId,
@@ -1120,7 +1120,7 @@ export class JobAccount {
         ix: { address: [...this.address] },
       },
     });
-    return types.Job.fromBorsh(data);
+    return types.Job.fromSerde(data);
   }
 
   public static async loadJobs(
@@ -1221,7 +1221,7 @@ export class OracleAccount {
   }
 
   async loadData(): Promise<types.Oracle> {
-    const data: types.OracleBorsh = await roClient(
+    const data: types.OracleSerde = await roClient(
       this.program.connection
     ).viewFunction({
       contractId: this.program.programId,
@@ -1230,7 +1230,7 @@ export class OracleAccount {
         ix: { address: [...this.address] },
       },
     });
-    return types.Oracle.fromBorsh(data);
+    return types.Oracle.fromSerde(data);
   }
 
   async heartbeat(): Promise<FinalExecutionOutcome> {
@@ -1354,7 +1354,7 @@ export class EscrowAccount {
   }
 
   async loadData(): Promise<types.Escrow> {
-    const data: types.EscrowBorsh = await roClient(
+    const data: types.EscrowSerde = await roClient(
       this.program.connection
     ).viewFunction({
       contractId: this.program.programId,
@@ -1363,7 +1363,7 @@ export class EscrowAccount {
         ix: { address: [...this.address] },
       },
     });
-    return types.Escrow.fromBorsh(data);
+    return types.Escrow.fromSerde(data);
   }
 
   async fund(): Promise<FinalExecutionOutcome> {
@@ -1480,7 +1480,7 @@ export class PermissionAccount {
   }
 
   async loadData(): Promise<types.Permission> {
-    const data: types.PermissionBorsh = await roClient(
+    const data: types.PermissionSerde = await roClient(
       this.program.connection
     ).viewFunction({
       contractId: this.program.programId,
@@ -1489,7 +1489,7 @@ export class PermissionAccount {
         ix: { address: [...this.address] },
       },
     });
-    return types.Permission.fromBorsh(data);
+    return types.Permission.fromSerde(data);
   }
 
   async set(params: {
@@ -1811,7 +1811,7 @@ export class SwitchboardTransaction {
 
   sign(transaction: Transaction, keyPair: KeyPair): SignedTransaction {
     // before we can sign the transaction we must perform three steps...
-    // 1) serialize the transaction in Borsh
+    // 1) serialize the transaction in Serde
     const serializedTx = nearAPI.utils.serialize.serialize(
       nearAPI.transactions.SCHEMA,
       transaction

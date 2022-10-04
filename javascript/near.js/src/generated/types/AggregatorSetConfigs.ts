@@ -35,7 +35,7 @@ export interface AggregatorSetConfigsJSON {
   rewardEscrow: Array<number> | undefined;
 }
 
-export interface AggregatorSetConfigsBorsh {
+export interface AggregatorSetConfigsSerde {
   address: Array<number>;
   authority: string | null;
   queue: Array<number> | null;
@@ -46,7 +46,7 @@ export interface AggregatorSetConfigsBorsh {
   min_job_results: number | null;
   min_update_delay_seconds: number | null;
   start_after: number | null;
-  variance_threshold: types.SwitchboardDecimalBorsh | null;
+  variance_threshold: types.SwitchboardDecimalSerde | null;
   force_report_period: number | null;
   crank: Array<number> | null;
   reward_escrow: Array<number> | null;
@@ -106,7 +106,7 @@ export class AggregatorSetConfigs implements IAggregatorSetConfigs {
     };
   }
 
-  toBorsh(): AggregatorSetConfigsBorsh {
+  toSerde(): AggregatorSetConfigsSerde {
     return {
       address: [...this.address],
       authority: this.authority,
@@ -119,7 +119,7 @@ export class AggregatorSetConfigs implements IAggregatorSetConfigs {
       min_update_delay_seconds: this.minUpdateDelaySeconds,
       start_after: this.startAfter?.toNumber(),
       variance_threshold: this.varianceThreshold
-        ? this.varianceThreshold.toBorsh()
+        ? this.varianceThreshold.toSerde()
         : null,
       force_report_period: this.forceReportPeriod?.toNumber(),
       crank: this.crank ? [...this.crank] : null,
@@ -150,7 +150,7 @@ export class AggregatorSetConfigs implements IAggregatorSetConfigs {
     });
   }
 
-  static fromBorsh(obj: AggregatorSetConfigsBorsh) {
+  static fromSerde(obj: AggregatorSetConfigsSerde) {
     return new AggregatorSetConfigs({
       address: new Uint8Array(obj.address),
       authority: obj.authority,
@@ -163,7 +163,7 @@ export class AggregatorSetConfigs implements IAggregatorSetConfigs {
       minUpdateDelaySeconds: obj.min_update_delay_seconds,
       startAfter: obj.start_after ? new BN(obj.start_after) : null,
       varianceThreshold: obj.variance_threshold
-        ? types.SwitchboardDecimal.fromBorsh(obj.variance_threshold)
+        ? types.SwitchboardDecimal.fromSerde(obj.variance_threshold)
         : null,
       forceReportPeriod: obj.force_report_period
         ? new BN(obj.force_report_period)

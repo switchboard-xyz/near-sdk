@@ -13,7 +13,7 @@ export interface PermissionSetJSON {
   enable: boolean;
 }
 
-export interface PermissionSetBorsh {
+export interface PermissionSetSerde {
   address: Array<number>;
   permission: number;
   enable: boolean;
@@ -38,7 +38,7 @@ export class PermissionSet implements IPermissionSet {
     };
   }
 
-  toBorsh(): PermissionSetBorsh {
+  toSerde(): PermissionSetSerde {
     return {
       address: [...this.address],
       permission: this.permission,
@@ -54,7 +54,7 @@ export class PermissionSet implements IPermissionSet {
     });
   }
 
-  static fromBorsh(obj: PermissionSetBorsh) {
+  static fromSerde(obj: PermissionSetSerde) {
     return new PermissionSet({
       address: new Uint8Array(obj.address),
       permission: obj.permission,

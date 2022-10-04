@@ -9,7 +9,7 @@ export interface ViewCrankJSON {
   address: Array<number>;
 }
 
-export interface ViewCrankBorsh {
+export interface ViewCrankSerde {
   address: Array<number>;
 }
 
@@ -26,7 +26,7 @@ export class ViewCrank implements IViewCrank {
     };
   }
 
-  toBorsh(): ViewCrankBorsh {
+  toSerde(): ViewCrankSerde {
     return {
       address: [...this.address],
     };
@@ -38,7 +38,7 @@ export class ViewCrank implements IViewCrank {
     });
   }
 
-  static fromBorsh(obj: ViewCrankBorsh) {
+  static fromSerde(obj: ViewCrankSerde) {
     return new ViewCrank({
       address: new Uint8Array(obj.address),
     });

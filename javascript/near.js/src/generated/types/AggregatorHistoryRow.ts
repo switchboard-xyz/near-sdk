@@ -13,10 +13,10 @@ export interface AggregatorHistoryRowJSON {
   value: types.SwitchboardDecimalJSON;
 }
 
-export interface AggregatorHistoryRowBorsh {
+export interface AggregatorHistoryRowSerde {
   round_id: number;
   timestamp: number;
-  value: types.SwitchboardDecimalBorsh;
+  value: types.SwitchboardDecimalSerde;
 }
 
 export class AggregatorHistoryRow implements IAggregatorHistoryRow {
@@ -38,11 +38,11 @@ export class AggregatorHistoryRow implements IAggregatorHistoryRow {
     };
   }
 
-  toBorsh(): AggregatorHistoryRowBorsh {
+  toSerde(): AggregatorHistoryRowSerde {
     return {
       round_id: this.roundId.toNumber(),
       timestamp: this.timestamp.toNumber(),
-      value: this.value.toBorsh(),
+      value: this.value.toSerde(),
     };
   }
 
@@ -54,11 +54,11 @@ export class AggregatorHistoryRow implements IAggregatorHistoryRow {
     });
   }
 
-  static fromBorsh(obj: AggregatorHistoryRowBorsh) {
+  static fromSerde(obj: AggregatorHistoryRowSerde) {
     return new AggregatorHistoryRow({
       roundId: new BN(obj.round_id),
       timestamp: new BN(obj.timestamp),
-      value: types.SwitchboardDecimal.fromBorsh(obj.value),
+      value: types.SwitchboardDecimal.fromSerde(obj.value),
     });
   }
 }

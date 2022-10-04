@@ -13,10 +13,10 @@ export interface AggregatorExpandedInfoJSON {
   jobs: Array<types.JobJSON>;
 }
 
-export interface AggregatorExpandedInfoBorsh {
-  queue: types.OracleQueueViewBorsh;
-  aggregator: types.AggregatorViewBorsh;
-  jobs: Array<types.JobBorsh>;
+export interface AggregatorExpandedInfoSerde {
+  queue: types.OracleQueueViewSerde;
+  aggregator: types.AggregatorViewSerde;
+  jobs: Array<types.JobSerde>;
 }
 
 export class AggregatorExpandedInfo implements IAggregatorExpandedInfo {
@@ -38,11 +38,11 @@ export class AggregatorExpandedInfo implements IAggregatorExpandedInfo {
     };
   }
 
-  toBorsh(): AggregatorExpandedInfoBorsh {
+  toSerde(): AggregatorExpandedInfoSerde {
     return {
-      queue: this.queue.toBorsh(),
-      aggregator: this.aggregator.toBorsh(),
-      jobs: this.jobs.map((item) => item.toBorsh()),
+      queue: this.queue.toSerde(),
+      aggregator: this.aggregator.toSerde(),
+      jobs: this.jobs.map((item) => item.toSerde()),
     };
   }
 
@@ -54,11 +54,11 @@ export class AggregatorExpandedInfo implements IAggregatorExpandedInfo {
     });
   }
 
-  static fromBorsh(obj: AggregatorExpandedInfoBorsh) {
+  static fromSerde(obj: AggregatorExpandedInfoSerde) {
     return new AggregatorExpandedInfo({
-      queue: types.OracleQueueView.fromBorsh(obj.queue),
-      aggregator: types.AggregatorView.fromBorsh(obj.aggregator),
-      jobs: obj.jobs.map((item) => types.Job.fromBorsh(item)),
+      queue: types.OracleQueueView.fromSerde(obj.queue),
+      aggregator: types.AggregatorView.fromSerde(obj.aggregator),
+      jobs: obj.jobs.map((item) => types.Job.fromSerde(item)),
     });
   }
 }

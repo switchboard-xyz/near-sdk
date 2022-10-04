@@ -17,7 +17,7 @@ export interface OracleInitJSON {
   metadata: Array<number>;
 }
 
-export interface OracleInitBorsh {
+export interface OracleInitSerde {
   address: Array<number>;
   authority: string;
   queue: Array<number>;
@@ -50,7 +50,7 @@ export class OracleInit implements IOracleInit {
     };
   }
 
-  toBorsh(): OracleInitBorsh {
+  toSerde(): OracleInitSerde {
     return {
       address: [...this.address],
       authority: this.authority,
@@ -70,7 +70,7 @@ export class OracleInit implements IOracleInit {
     });
   }
 
-  static fromBorsh(obj: OracleInitBorsh) {
+  static fromSerde(obj: OracleInitSerde) {
     return new OracleInit({
       address: new Uint8Array(obj.address),
       authority: obj.authority,

@@ -15,7 +15,7 @@ export interface OracleUnstakeJSON {
   delegate: boolean;
 }
 
-export interface OracleUnstakeBorsh {
+export interface OracleUnstakeSerde {
   oracle: Array<number>;
   destination: Array<number>;
   amount: number;
@@ -44,7 +44,7 @@ export class OracleUnstake implements IOracleUnstake {
     };
   }
 
-  toBorsh(): OracleUnstakeBorsh {
+  toSerde(): OracleUnstakeSerde {
     return {
       oracle: [...this.oracle],
       destination: [...this.destination],
@@ -62,7 +62,7 @@ export class OracleUnstake implements IOracleUnstake {
     });
   }
 
-  static fromBorsh(obj: OracleUnstakeBorsh) {
+  static fromSerde(obj: OracleUnstakeSerde) {
     return new OracleUnstake({
       oracle: new Uint8Array(obj.oracle),
       destination: new Uint8Array(obj.destination),

@@ -13,7 +13,7 @@ export interface OracleBootedEventJSON {
   timestamp: string;
 }
 
-export interface OracleBootedEventBorsh {
+export interface OracleBootedEventSerde {
   oracle: Array<number>;
   queue: Array<number>;
   timestamp: number;
@@ -38,7 +38,7 @@ export class OracleBootedEvent implements IOracleBootedEvent {
     };
   }
 
-  toBorsh(): OracleBootedEventBorsh {
+  toSerde(): OracleBootedEventSerde {
     return {
       oracle: [...this.oracle],
       queue: [...this.queue],
@@ -54,7 +54,7 @@ export class OracleBootedEvent implements IOracleBootedEvent {
     });
   }
 
-  static fromBorsh(obj: OracleBootedEventBorsh) {
+  static fromSerde(obj: OracleBootedEventSerde) {
     return new OracleBootedEvent({
       oracle: new Uint8Array(obj.oracle),
       queue: new Uint8Array(obj.queue),

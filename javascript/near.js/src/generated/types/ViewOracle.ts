@@ -9,7 +9,7 @@ export interface ViewOracleJSON {
   address: Array<number>;
 }
 
-export interface ViewOracleBorsh {
+export interface ViewOracleSerde {
   address: Array<number>;
 }
 
@@ -26,7 +26,7 @@ export class ViewOracle implements IViewOracle {
     };
   }
 
-  toBorsh(): ViewOracleBorsh {
+  toSerde(): ViewOracleSerde {
     return {
       address: [...this.address],
     };
@@ -38,7 +38,7 @@ export class ViewOracle implements IViewOracle {
     });
   }
 
-  static fromBorsh(obj: ViewOracleBorsh) {
+  static fromSerde(obj: ViewOracleSerde) {
     return new ViewOracle({
       address: new Uint8Array(obj.address),
     });

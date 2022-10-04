@@ -11,7 +11,7 @@ export interface SwitchboardDecimalJSON {
   scale: number;
 }
 
-export interface SwitchboardDecimalBorsh {
+export interface SwitchboardDecimalSerde {
   mantissa: number;
   scale: number;
 }
@@ -32,7 +32,7 @@ export class SwitchboardDecimal implements ISwitchboardDecimal {
     };
   }
 
-  toBorsh(): SwitchboardDecimalBorsh {
+  toSerde(): SwitchboardDecimalSerde {
     return {
       mantissa: this.mantissa.toNumber(),
       scale: this.scale,
@@ -46,7 +46,7 @@ export class SwitchboardDecimal implements ISwitchboardDecimal {
     });
   }
 
-  static fromBorsh(obj: SwitchboardDecimalBorsh) {
+  static fromSerde(obj: SwitchboardDecimalSerde) {
     return new SwitchboardDecimal({
       mantissa: new BN(obj.mantissa),
       scale: obj.scale,

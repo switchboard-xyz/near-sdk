@@ -13,7 +13,7 @@ export interface OracleStakeJSON {
   amount: string;
 }
 
-export interface OracleStakeBorsh {
+export interface OracleStakeSerde {
   address: Array<number>;
   funder: Array<number>;
   amount: number;
@@ -38,7 +38,7 @@ export class OracleStake implements IOracleStake {
     };
   }
 
-  toBorsh(): OracleStakeBorsh {
+  toSerde(): OracleStakeSerde {
     return {
       address: [...this.address],
       funder: [...this.funder],
@@ -54,7 +54,7 @@ export class OracleStake implements IOracleStake {
     });
   }
 
-  static fromBorsh(obj: OracleStakeBorsh) {
+  static fromSerde(obj: OracleStakeSerde) {
     return new OracleStake({
       address: new Uint8Array(obj.address),
       funder: new Uint8Array(obj.funder),

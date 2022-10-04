@@ -41,7 +41,7 @@ export interface AggregatorInitJSON {
   maxGasCost: string;
 }
 
-export interface AggregatorInitBorsh {
+export interface AggregatorInitSerde {
   address: Array<number>;
   authority: string;
   queue: Array<number>;
@@ -52,7 +52,7 @@ export interface AggregatorInitBorsh {
   min_job_results: number;
   min_update_delay_seconds: number;
   start_after: number;
-  variance_threshold: types.SwitchboardDecimalBorsh;
+  variance_threshold: types.SwitchboardDecimalSerde;
   force_report_period: number;
   expiration: number;
   crank: Array<number>;
@@ -122,7 +122,7 @@ export class AggregatorInit implements IAggregatorInit {
     };
   }
 
-  toBorsh(): AggregatorInitBorsh {
+  toSerde(): AggregatorInitSerde {
     return {
       address: [...this.address],
       authority: this.authority,
@@ -134,7 +134,7 @@ export class AggregatorInit implements IAggregatorInit {
       min_job_results: this.minJobResults,
       min_update_delay_seconds: this.minUpdateDelaySeconds,
       start_after: this.startAfter.toNumber(),
-      variance_threshold: this.varianceThreshold.toBorsh(),
+      variance_threshold: this.varianceThreshold.toSerde(),
       force_report_period: this.forceReportPeriod.toNumber(),
       expiration: this.expiration.toNumber(),
       crank: [...this.crank],
@@ -168,7 +168,7 @@ export class AggregatorInit implements IAggregatorInit {
     });
   }
 
-  static fromBorsh(obj: AggregatorInitBorsh) {
+  static fromSerde(obj: AggregatorInitSerde) {
     return new AggregatorInit({
       address: new Uint8Array(obj.address),
       authority: obj.authority,
@@ -180,7 +180,7 @@ export class AggregatorInit implements IAggregatorInit {
       minJobResults: obj.min_job_results,
       minUpdateDelaySeconds: obj.min_update_delay_seconds,
       startAfter: new BN(obj.start_after),
-      varianceThreshold: types.SwitchboardDecimal.fromBorsh(
+      varianceThreshold: types.SwitchboardDecimal.fromSerde(
         obj.variance_threshold
       ),
       forceReportPeriod: new BN(obj.force_report_period),

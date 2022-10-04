@@ -5,7 +5,7 @@ export interface IViewAllEscrows {}
 
 export interface ViewAllEscrowsJSON {}
 
-export interface ViewAllEscrowsBorsh {}
+export interface ViewAllEscrowsSerde {}
 
 export class ViewAllEscrows implements IViewAllEscrows {
   constructor(fields: IViewAllEscrows) {}
@@ -14,7 +14,7 @@ export class ViewAllEscrows implements IViewAllEscrows {
     return {};
   }
 
-  toBorsh(): ViewAllEscrowsBorsh {
+  toSerde(): ViewAllEscrowsSerde {
     return {};
   }
 
@@ -22,7 +22,7 @@ export class ViewAllEscrows implements IViewAllEscrows {
     return new ViewAllEscrows({});
   }
 
-  static fromBorsh(obj: ViewAllEscrowsBorsh) {
+  static fromSerde(obj: ViewAllEscrowsSerde) {
     return new ViewAllEscrows({});
   }
 }

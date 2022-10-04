@@ -25,7 +25,7 @@ export interface PermissionJSON {
   features: Array<number>;
 }
 
-export interface PermissionBorsh {
+export interface PermissionSerde {
   authority: string;
   permissions: number;
   granter: Array<number>;
@@ -74,7 +74,7 @@ export class Permission implements IPermission {
     };
   }
 
-  toBorsh(): PermissionBorsh {
+  toSerde(): PermissionSerde {
     return {
       authority: this.authority,
       permissions: this.permissions,
@@ -102,7 +102,7 @@ export class Permission implements IPermission {
     });
   }
 
-  static fromBorsh(obj: PermissionBorsh) {
+  static fromSerde(obj: PermissionSerde) {
     return new Permission({
       authority: obj.authority,
       permissions: obj.permissions,

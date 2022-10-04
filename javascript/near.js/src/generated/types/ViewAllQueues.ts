@@ -5,7 +5,7 @@ export interface IViewAllQueues {}
 
 export interface ViewAllQueuesJSON {}
 
-export interface ViewAllQueuesBorsh {}
+export interface ViewAllQueuesSerde {}
 
 export class ViewAllQueues implements IViewAllQueues {
   constructor(fields: IViewAllQueues) {}
@@ -14,7 +14,7 @@ export class ViewAllQueues implements IViewAllQueues {
     return {};
   }
 
-  toBorsh(): ViewAllQueuesBorsh {
+  toSerde(): ViewAllQueuesSerde {
     return {};
   }
 
@@ -22,7 +22,7 @@ export class ViewAllQueues implements IViewAllQueues {
     return new ViewAllQueues({});
   }
 
-  static fromBorsh(obj: ViewAllQueuesBorsh) {
+  static fromSerde(obj: ViewAllQueuesSerde) {
     return new ViewAllQueues({});
   }
 }

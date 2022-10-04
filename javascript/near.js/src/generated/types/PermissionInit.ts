@@ -13,7 +13,7 @@ export interface PermissionInitJSON {
   grantee: Array<number>;
 }
 
-export interface PermissionInitBorsh {
+export interface PermissionInitSerde {
   authority: string;
   granter: Array<number>;
   grantee: Array<number>;
@@ -38,7 +38,7 @@ export class PermissionInit implements IPermissionInit {
     };
   }
 
-  toBorsh(): PermissionInitBorsh {
+  toSerde(): PermissionInitSerde {
     return {
       authority: this.authority,
       granter: [...this.granter],
@@ -54,7 +54,7 @@ export class PermissionInit implements IPermissionInit {
     });
   }
 
-  static fromBorsh(obj: PermissionInitBorsh) {
+  static fromSerde(obj: PermissionInitSerde) {
     return new PermissionInit({
       authority: obj.authority,
       granter: new Uint8Array(obj.granter),

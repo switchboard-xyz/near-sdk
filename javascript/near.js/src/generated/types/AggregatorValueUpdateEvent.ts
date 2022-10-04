@@ -19,13 +19,13 @@ export interface AggregatorValueUpdateEventJSON {
   value: types.SwitchboardDecimalJSON;
 }
 
-export interface AggregatorValueUpdateEventBorsh {
+export interface AggregatorValueUpdateEventSerde {
   feed_key: Array<number>;
   oracles: Array<Array<number>>;
-  oracle_values: Array<types.SwitchboardDecimalBorsh>;
+  oracle_values: Array<types.SwitchboardDecimalSerde>;
   timestamp: number;
   round_id: number;
-  value: types.SwitchboardDecimalBorsh;
+  value: types.SwitchboardDecimalSerde;
 }
 
 export class AggregatorValueUpdateEvent implements IAggregatorValueUpdateEvent {
@@ -56,14 +56,14 @@ export class AggregatorValueUpdateEvent implements IAggregatorValueUpdateEvent {
     };
   }
 
-  toBorsh(): AggregatorValueUpdateEventBorsh {
+  toSerde(): AggregatorValueUpdateEventSerde {
     return {
       feed_key: [...this.feedKey],
       oracles: this.oracles.map((item) => [...item]),
-      oracle_values: this.oracleValues.map((item) => item.toBorsh()),
+      oracle_values: this.oracleValues.map((item) => item.toSerde()),
       timestamp: this.timestamp.toNumber(),
       round_id: this.roundId.toNumber(),
-      value: this.value.toBorsh(),
+      value: this.value.toSerde(),
     };
   }
 
@@ -80,16 +80,16 @@ export class AggregatorValueUpdateEvent implements IAggregatorValueUpdateEvent {
     });
   }
 
-  static fromBorsh(obj: AggregatorValueUpdateEventBorsh) {
+  static fromSerde(obj: AggregatorValueUpdateEventSerde) {
     return new AggregatorValueUpdateEvent({
       feedKey: new Uint8Array(obj.feed_key),
       oracles: obj.oracles.map((item) => new Uint8Array(item)),
       oracleValues: obj.oracle_values.map((item) =>
-        types.SwitchboardDecimal.fromBorsh(item)
+        types.SwitchboardDecimal.fromSerde(item)
       ),
       timestamp: new BN(obj.timestamp),
       roundId: new BN(obj.round_id),
-      value: types.SwitchboardDecimal.fromBorsh(obj.value),
+      value: types.SwitchboardDecimal.fromSerde(obj.value),
     });
   }
 }

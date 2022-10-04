@@ -21,14 +21,14 @@ export interface CrankViewJSON {
   data: Array<types.CrankRowJSON>;
 }
 
-export interface CrankViewBorsh {
+export interface CrankViewSerde {
   address: Array<number>;
   name: Array<number>;
   metadata: Array<number>;
   queue: Array<number>;
   max_rows: number;
   jitter_modifier: number;
-  data: Array<types.CrankRowBorsh>;
+  data: Array<types.CrankRowSerde>;
 }
 
 export class CrankView implements ICrankView {
@@ -62,7 +62,7 @@ export class CrankView implements ICrankView {
     };
   }
 
-  toBorsh(): CrankViewBorsh {
+  toSerde(): CrankViewSerde {
     return {
       address: [...this.address],
       name: [...this.name],
@@ -70,7 +70,7 @@ export class CrankView implements ICrankView {
       queue: [...this.queue],
       max_rows: this.maxRows.toNumber(),
       jitter_modifier: this.jitterModifier,
-      data: this.data.map((item) => item.toBorsh()),
+      data: this.data.map((item) => item.toSerde()),
     };
   }
 
@@ -86,7 +86,7 @@ export class CrankView implements ICrankView {
     });
   }
 
-  static fromBorsh(obj: CrankViewBorsh) {
+  static fromSerde(obj: CrankViewSerde) {
     return new CrankView({
       address: new Uint8Array(obj.address),
       name: new Uint8Array(obj.name),
@@ -94,7 +94,7 @@ export class CrankView implements ICrankView {
       queue: new Uint8Array(obj.queue),
       maxRows: new BN(obj.max_rows),
       jitterModifier: obj.jitter_modifier,
-      data: obj.data.map((item) => types.CrankRow.fromBorsh(item)),
+      data: obj.data.map((item) => types.CrankRow.fromSerde(item)),
     });
   }
 }

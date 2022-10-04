@@ -27,14 +27,14 @@ export interface CrankJSON {
   features: Array<number>;
 }
 
-export interface CrankBorsh {
+export interface CrankSerde {
   address: Array<number>;
   name: Array<number>;
   metadata: Array<number>;
   queue: Array<number>;
   max_rows: number;
   jitter_modifier: number;
-  data: Array<types.CrankRowBorsh>;
+  data: Array<types.CrankRowSerde>;
   creation_timestamp: number;
   _ebuf: Array<number>;
   features: Array<number>;
@@ -80,7 +80,7 @@ export class Crank implements ICrank {
     };
   }
 
-  toBorsh(): CrankBorsh {
+  toSerde(): CrankSerde {
     return {
       address: [...this.address],
       name: [...this.name],
@@ -88,7 +88,7 @@ export class Crank implements ICrank {
       queue: [...this.queue],
       max_rows: this.maxRows.toNumber(),
       jitter_modifier: this.jitterModifier,
-      data: this.data.map((item) => item.toBorsh()),
+      data: this.data.map((item) => item.toSerde()),
       creation_timestamp: this.creationTimestamp.toNumber(),
       _ebuf: [...this._ebuf],
       features: [...this.features],
@@ -110,7 +110,7 @@ export class Crank implements ICrank {
     });
   }
 
-  static fromBorsh(obj: CrankBorsh) {
+  static fromSerde(obj: CrankSerde) {
     return new Crank({
       address: new Uint8Array(obj.address),
       name: new Uint8Array(obj.name),
@@ -118,7 +118,7 @@ export class Crank implements ICrank {
       queue: new Uint8Array(obj.queue),
       maxRows: new BN(obj.max_rows),
       jitterModifier: obj.jitter_modifier,
-      data: obj.data.map((item) => types.CrankRow.fromBorsh(item)),
+      data: obj.data.map((item) => types.CrankRow.fromSerde(item)),
       creationTimestamp: new BN(obj.creation_timestamp),
       _ebuf: new Uint8Array(obj._ebuf),
       features: new Uint8Array(obj.features),

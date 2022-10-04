@@ -15,7 +15,7 @@ export interface StateJSON {
   daoMint: Array<number>;
 }
 
-export interface StateBorsh {
+export interface StateSerde {
   authority: Array<number>;
   token_mint: Array<number>;
   token_vault: Array<number>;
@@ -44,7 +44,7 @@ export class State implements IState {
     };
   }
 
-  toBorsh(): StateBorsh {
+  toSerde(): StateSerde {
     return {
       authority: [...this.authority],
       token_mint: [...this.tokenMint],
@@ -62,7 +62,7 @@ export class State implements IState {
     });
   }
 
-  static fromBorsh(obj: StateBorsh) {
+  static fromSerde(obj: StateSerde) {
     return new State({
       authority: new Uint8Array(obj.authority),
       tokenMint: new Uint8Array(obj.token_mint),

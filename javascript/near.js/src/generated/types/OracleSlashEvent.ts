@@ -17,7 +17,7 @@ export interface OracleSlashEventJSON {
   timestamp: string;
 }
 
-export interface OracleSlashEventBorsh {
+export interface OracleSlashEventSerde {
   feed: Array<number>;
   oracle: Array<number>;
   amount: number;
@@ -50,7 +50,7 @@ export class OracleSlashEvent implements IOracleSlashEvent {
     };
   }
 
-  toBorsh(): OracleSlashEventBorsh {
+  toSerde(): OracleSlashEventSerde {
     return {
       feed: [...this.feed],
       oracle: [...this.oracle],
@@ -70,7 +70,7 @@ export class OracleSlashEvent implements IOracleSlashEvent {
     });
   }
 
-  static fromBorsh(obj: OracleSlashEventBorsh) {
+  static fromSerde(obj: OracleSlashEventSerde) {
     return new OracleSlashEvent({
       feed: new Uint8Array(obj.feed),
       oracle: new Uint8Array(obj.oracle),

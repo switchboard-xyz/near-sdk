@@ -5,7 +5,7 @@ export interface IViewAggregatorKeys {}
 
 export interface ViewAggregatorKeysJSON {}
 
-export interface ViewAggregatorKeysBorsh {}
+export interface ViewAggregatorKeysSerde {}
 
 export class ViewAggregatorKeys implements IViewAggregatorKeys {
   constructor(fields: IViewAggregatorKeys) {}
@@ -14,7 +14,7 @@ export class ViewAggregatorKeys implements IViewAggregatorKeys {
     return {};
   }
 
-  toBorsh(): ViewAggregatorKeysBorsh {
+  toSerde(): ViewAggregatorKeysSerde {
     return {};
   }
 
@@ -22,7 +22,7 @@ export class ViewAggregatorKeys implements IViewAggregatorKeys {
     return new ViewAggregatorKeys({});
   }
 
-  static fromBorsh(obj: ViewAggregatorKeysBorsh) {
+  static fromSerde(obj: ViewAggregatorKeysSerde) {
     return new ViewAggregatorKeys({});
   }
 }

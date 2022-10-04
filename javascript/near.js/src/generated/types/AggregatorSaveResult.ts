@@ -21,14 +21,14 @@ export interface AggregatorSaveResultJSON {
   maxResponse: types.JsonDecimalJSON;
 }
 
-export interface AggregatorSaveResultBorsh {
+export interface AggregatorSaveResultSerde {
   aggregator_key: Array<number>;
   oracle_idx: number;
   error: boolean;
-  value: types.JsonDecimalBorsh;
+  value: types.JsonDecimalSerde;
   jobs_checksum: Array<number>;
-  min_response: types.JsonDecimalBorsh;
-  max_response: types.JsonDecimalBorsh;
+  min_response: types.JsonDecimalSerde;
+  max_response: types.JsonDecimalSerde;
 }
 
 export class AggregatorSaveResult implements IAggregatorSaveResult {
@@ -62,15 +62,15 @@ export class AggregatorSaveResult implements IAggregatorSaveResult {
     };
   }
 
-  toBorsh(): AggregatorSaveResultBorsh {
+  toSerde(): AggregatorSaveResultSerde {
     return {
       aggregator_key: [...this.aggregatorKey],
       oracle_idx: this.oracleIdx,
       error: this.error,
-      value: this.value.toBorsh(),
+      value: this.value.toSerde(),
       jobs_checksum: [...this.jobsChecksum],
-      min_response: this.minResponse.toBorsh(),
-      max_response: this.maxResponse.toBorsh(),
+      min_response: this.minResponse.toSerde(),
+      max_response: this.maxResponse.toSerde(),
     };
   }
 
@@ -86,15 +86,15 @@ export class AggregatorSaveResult implements IAggregatorSaveResult {
     });
   }
 
-  static fromBorsh(obj: AggregatorSaveResultBorsh) {
+  static fromSerde(obj: AggregatorSaveResultSerde) {
     return new AggregatorSaveResult({
       aggregatorKey: new Uint8Array(obj.aggregator_key),
       oracleIdx: obj.oracle_idx,
       error: obj.error,
-      value: types.JsonDecimal.fromBorsh(obj.value),
+      value: types.JsonDecimal.fromSerde(obj.value),
       jobsChecksum: new Uint8Array(obj.jobs_checksum),
-      minResponse: types.JsonDecimal.fromBorsh(obj.min_response),
-      maxResponse: types.JsonDecimal.fromBorsh(obj.max_response),
+      minResponse: types.JsonDecimal.fromSerde(obj.min_response),
+      maxResponse: types.JsonDecimal.fromSerde(obj.max_response),
     });
   }
 }

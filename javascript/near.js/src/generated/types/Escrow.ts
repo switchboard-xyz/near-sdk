@@ -31,7 +31,7 @@ export interface EscrowJSON {
   features: Array<number>;
 }
 
-export interface EscrowBorsh {
+export interface EscrowSerde {
   address: Array<number>;
   mint: string;
   amount: number;
@@ -92,7 +92,7 @@ export class Escrow implements IEscrow {
     };
   }
 
-  toBorsh(): EscrowBorsh {
+  toSerde(): EscrowSerde {
     return {
       address: [...this.address],
       mint: this.mint,
@@ -126,7 +126,7 @@ export class Escrow implements IEscrow {
     });
   }
 
-  static fromBorsh(obj: EscrowBorsh) {
+  static fromSerde(obj: EscrowSerde) {
     return new Escrow({
       address: new Uint8Array(obj.address),
       mint: obj.mint,

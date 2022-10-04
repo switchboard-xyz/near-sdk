@@ -13,7 +13,7 @@ export interface AggregatorAddJobJSON {
   weight: number;
 }
 
-export interface AggregatorAddJobBorsh {
+export interface AggregatorAddJobSerde {
   address: Array<number>;
   job: Array<number>;
   weight: number;
@@ -38,7 +38,7 @@ export class AggregatorAddJob implements IAggregatorAddJob {
     };
   }
 
-  toBorsh(): AggregatorAddJobBorsh {
+  toSerde(): AggregatorAddJobSerde {
     return {
       address: [...this.address],
       job: [...this.job],
@@ -54,7 +54,7 @@ export class AggregatorAddJob implements IAggregatorAddJob {
     });
   }
 
-  static fromBorsh(obj: AggregatorAddJobBorsh) {
+  static fromSerde(obj: AggregatorAddJobSerde) {
     return new AggregatorAddJob({
       address: new Uint8Array(obj.address),
       job: new Uint8Array(obj.job),

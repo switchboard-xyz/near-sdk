@@ -25,15 +25,15 @@ export interface ContractJSON {
   _emap: Map<Array<number>, Array<number>>;
 }
 
-export interface ContractBorsh {
-  state: types.StateBorsh;
-  aggregators: Map<Array<number>, types.AggregatorBorsh>;
-  queues: Map<Array<number>, types.OracleQueueBorsh>;
-  cranks: Map<Array<number>, types.CrankBorsh>;
-  oracles: Map<Array<number>, types.OracleBorsh>;
-  jobs: Map<Array<number>, types.JobBorsh>;
-  permissions: Map<Array<number>, types.PermissionBorsh>;
-  escrows: Map<Array<number>, types.EscrowBorsh>;
+export interface ContractSerde {
+  state: types.StateSerde;
+  aggregators: Map<Array<number>, types.AggregatorSerde>;
+  queues: Map<Array<number>, types.OracleQueueSerde>;
+  cranks: Map<Array<number>, types.CrankSerde>;
+  oracles: Map<Array<number>, types.OracleSerde>;
+  jobs: Map<Array<number>, types.JobSerde>;
+  permissions: Map<Array<number>, types.PermissionSerde>;
+  escrows: Map<Array<number>, types.EscrowSerde>;
   _emap: Map<Array<number>, Array<number>>;
 }
 
@@ -74,9 +74,9 @@ export class Contract implements IContract {
     };
   }
 
-  toBorsh(): ContractBorsh {
+  toSerde(): ContractSerde {
     return {
-      state: this.state.toBorsh(),
+      state: this.state.toSerde(),
       aggregators: Object.fromEntries(this.aggregators),
       queues: Object.fromEntries(this.queues),
       cranks: Object.fromEntries(this.cranks),
@@ -142,49 +142,49 @@ export class Contract implements IContract {
     });
   }
 
-  static fromBorsh(obj: ContractBorsh) {
+  static fromSerde(obj: ContractSerde) {
     return new Contract({
-      state: types.State.fromBorsh(obj.state),
+      state: types.State.fromSerde(obj.state),
       aggregators: new Map(
         Array.from(obj.aggregators.entries()).map(([k, v]) => [
           new Uint8Array(k),
-          types.Aggregator.fromBorsh(v),
+          types.Aggregator.fromSerde(v),
         ])
       ),
       queues: new Map(
         Array.from(obj.queues.entries()).map(([k, v]) => [
           new Uint8Array(k),
-          types.OracleQueue.fromBorsh(v),
+          types.OracleQueue.fromSerde(v),
         ])
       ),
       cranks: new Map(
         Array.from(obj.cranks.entries()).map(([k, v]) => [
           new Uint8Array(k),
-          types.Crank.fromBorsh(v),
+          types.Crank.fromSerde(v),
         ])
       ),
       oracles: new Map(
         Array.from(obj.oracles.entries()).map(([k, v]) => [
           new Uint8Array(k),
-          types.Oracle.fromBorsh(v),
+          types.Oracle.fromSerde(v),
         ])
       ),
       jobs: new Map(
         Array.from(obj.jobs.entries()).map(([k, v]) => [
           new Uint8Array(k),
-          types.Job.fromBorsh(v),
+          types.Job.fromSerde(v),
         ])
       ),
       permissions: new Map(
         Array.from(obj.permissions.entries()).map(([k, v]) => [
           new Uint8Array(k),
-          types.Permission.fromBorsh(v),
+          types.Permission.fromSerde(v),
         ])
       ),
       escrows: new Map(
         Array.from(obj.escrows.entries()).map(([k, v]) => [
           new Uint8Array(k),
-          types.Escrow.fromBorsh(v),
+          types.Escrow.fromSerde(v),
         ])
       ),
       _emap: new Map(

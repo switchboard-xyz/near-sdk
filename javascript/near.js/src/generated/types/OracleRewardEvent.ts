@@ -17,7 +17,7 @@ export interface OracleRewardEventJSON {
   timestamp: string;
 }
 
-export interface OracleRewardEventBorsh {
+export interface OracleRewardEventSerde {
   feed_key: Array<number>;
   oracle_key: Array<number>;
   amount: number;
@@ -50,7 +50,7 @@ export class OracleRewardEvent implements IOracleRewardEvent {
     };
   }
 
-  toBorsh(): OracleRewardEventBorsh {
+  toSerde(): OracleRewardEventSerde {
     return {
       feed_key: [...this.feedKey],
       oracle_key: [...this.oracleKey],
@@ -70,7 +70,7 @@ export class OracleRewardEvent implements IOracleRewardEvent {
     });
   }
 
-  static fromBorsh(obj: OracleRewardEventBorsh) {
+  static fromSerde(obj: OracleRewardEventSerde) {
     return new OracleRewardEvent({
       feedKey: new Uint8Array(obj.feed_key),
       oracleKey: new Uint8Array(obj.oracle_key),

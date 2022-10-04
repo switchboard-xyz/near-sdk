@@ -41,19 +41,19 @@ export interface AggregatorRoundJSON {
   features: Array<number>;
 }
 
-export interface AggregatorRoundBorsh {
+export interface AggregatorRoundSerde {
   id: number;
   num_success: number;
   num_error: number;
   is_closed: boolean;
   round_open_slot: number;
   round_open_timestamp: number;
-  result: types.SwitchboardDecimalBorsh;
-  std_deviation: types.SwitchboardDecimalBorsh;
-  min_response: types.SwitchboardDecimalBorsh;
-  max_response: types.SwitchboardDecimalBorsh;
+  result: types.SwitchboardDecimalSerde;
+  std_deviation: types.SwitchboardDecimalSerde;
+  min_response: types.SwitchboardDecimalSerde;
+  max_response: types.SwitchboardDecimalSerde;
   oracles: Array<Array<number>>;
-  medians_data: Array<types.SwitchboardDecimalBorsh>;
+  medians_data: Array<types.SwitchboardDecimalSerde>;
   current_payout: Array<number>;
   medians_fulfilled: Array<boolean>;
   errors_fulfilled: Array<boolean>;
@@ -122,7 +122,7 @@ export class AggregatorRound implements IAggregatorRound {
     };
   }
 
-  toBorsh(): AggregatorRoundBorsh {
+  toSerde(): AggregatorRoundSerde {
     return {
       id: this.id.toNumber(),
       num_success: this.numSuccess,
@@ -130,12 +130,12 @@ export class AggregatorRound implements IAggregatorRound {
       is_closed: this.isClosed,
       round_open_slot: this.roundOpenSlot.toNumber(),
       round_open_timestamp: this.roundOpenTimestamp.toNumber(),
-      result: this.result.toBorsh(),
-      std_deviation: this.stdDeviation.toBorsh(),
-      min_response: this.minResponse.toBorsh(),
-      max_response: this.maxResponse.toBorsh(),
+      result: this.result.toSerde(),
+      std_deviation: this.stdDeviation.toSerde(),
+      min_response: this.minResponse.toSerde(),
+      max_response: this.maxResponse.toSerde(),
       oracles: this.oracles.map((item) => [...item]),
-      medians_data: this.mediansData.map((item) => item.toBorsh()),
+      medians_data: this.mediansData.map((item) => item.toSerde()),
       current_payout: this.currentPayout.map((item) => item.toNumber()),
       medians_fulfilled: this.mediansFulfilled.map((item) => item),
       errors_fulfilled: this.errorsFulfilled.map((item) => item),
@@ -168,7 +168,7 @@ export class AggregatorRound implements IAggregatorRound {
     });
   }
 
-  static fromBorsh(obj: AggregatorRoundBorsh) {
+  static fromSerde(obj: AggregatorRoundSerde) {
     return new AggregatorRound({
       id: new BN(obj.id),
       numSuccess: obj.num_success,
@@ -176,13 +176,13 @@ export class AggregatorRound implements IAggregatorRound {
       isClosed: obj.is_closed,
       roundOpenSlot: new BN(obj.round_open_slot),
       roundOpenTimestamp: new BN(obj.round_open_timestamp),
-      result: types.SwitchboardDecimal.fromBorsh(obj.result),
-      stdDeviation: types.SwitchboardDecimal.fromBorsh(obj.std_deviation),
-      minResponse: types.SwitchboardDecimal.fromBorsh(obj.min_response),
-      maxResponse: types.SwitchboardDecimal.fromBorsh(obj.max_response),
+      result: types.SwitchboardDecimal.fromSerde(obj.result),
+      stdDeviation: types.SwitchboardDecimal.fromSerde(obj.std_deviation),
+      minResponse: types.SwitchboardDecimal.fromSerde(obj.min_response),
+      maxResponse: types.SwitchboardDecimal.fromSerde(obj.max_response),
       oracles: obj.oracles.map((item) => new Uint8Array(item)),
       mediansData: obj.medians_data.map((item) =>
-        types.SwitchboardDecimal.fromBorsh(item)
+        types.SwitchboardDecimal.fromSerde(item)
       ),
       currentPayout: obj.current_payout.map((item) => new BN(item)),
       mediansFulfilled: obj.medians_fulfilled.map((item) => item),

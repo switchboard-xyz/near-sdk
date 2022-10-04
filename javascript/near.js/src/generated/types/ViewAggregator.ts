@@ -9,7 +9,7 @@ export interface ViewAggregatorJSON {
   address: Array<number>;
 }
 
-export interface ViewAggregatorBorsh {
+export interface ViewAggregatorSerde {
   address: Array<number>;
 }
 
@@ -26,7 +26,7 @@ export class ViewAggregator implements IViewAggregator {
     };
   }
 
-  toBorsh(): ViewAggregatorBorsh {
+  toSerde(): ViewAggregatorSerde {
     return {
       address: [...this.address],
     };
@@ -38,7 +38,7 @@ export class ViewAggregator implements IViewAggregator {
     });
   }
 
-  static fromBorsh(obj: ViewAggregatorBorsh) {
+  static fromSerde(obj: ViewAggregatorSerde) {
     return new ViewAggregator({
       address: new Uint8Array(obj.address),
     });
