@@ -124,6 +124,11 @@ if (process.argv.length > 2) {
     historyLimit: 1000,
   });
 
+  console.log(`Getting aggregator escrow ...`);
+  const aggregatorEscrow = aggregator.escrow;
+  const aggregatorEscrowState = await aggregatorEscrow.loadData();
+  console.log(aggregatorEscrowState.toJSON());
+
   // Create Oracle
   console.log(`Creating oracle ...`);
   const oracle = await sbv2.OracleAccount.create(program, {
