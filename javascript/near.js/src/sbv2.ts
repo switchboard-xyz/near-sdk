@@ -291,6 +291,15 @@ export class AggregatorAccount {
     this.address = params.address;
   }
 
+  get escrow(): EscrowAccount {
+    const hash = crypto.createHash("sha256");
+    hash.update(Buffer.from("AggregatorEscrow"));
+    hash.update(this.program.mint);
+    hash.update(this.address);
+    const escrowAddress = new Uint8Array(hash.digest());
+    return new EscrowAccount({ program: this.program, address: escrowAddress });
+  }
+
   public static async create(
     program: SwitchboardProgram,
     params: {
@@ -1158,6 +1167,15 @@ export class OracleAccount {
   public constructor(params: AccountParams) {
     this.program = params.program;
     this.address = params.address;
+  }
+
+  get escrow(): EscrowAccount {
+    const hash = crypto.createHash("sha256");
+    hash.update(Buffer.from("OracleEscrow"));
+    hash.update(this.program.mint);
+    hash.update(this.address);
+    const escrowAddress = new Uint8Array(hash.digest());
+    return new EscrowAccount({ program: this.program, address: escrowAddress });
   }
 
   public static async create(
