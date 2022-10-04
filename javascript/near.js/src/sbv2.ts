@@ -773,7 +773,7 @@ export class QueueAccount {
     let escrowFundAction: Action | undefined;
     if (params.fundUpTo) {
       const fundAmount = new BN(
-        utils.format.formatNearAmount(params.fundUpTo.toString())
+        utils.format.parseNearAmount(params.fundUpTo.toString())
       );
       const escrowState = await escrowAccount.loadData();
       const availableAmount = new BN(escrowState.amount).sub(

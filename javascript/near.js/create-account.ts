@@ -1,7 +1,7 @@
-import { keyStores, Account, connect, KeyPair, utils } from "near-api-js";
-import path from "path";
-import { homedir } from "os";
 import { BN } from "bn.js";
+import { connect, KeyPair, keyStores, utils } from "near-api-js";
+import { homedir } from "os";
+import path from "path";
 
 const FUNDER_ACCOUNT: string =
   process.argv.length > 2 ? process.argv[2] : "gallynaut.testnet";
