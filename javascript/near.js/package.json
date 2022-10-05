@@ -8,13 +8,6 @@
     "lib",
     "src"
   ],
-  "exports": {
-    ".": {
-      "import": "./lib/esm/index.js",
-      "require": "./lib/cjs/index.js"
-    },
-    "./package.json": "./package.json"
-  },
   "main": "lib/cjs/index.js",
   "module": "lib/esm/index.js",
   "types": "lib/cjs/index.d.ts",
@@ -29,6 +22,7 @@
   },
   "dependencies": {
     "@switchboard-xyz/common": "^2.0.0",
+    "@switchboard-xyz/near.js": "^2.0.21",
     "big.js": "^6.2.1",
     "bn.js": "^5.2.1",
     "bs58": "^5.0.0",

@@ -1,10 +1,6 @@
-import * as sbv2 from "./src";
-import {
-  keyStores,
-  Account,
-  DEFAULT_FUNCTION_CALL_GAS,
-} from "near-api-js";
-import { NEAR, Gas, parse } from 'near-units';
+import * as sbv2 from "@switchboard-xyz/near.js";
+import { keyStores, Account, DEFAULT_FUNCTION_CALL_GAS } from "near-api-js";
+import { NEAR, Gas, parse } from "near-units";
 import Big from "big.js";
 import BN from "bn.js";
 import { homedir } from "os";
@@ -27,20 +23,14 @@ export function waitForever(): Promise<void> {
 export const sleep = (ms: number): Promise<any> =>
   new Promise((s) => setTimeout(s, ms));
 
-let keypairName: string;
-if (process.argv.length > 2) {
-  keypairName = process.argv[2];
-} else {
-  keypairName = sbv2.PID;
-}
-
 (async function main() {
-
+  const MINT = "dev-1664822185796-65918270649539";
+  const PID = "dev-1663462691922-84955131055223";
   const program = await sbv2.SwitchboardProgram.loadFromFs(
-    "localnet",
-    //"https://rpc.testnet.near.org",
-    "http://127.0.0.1:8332",
-    keypairName,
+    "testnet",
+    "https://rpc.testnet.near.org",
+    // "http://127.0.0.1:8332",
+    PID
     //path.join(homedir(), ".neartosis")
   );
   console.log(`Signer: ${program.account.accountId}`);
@@ -48,61 +38,46 @@ if (process.argv.length > 2) {
   const rootKeystore = new keyStores.UnencryptedFileSystemKeyStore(
     path.join(homedir(), ".near-credentials")
   );
-  const rootNear = await sbv2.loadNear("localnet",rootKeystore,"http://127.0.0.1:8332");
-  const root = await rootNear.account("test.near");
+  const rootNear = await sbv2.loadNear(
+    "testnet",
+    rootKeystore,
+    "https://rpc.testnet.near.org"
+  );
+  const root = await rootNear.account(PID);
 
-  const escrow = new sbv2.EscrowAccount({
-    program: program, 
-    address: sbv2.fromBase58("35CNeR8mTzapUuKT4ukiRDjgXAzFQNK4ZJashdrmsomo")
+  const escrow = await sbv2.EscrowAccount.create(program, {
+    authority: PID,
+    mint: MINT,
   });
 
-  console.log(await escrow.loadData());
-
-  const balance = await sbv2.roClient(program.connection).viewFunction({
-    contractId: "token.test.near",
-    methodName: "ft_balance_of",
-    args: {
-      account_id: "switchboard-v2.test.near"
-    },
-  });
-  console.log(`Balance of switchboard-v2: ${balance}`);
-  const balance2 = await sbv2.roClient(program.connection).viewFunction({
-    contractId: "token.test.near",
-    methodName: "ft_balance_of",
-    args: {
-      account_id: "test.near"
-    },
-  });
-  console.log(`Balance of test.near: ${balance2}`);
-
+  console.log("1");
   await root.functionCall({
-    contractId: "token.test.near",
+    contractId: MINT,
     methodName: "storage_deposit",
     args: {
-      account_id: "switchboard-v2.test.near"
+      account_id: "switchboard-v2",
     },
-    gas: Gas.parse('100 Tgas'),
-    attachedDeposit: NEAR.parse('1 N'),
+    gas: Gas.parse("100 Tgas"),
+    attachedDeposit: NEAR.parse("1 N"),
   });
 
+  console.log("2");
   await root.functionCall({
-    contractId: "token.test.near",
+    contractId: `${MINT}`,
     methodName: "ft_transfer_call",
     args: {
-      receiver_id: "switchboard-v2.test.near",
-      amount: '100',
+      receiver_id: "switchboard-v2.testnet",
+      amount: "10",
       msg: JSON.stringify({
-        "address": "35CNeR8mTzapUuKT4ukiRDjgXAzFQNK4ZJashdrmsomo",
-        "amount": 100,
+        address: [...escrow.address],
+        amount: "10",
       }),
     },
     //gas: Gas.parse('10 Tgas'),
-    gas: Gas.parse('100 Tgas'),
+    gas: Gas.parse("100 Tgas"),
     attachedDeposit: new BN(1),
   });
+  console.log("3");
 
-  await
-
-  console.log(await escrow.loadData());
-
+  await console.log(await escrow.loadData());
 })();
