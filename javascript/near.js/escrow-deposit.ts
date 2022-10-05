@@ -43,7 +43,7 @@ export const sleep = (ms: number): Promise<any> =>
     rootKeystore,
     "https://rpc.testnet.near.org"
   );
-  const root = await rootNear.account(PID);
+  const root = await rootNear.account(MINT);
 
   const escrow = await sbv2.EscrowAccount.create(program, {
     authority: PID,
@@ -66,7 +66,7 @@ export const sleep = (ms: number): Promise<any> =>
     contractId: `${MINT}`,
     methodName: "ft_transfer_call",
     args: {
-      receiver_id: "switchboard-v2.testnet",
+      receiver_id: PID,
       amount: "10",
       msg: JSON.stringify({
         address: [...escrow.address],
