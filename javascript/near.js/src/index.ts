@@ -1,4 +1,3 @@
-export * as types from "./generated/index.js";
 export {
   TESTNET_PROGRAM_ID,
   MAINNET_PROGRAM_ID,
@@ -6,6 +5,11 @@ export {
   PROGRAM_ID,
 } from "./generated/index.js";
 
+export * as types from "./generated/index.js";
 export * as actions from "./actions.js";
 
+export * from "./utils.js";
+export * from "./program.js";
+export * from "./transaction.js";
+export * from "./events.js";
 export * from "./sbv2.js";

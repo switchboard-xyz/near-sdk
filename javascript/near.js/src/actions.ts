@@ -2,7 +2,7 @@ import * as types from "./generated/index.js";
 import { BN } from "bn.js";
 import { FinalExecutionOutcome } from "near-api-js/lib/providers";
 import { Action, functionCall } from "near-api-js/lib/transaction";
-import { DEFAULT_MAX_GAS } from "./sbv2.js";
+import { DEFAULT_FUNCTION_CALL_GAS } from "./sbv2.js";
 
 export abstract class SwitchboardAction<
   T extends
@@ -18,7 +18,7 @@ export abstract class SwitchboardAction<
   constructor(
     readonly name: string,
     params: T,
-    gas = DEFAULT_MAX_GAS, // 300 * 10**12 = 300 TGas
+    gas = DEFAULT_FUNCTION_CALL_GAS,
     deposit = new BN(0)
   ) {
     const ix =
@@ -31,8 +31,6 @@ export abstract class SwitchboardAction<
     if (!ix) {
       throw new Error(`Failed to get instruction arguements`);
     }
-
-    console.log(ix);
 
     this.action = functionCall(
       this.name,
@@ -58,7 +56,7 @@ export class AggregatorCreateAction extends SwitchboardAction<types.AggregatorIn
 
   constructor(
     params: types.AggregatorInit,
-    gas = DEFAULT_MAX_GAS,
+    gas = DEFAULT_FUNCTION_CALL_GAS,
     deposit = new BN(0)
   ) {
     super(AggregatorCreateAction.action_name, params, gas, deposit);
@@ -70,7 +68,7 @@ export class AggregatorSetConfigsAction extends SwitchboardAction<types.Aggregat
 
   constructor(
     params: types.AggregatorSetConfigs,
-    gas = DEFAULT_MAX_GAS,
+    gas = DEFAULT_FUNCTION_CALL_GAS,
     deposit = new BN(0)
   ) {
     super(AggregatorSetConfigsAction.action_name, params, gas, deposit);
@@ -82,7 +80,7 @@ export class AggregatorOpenRoundAction extends SwitchboardAction<types.Aggregato
 
   constructor(
     params: types.AggregatorOpenRound,
-    gas = DEFAULT_MAX_GAS,
+    gas = DEFAULT_FUNCTION_CALL_GAS,
     deposit = new BN(0)
   ) {
     super(AggregatorOpenRoundAction.action_name, params, gas, deposit);
@@ -94,7 +92,7 @@ export class AggregatorSaveResultAction extends SwitchboardAction<types.Aggregat
 
   constructor(
     params: types.AggregatorSaveResult,
-    gas = DEFAULT_MAX_GAS,
+    gas = DEFAULT_FUNCTION_CALL_GAS,
     deposit = new BN(0)
   ) {
     super(AggregatorSaveResultAction.action_name, params, gas, deposit);
@@ -106,7 +104,7 @@ export class AggregatorFundAction extends SwitchboardAction<types.AggregatorFund
 
   constructor(
     params: types.AggregatorFund,
-    gas = DEFAULT_MAX_GAS,
+    gas = DEFAULT_FUNCTION_CALL_GAS,
     deposit = new BN(0)
   ) {
     super(AggregatorFundAction.action_name, params, gas, deposit);
@@ -118,7 +116,7 @@ export class AggregatorAddJobAction extends SwitchboardAction<types.AggregatorAd
 
   constructor(
     params: types.AggregatorAddJob,
-    gas = DEFAULT_MAX_GAS,
+    gas = DEFAULT_FUNCTION_CALL_GAS,
     deposit = new BN(0)
   ) {
     super(AggregatorAddJobAction.action_name, params, gas, deposit);
@@ -130,7 +128,7 @@ export class AggregatorRemoveJobAction extends SwitchboardAction<types.Aggregato
 
   constructor(
     params: types.AggregatorRemoveJob,
-    gas = DEFAULT_MAX_GAS,
+    gas = DEFAULT_FUNCTION_CALL_GAS,
     deposit = new BN(0)
   ) {
     super(AggregatorRemoveJobAction.action_name, params, gas, deposit);
@@ -142,7 +140,7 @@ export class OracleQueueInitAction extends SwitchboardAction<types.OracleQueueIn
 
   constructor(
     params: types.OracleQueueInit,
-    gas = DEFAULT_MAX_GAS,
+    gas = DEFAULT_FUNCTION_CALL_GAS,
     deposit = new BN(0)
   ) {
     super(OracleQueueInitAction.action_name, params, gas, deposit);
@@ -154,7 +152,7 @@ export class OracleInitInitAction extends SwitchboardAction<types.OracleInit> {
 
   constructor(
     params: types.OracleInit,
-    gas = DEFAULT_MAX_GAS,
+    gas = DEFAULT_FUNCTION_CALL_GAS,
     deposit = new BN(0)
   ) {
     super(OracleInitInitAction.action_name, params, gas, deposit);
@@ -166,7 +164,7 @@ export class OracleHeartbeatAction extends SwitchboardAction<types.OracleHeartbe
 
   constructor(
     params: types.OracleHeartbeat,
-    gas = DEFAULT_MAX_GAS,
+    gas = DEFAULT_FUNCTION_CALL_GAS,
     deposit = new BN(0)
   ) {
     super(OracleHeartbeatAction.action_name, params, gas, deposit);
@@ -178,7 +176,7 @@ export class CrankInitAction extends SwitchboardAction<types.CrankInit> {
 
   constructor(
     params: types.CrankInit,
-    gas = DEFAULT_MAX_GAS,
+    gas = DEFAULT_FUNCTION_CALL_GAS,
     deposit = new BN(0)
   ) {
     super(CrankInitAction.action_name, params, gas, deposit);
@@ -190,7 +188,7 @@ export class CrankPushAction extends SwitchboardAction<types.CrankPush> {
 
   constructor(
     params: types.CrankPush,
-    gas = DEFAULT_MAX_GAS,
+    gas = DEFAULT_FUNCTION_CALL_GAS,
     deposit = new BN(0)
   ) {
     super(CrankPushAction.action_name, params, gas, deposit);
@@ -202,7 +200,7 @@ export class CrankPopAction extends SwitchboardAction<types.CrankPop> {
 
   constructor(
     params: types.CrankPop,
-    gas = DEFAULT_MAX_GAS,
+    gas = DEFAULT_FUNCTION_CALL_GAS,
     deposit = new BN(0)
   ) {
     super(CrankPopAction.action_name, params, gas, deposit);
@@ -214,7 +212,7 @@ export class EscrowInitAction extends SwitchboardAction<types.EscrowInit> {
 
   constructor(
     params: types.EscrowInit,
-    gas = DEFAULT_MAX_GAS,
+    gas = DEFAULT_FUNCTION_CALL_GAS,
     deposit = new BN(0)
   ) {
     super(EscrowInitAction.action_name, params, gas, deposit);
@@ -226,7 +224,7 @@ export class EscrowFundAction extends SwitchboardAction<types.EscrowFund> {
 
   constructor(
     params: types.EscrowFund,
-    gas = DEFAULT_MAX_GAS,
+    gas = DEFAULT_FUNCTION_CALL_GAS,
     deposit = new BN(0)
   ) {
     super(EscrowFundAction.action_name, params, gas, deposit);
@@ -238,7 +236,7 @@ export class EscrowWithdrawAction extends SwitchboardAction<types.EscrowWithdraw
 
   constructor(
     params: types.EscrowWithdraw,
-    gas = DEFAULT_MAX_GAS,
+    gas = DEFAULT_FUNCTION_CALL_GAS,
     deposit = new BN(0)
   ) {
     super(EscrowWithdrawAction.action_name, params, gas, deposit);

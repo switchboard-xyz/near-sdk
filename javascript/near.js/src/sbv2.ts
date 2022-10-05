@@ -1,277 +1,21 @@
-import {
-  Near,
-  KeyPair,
-  keyStores,
-  connect,
-  Account,
-  Connection,
-  DEFAULT_FUNCTION_CALL_GAS,
-  Signer,
-  utils,
-} from "near-api-js";
+import { KeyPair, utils } from "near-api-js";
 import { FinalExecutionOutcome } from "near-api-js/lib/providers/provider";
 import Big from "big.js";
 import BN from "bn.js";
 import * as crypto from "crypto";
-import { startStream, types as nearLakeTypes } from "near-lake-framework";
-import bs58 from "bs58";
-import {
-  Action,
-  functionCall,
-  SignedTransaction,
-  Transaction,
-} from "near-api-js/lib/transaction";
-import * as nearAPI from "near-api-js";
-import sha256 from "js-sha256";
-import { PublicKey } from "near-api-js/lib/utils";
+import { Action, functionCall } from "near-api-js/lib/transaction";
 import { OracleJob } from "@switchboard-xyz/common";
-import { KeyStore } from "near-api-js/lib/key_stores";
-import path from "path";
-import { homedir } from "os";
-import base58 from "bs58";
-
-export const DEFAULT_MAX_GAS = new BN("300000000000000");
-
-import {
-  TESTNET_PROGRAM_ID,
-  MAINNET_PROGRAM_ID,
-  LOCALNET_PROGRAM_ID,
-  PROGRAM_ID,
-} from "./generated/index.js";
 import { types } from "./index.js";
+import { fromBase58, isBase58, parseAddressString } from "./utils.js";
+import { getWrappedMint, roClient, SwitchboardProgram } from "./program.js";
+import _ from "lodash";
+
+export const TRANSACTION_MAX_GAS = new BN("300000000000000"); // 300 Tgas
+
+export const DEFAULT_FUNCTION_CALL_GAS = new BN("20000000000000"); // 20 Tgas
+export const MINIMAL_FUNCTION_CALL_GAS = new BN("10000000000000"); // 10 Tgas
 
 export const DEFAULT_ESCROW_SEED: string = "DefaultEscrowSeed";
-
-export const toBase58 = (address: Uint8Array): string => {
-  return bs58.encode(address);
-};
-export const fromBase58 = (value: string): Uint8Array => {
-  return bs58.decode(value);
-};
-
-export const isBase58 = (value: string): boolean =>
-  /^[A-HJ-NP-Za-km-z1-9]*$/.test(value);
-
-export const isTxnSuccessful = (txnReceipt: FinalExecutionOutcome): boolean => {
-  return !Boolean(
-    txnReceipt.status === "Failure" ||
-      txnReceipt.transaction_outcome.outcome.status === "Failure" ||
-      (typeof txnReceipt.transaction_outcome.outcome.status !== "string" &&
-        "Failure" in txnReceipt.transaction_outcome.outcome.status)
-  );
-};
-
-export const parseAddressString = (address: string): Uint8Array => {
-  // check if base58
-  if (isBase58(address)) {
-    return base58.decode(address);
-  }
-  // check if array of bytes
-  // TODO: Make brackets optional
-  const bytesRegex = /^\[(\s)?[0-9]+((\s)?,(\s)?[0-9]+){31,}\]/;
-  if (bytesRegex.test(address)) {
-    return new Uint8Array(JSON.parse(address));
-  }
-
-  try {
-    return new Uint8Array(JSON.parse(address));
-  } catch {}
-
-  throw new Error(`Failed to parse address string ${address}`);
-};
-
-export type NearNetwork = "testnet" | "mainnet" | "betanet" | "localnet";
-
-export const getProgramId = (networkId: string): string => {
-  switch (networkId) {
-    case "testnet": {
-      return TESTNET_PROGRAM_ID;
-    }
-    case "mainnet": {
-      return MAINNET_PROGRAM_ID;
-    }
-    case "localnet": {
-      return LOCALNET_PROGRAM_ID;
-    }
-    default: {
-      throw new Error(
-        `Failed to find Switchboard programID for networkId ${networkId}`
-      );
-    }
-  }
-};
-
-export const getWrappedMint = (networkId: string): string => {
-  switch (networkId) {
-    case "testnet": {
-      return "wrap.test";
-    }
-    case "mainnet": {
-      return "wrap.test";
-    }
-    case "betanet": {
-      return "wrap.beta";
-    }
-    case "localnet": {
-      return "token.test.near";
-    }
-    default: {
-      throw new Error(
-        `Failed to get wrapped NEAR mint for networkId ${networkId}`
-      );
-    }
-  }
-};
-
-export class SwitchboardProgramReadOnly extends Error {
-  constructor(
-    msg: string = "SwitchboardProgram was initialized in Read-Only mode with no Account defined"
-  ) {
-    super(msg);
-    Object.setPrototypeOf(this, SwitchboardProgramReadOnly.prototype);
-  }
-}
-
-export class SwitchboardProgram {
-  readonly programId: string;
-  readonly mint: string;
-  private _account: Account;
-
-  constructor(
-    readonly keystore: KeyStore,
-    _account: Account,
-    programId?: string,
-    mint?: string
-  ) {
-    this._account = _account;
-    if (programId) {
-      this.programId = programId;
-    } else {
-      this.programId = getProgramId(_account.connection.networkId);
-    }
-    if (mint) {
-      this.mint = mint;
-    } else {
-      this.mint = getWrappedMint(_account.connection.networkId);
-    }
-  }
-
-  get isReadOnly(): boolean {
-    return (
-      this._account === undefined || this._account.accountId === "READ_ONLY"
-    );
-  }
-
-  get account(): Account {
-    if (this.isReadOnly) {
-      throw new SwitchboardProgramReadOnly();
-    }
-
-    return this._account;
-  }
-
-  set account(_account: Account) {
-    this._account = _account;
-  }
-
-  get connection(): Connection {
-    return this._account.connection;
-  }
-
-  /** Load the Switchboard Program in Read-Only mode */
-  static async loadReadOnly(networkId: NearNetwork, rpcUrl: string) {
-    const keystore = new keyStores.InMemoryKeyStore();
-
-    const near = await loadNear(networkId, keystore, rpcUrl);
-    const account = new Account(near.connection, "READ_ONLY");
-
-    return new SwitchboardProgram(keystore, account);
-  }
-
-  /** Load the Switchboard Program from a filesystem keypair */
-  static async loadFromFs(
-    networkId: NearNetwork,
-    rpcUrl: string,
-    accountId: string,
-    credentialsDir = path.join(homedir(), ".near-credentials")
-  ): Promise<SwitchboardProgram> {
-    const keystore = new keyStores.UnencryptedFileSystemKeyStore(
-      credentialsDir
-    );
-
-    const near = await loadNear(networkId, keystore, rpcUrl);
-    const account = await near.account(accountId);
-
-    return new SwitchboardProgram(keystore, account);
-  }
-
-  /** Load the Switchboard Program from a KeyPair */
-  static async loadFromKeypair(
-    networkId: NearNetwork,
-    rpcUrl: string,
-    accountId: string,
-    keyPair: KeyPair
-  ): Promise<SwitchboardProgram> {
-    const keystore = new keyStores.InMemoryKeyStore();
-    await keystore.setKey(networkId, accountId, keyPair);
-
-    const near = await loadNear(networkId, keystore, rpcUrl);
-    const account = await near.account(accountId);
-
-    return new SwitchboardProgram(keystore, account);
-  }
-
-  /** Load the Switchboard Program from browser storage */
-  static async loadFromBrowser(
-    networkId: NearNetwork,
-    rpcUrl: string,
-    accountId: string,
-    browserLocalStorage?: any,
-    browserPrefix?: string
-  ): Promise<SwitchboardProgram> {
-    const keystore = new keyStores.BrowserLocalStorageKeyStore(
-      browserLocalStorage,
-      browserPrefix
-    );
-
-    const near = await loadNear(networkId, keystore, rpcUrl);
-    const account = await near.account(accountId);
-
-    return new SwitchboardProgram(keystore, account);
-  }
-
-  async sendAction(action: Action): Promise<FinalExecutionOutcome> {
-    if (this.isReadOnly) {
-      throw new SwitchboardProgramReadOnly();
-    }
-
-    const txnReceipt = await this.account.functionCall({
-      contractId: this.programId,
-      methodName: action.functionCall.methodName,
-      args: action.functionCall.args,
-    });
-    return txnReceipt;
-  }
-
-  async sendActions(actions: Action[]): Promise<FinalExecutionOutcome> {
-    if (this.isReadOnly) {
-      throw new SwitchboardProgramReadOnly();
-    }
-
-    const keyPair = await this.keystore.getKey(
-      this.connection.networkId,
-      this.account.accountId
-    );
-
-    const txn = new SwitchboardTransaction(
-      this.programId,
-      this.account,
-      actions
-    );
-    const txnReceipt = await txn.send(keyPair);
-    return txnReceipt;
-  }
-}
 
 export interface AccountParams {
   program: SwitchboardProgram;
@@ -661,7 +405,7 @@ export class QueueAccount {
     permission: PermissionAccount;
     jobs: JobAccount[];
     actions: [string, Action][];
-    // batches: Action[][];
+    batches: Action[][];
   }> {
     const actions: [string, Action][] = [];
 
@@ -702,7 +446,7 @@ export class QueueAccount {
         const jobAccount = new JobAccount({
           program: this.program,
           address: isBase58(jobDefinition)
-            ? base58.decode(jobDefinition)
+            ? fromBase58(jobDefinition)
             : new Uint8Array(JSON.parse(jobDefinition)),
         });
         const jobData = await jobAccount.loadData(); // make sure it exist
@@ -747,9 +491,9 @@ export class QueueAccount {
         minOracleResults: params.minOracleResults ?? 1,
         minJobResults: params.minJobResults ?? 1,
         minUpdateDelaySeconds: params.minUpdateDelaySeconds ?? 30,
-        startAfter: 0,
+        startAfter: params.startAfter ?? 0,
         rewardEscrow: params.rewardEscrow ?? escrowKey,
-        historyLimit: 1000,
+        historyLimit: params.historySize ?? 1000,
         varianceThreshold: params.varianceThreshold
           ? SwitchboardDecimal.fromBig(params.varianceThreshold)
           : SwitchboardDecimal.fromBig(new Big(0)),
@@ -794,10 +538,10 @@ export class QueueAccount {
         );
       }
       escrowFundAction = aggregator.fundAction({
-        funder: escrowAccount.address, // should this be a wNEAR token account?
+        funder: escrowAccount.address,
         amount: params.fundUpTo,
       });
-      actions.push(["aggregator_fund", setPermissionAction]);
+      actions.push(["aggregator_fund", escrowFundAction]);
     }
 
     // add to crank
@@ -825,6 +569,10 @@ export class QueueAccount {
       permission,
       jobs,
       actions,
+      batches: _.chunk(
+        actions.map((a) => a[1]),
+        15
+      ),
     };
   }
 
@@ -1628,208 +1376,5 @@ export class SwitchboardDecimal {
 
   toNearDecimal(): any {
     return { mantissa: this.mantissa.toString(), scale: this.scale };
-  }
-}
-
-export function roClient(connection: Connection): Account {
-  return new Account(connection, "");
-}
-
-export async function loadNear(
-  network: string,
-  keystore: keyStores.KeyStore,
-  url: string
-): Promise<Near> {
-  const connectionConfig = {
-    networkId: network, //"testnet",
-    keyStore: keystore, // first create a key store
-    nodeUrl: url, //"https://rpc.testnet.near.org",
-    headers: {},
-  };
-  const near = await connect(connectionConfig);
-  return near;
-}
-
-async function loadNearConf(
-  network: "testnet" | "mainnet"
-): Promise<nearLakeTypes.LakeConfig> {
-  const nearCon = await connect({
-    headers: {},
-    networkId: network,
-    nodeUrl: `https://rpc.${network}.near.org`,
-  });
-  const startingBlock = (await nearCon.connection.provider.status()).sync_info
-    .latest_block_height;
-  const lakeConfig: nearLakeTypes.LakeConfig = {
-    s3BucketName: `near-lake-data-${network}`,
-    s3RegionName: "eu-central-1",
-    startBlockHeight: startingBlock,
-  };
-  return lakeConfig;
-}
-
-export type NearEventCallback = (...args: any[]) => Promise<void>;
-
-export class NearEvent {
-  constructor(
-    readonly lakeConfig: nearLakeTypes.LakeConfig,
-    readonly pid: string,
-    readonly eventType: string
-  ) {}
-
-  static async fromNetwork(
-    network: "testnet" | "mainnet",
-    pid: string,
-    eventType: string
-  ): Promise<NearEvent> {
-    const lakeConfig = await loadNearConf(network);
-
-    return new NearEvent(lakeConfig, pid, eventType);
-  }
-
-  async start(
-    streamCallback: NearEventCallback,
-    errorHandler?: (error: unknown) => Promise<void> | void
-  ): Promise<void> {
-    const processShard = async (
-      streamerMessage: nearLakeTypes.StreamerMessage
-    ): Promise<void> => {
-      try {
-        streamerMessage.shards
-          .flatMap((shard) => shard.receiptExecutionOutcomes)
-          .map(async (outcome) => {
-            if (outcome.executionOutcome.outcome.executorId !== this.pid) {
-              return;
-            }
-
-            outcome.executionOutcome.outcome.logs.map((log: string) => {
-              const matches = log.matchAll(
-                /(?<=EVENT_JSON:)(?<event>{.+?})(?=,EVENT_JSON|$)/g
-              );
-              for (const m of matches) {
-                const eventJson = m.groups["event"];
-                const event = JSON.parse(eventJson);
-                if (event.event_type !== this.eventType) {
-                  return;
-                }
-
-                streamCallback(event.event).catch(errorHandler);
-              }
-            });
-          });
-      } catch (error) {
-        if (errorHandler) {
-          errorHandler(error);
-        }
-      }
-    };
-    await startStream(this.lakeConfig, processShard);
-  }
-}
-
-export class SwitchboardTransaction {
-  public signer: Signer;
-
-  constructor(
-    readonly programId: string,
-    readonly account: Account,
-    readonly actions: Action[] = [],
-    signer?: Signer
-  ) {
-    this.signer = signer || account.connection.signer;
-  }
-
-  add(action: Action | Action[]) {
-    const actions = this.actions;
-
-    if (Array.isArray(action)) {
-      actions.push(...action);
-    } else {
-      actions.push(action);
-    }
-
-    return;
-  }
-
-  async getAccessKey(accessKeyKeypair: KeyPair): Promise<{
-    publicKey: PublicKey;
-    accessKey: any;
-    nonce: number;
-    recentBlockhash: Buffer;
-  }> {
-    const publicKey = accessKeyKeypair.getPublicKey();
-
-    // gets sender's public key information from NEAR blockchain
-    const accessKey = await this.account.connection.provider.query(
-      `access_key/${this.account.accountId}/${publicKey.toString()}`,
-      ""
-    );
-
-    const nonce = Number.parseInt((accessKey as any).nonce) + 1;
-    // converts a recent block hash into an array of bytes
-    // this hash was retrieved earlier when creating the accessKey (Line 26)
-    // this is required to prove the tx was recently constructed (within 24hrs)
-    const recentBlockhash = nearAPI.utils.serialize.base_decode(
-      accessKey.block_hash
-    );
-
-    return {
-      publicKey,
-      accessKey,
-      nonce,
-      recentBlockhash,
-    };
-  }
-
-  async send(accessKeyKeypair: KeyPair): Promise<FinalExecutionOutcome> {
-    if (this.actions.length === 0) {
-      throw new Error(`No actions to send`);
-    }
-    // const key = this.account.findAccessKey()
-
-    const { publicKey, nonce, recentBlockhash } = await this.getAccessKey(
-      accessKeyKeypair
-    );
-
-    // create transaction
-    const transaction = nearAPI.transactions.createTransaction(
-      this.account.accountId,
-      publicKey,
-      this.programId,
-      nonce,
-      this.actions,
-      recentBlockhash
-    );
-
-    const signedTransaction = this.sign(transaction, accessKeyKeypair);
-
-    const txnReceipt = await this.account.connection.provider.sendTransaction(
-      signedTransaction
-    );
-    return txnReceipt;
-  }
-
-  sign(transaction: Transaction, keyPair: KeyPair): SignedTransaction {
-    // before we can sign the transaction we must perform three steps...
-    // 1) serialize the transaction in Serde
-    const serializedTx = nearAPI.utils.serialize.serialize(
-      nearAPI.transactions.SCHEMA,
-      transaction
-    );
-    // 2) hash the serialized transaction using sha256
-    const serializedTxHash = new Uint8Array(sha256.sha256.array(serializedTx));
-    // 3) create a signature using the hashed transaction
-    const signature = keyPair.sign(serializedTxHash);
-
-    // now we can sign the transaction :)
-    const signedTransaction = new nearAPI.transactions.SignedTransaction({
-      transaction,
-      signature: new nearAPI.transactions.Signature({
-        keyType: transaction.publicKey.keyType,
-        data: signature.signature,
-      }),
-    });
-
-    return signedTransaction;
   }
 }
