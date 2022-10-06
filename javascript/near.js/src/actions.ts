@@ -1,8 +1,21 @@
 import * as types from "./generated/index.js";
-import { BN } from "bn.js";
 import { FinalExecutionOutcome } from "near-api-js/lib/providers";
 import { Action, functionCall } from "near-api-js/lib/transaction";
 import { DEFAULT_FUNCTION_CALL_GAS } from "./sbv2.js";
+import BN from "bn.js";
+
+export function getDefaultGas(action: string): BN {
+  switch (action) {
+    case "escrow_init":
+      return new BN("10000000000000");
+    default:
+      return DEFAULT_FUNCTION_CALL_GAS;
+  }
+}
+
+export const ACTION_GAS_MAP = new Map<string, BN>([
+  ["escrow_init", new BN("20000000000000")],
+]);
 
 export abstract class SwitchboardAction<
   T extends

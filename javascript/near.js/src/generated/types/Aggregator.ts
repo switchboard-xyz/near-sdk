@@ -35,7 +35,9 @@ export interface IAggregator {
   rewardEscrow: Uint8Array;
   maxGasCost: BN;
   whitelistedReaders: Array<Uint8Array>;
+  allowWhitelistOnly: boolean;
   _ebuf: Uint8Array;
+  features: Uint8Array;
 }
 
 export interface AggregatorJSON {
@@ -72,7 +74,9 @@ export interface AggregatorJSON {
   rewardEscrow: Array<number>;
   maxGasCost: string;
   whitelistedReaders: Array<Array<number>>;
+  allowWhitelistOnly: boolean;
   _ebuf: Array<number>;
+  features: Array<number>;
 }
 
 export interface AggregatorSerde {
@@ -109,7 +113,9 @@ export interface AggregatorSerde {
   reward_escrow: Array<number>;
   max_gas_cost: number;
   whitelisted_readers: Array<Array<number>>;
+  allow_whitelist_only: boolean;
   _ebuf: Array<number>;
+  features: Array<number>;
 }
 
 export class Aggregator implements IAggregator {
@@ -146,7 +152,9 @@ export class Aggregator implements IAggregator {
   readonly rewardEscrow: Uint8Array;
   readonly maxGasCost: BN;
   readonly whitelistedReaders: Array<Uint8Array>;
+  readonly allowWhitelistOnly: boolean;
   readonly _ebuf: Uint8Array;
+  readonly features: Uint8Array;
 
   constructor(fields: IAggregator) {
     this.address = fields.address;
@@ -182,7 +190,9 @@ export class Aggregator implements IAggregator {
     this.rewardEscrow = fields.rewardEscrow;
     this.maxGasCost = fields.maxGasCost;
     this.whitelistedReaders = fields.whitelistedReaders;
+    this.allowWhitelistOnly = fields.allowWhitelistOnly;
     this._ebuf = fields._ebuf;
+    this.features = fields.features;
   }
 
   toJSON(): AggregatorJSON {
@@ -220,7 +230,9 @@ export class Aggregator implements IAggregator {
       rewardEscrow: [...this.rewardEscrow],
       maxGasCost: this.maxGasCost.toString(),
       whitelistedReaders: this.whitelistedReaders.map((item) => [...item]),
+      allowWhitelistOnly: this.allowWhitelistOnly,
       _ebuf: [...this._ebuf],
+      features: [...this.features],
     };
   }
 
@@ -260,7 +272,9 @@ export class Aggregator implements IAggregator {
       reward_escrow: [...this.rewardEscrow],
       max_gas_cost: this.maxGasCost.toNumber(),
       whitelisted_readers: this.whitelistedReaders.map((item) => [...item]),
+      allow_whitelist_only: this.allowWhitelistOnly,
       _ebuf: [...this._ebuf],
+      features: [...this.features],
     };
   }
 
@@ -309,7 +323,9 @@ export class Aggregator implements IAggregator {
       whitelistedReaders: obj.whitelistedReaders.map(
         (item) => new Uint8Array(item)
       ),
+      allowWhitelistOnly: obj.allowWhitelistOnly,
       _ebuf: new Uint8Array(obj._ebuf),
+      features: new Uint8Array(obj.features),
     });
   }
 
@@ -358,7 +374,9 @@ export class Aggregator implements IAggregator {
       whitelistedReaders: obj.whitelisted_readers.map(
         (item) => new Uint8Array(item)
       ),
+      allowWhitelistOnly: obj.allow_whitelist_only,
       _ebuf: new Uint8Array(obj._ebuf),
+      features: new Uint8Array(obj.features),
     });
   }
 }

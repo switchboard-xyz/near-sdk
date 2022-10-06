@@ -17,6 +17,8 @@ import { homedir } from "os";
 import { SwitchboardTransaction } from "./transaction.js";
 import { FinalExecutionOutcome } from "near-api-js/lib/providers/provider.js";
 import { Action } from "near-api-js/lib/transaction.js";
+import { handleReceipt } from "./errors.js";
+import { types } from "./index.js";
 
 export type NearNetwork = "testnet" | "mainnet" | "betanet" | "localnet";
 
@@ -210,7 +212,14 @@ export class SwitchboardProgram {
       actions
     );
     const txnReceipt = await txn.send(keyPair);
-    return txnReceipt;
+
+    const result = handleReceipt(txnReceipt);
+    if (result instanceof types.SwitchboardError) {
+      types.SwitchboardError.captureStackTrace(result);
+      throw result;
+    }
+
+    return result;
   }
 }
 

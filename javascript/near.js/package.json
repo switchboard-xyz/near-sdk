@@ -16,7 +16,7 @@
     "build:esm": "tsc",
     "build": "npm run build:cjs && npm run build:esm",
     "watch": "tsc -p tsconfig.cjs.json --watch",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "ts-mocha -p ./tsconfig.cjs.json --require ts-node/register -t 1000000 ./tests/*.tests.ts",
     "prepublishOnly": "shx rm -rf lib && npm run build",
     "docs": "typedoc src/index.ts --githubPages --cleanOutputDir"
   },
@@ -37,9 +37,14 @@
   "devDependencies": {
     "@types/big.js": "^6.1.5",
     "@types/bn.js": "^5.1.1",
+    "@types/expect": "^24.3.0",
     "@types/lodash": "^4.14.186",
+    "@types/mocha": "^10.0.0",
     "@types/node": "^18.7.23",
+    "assert": "^2.0.0",
+    "mocha": "^10.0.0",
     "shx": "^0.3.4",
+    "ts-mocha": "^10.0.0",
     "ts-node": "^10.9.1",
     "typescript": "^4.7.4"
   },

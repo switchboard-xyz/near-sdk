@@ -1,4 +1,54 @@
-export type SwitchboardError =
+import { FinalExecutionOutcome } from "near-api-js/lib/providers";
+import { Action } from "near-api-js/lib/transaction.js";
+
+export enum SwitchboardErrorEnum {
+  Generic = "Generic",
+  AggregatorInvalidBatchSize = "AggregatorInvalidBatchSize",
+  InvalidUpdatePeriod = "InvalidUpdatePeriod",
+  InvalidExpiration = "InvalidExpiration",
+  InvalidAggregator = "InvalidAggregator",
+  InvalidCrank = "InvalidCrank",
+  InvalidJob = "InvalidJob",
+  InvalidOracle = "InvalidOracle",
+  InvalidPermission = "InvalidPermission",
+  InvalidQueue = "InvalidQueue",
+  InvalidAggregatorRound = "InvalidAggregatorRound",
+  NoResult = "NoResult",
+  MathOverflow = "MathOverflow",
+  MathUnderflow = "MathUnderflow",
+  DecimalConversionError = "DecimalConversionError",
+  NoAggregatorJobsFound = "NoAggregatorJobsFound",
+  PermissionDenied = "PermissionDenied",
+  ArrayOverflow = "ArrayOverflow",
+  OracleMismatch = "OracleMismatch",
+  InsufficientQueueSize = "InsufficientQueueSize",
+  CrankMaxCapacity = "CrankMaxCapacity",
+  CrankEmptyError = "CrankEmptyError",
+  InvalidAuthority = "InvalidAuthority",
+  OracleAlreadyResponded = "OracleAlreadyResponded",
+  JobChecksumMismatch = "JobChecksumMismatch",
+  IntegerOverflow = "IntegerOverflow",
+  AggregatorIllegalRoundOpenCall = "AggregatorIllegalRoundOpenCall",
+  InvalidEscrow = "InvalidEscrow",
+  InsufficientBalance = "InsufficientBalance",
+  MintMismatch = "MintMismatch",
+  InsufficientStake = "InsufficientStake",
+  ExcessiveCrankPushes = "ExcessiveCrankPushes",
+  CrankNoElementsReady = "CrankNoElementsReady",
+  InvalidKey = "InvalidKey",
+  Unimplemented = "Unimplemented",
+  SelfInvokeRequired = "SelfInvokeRequired",
+  InsufficientGas = "InsufficientGas",
+  AggregatorEmpty = "AggregatorEmpty",
+  NotAllowedInPromise = "NotAllowedInPromise",
+  ViewOnlyFunction = "ViewOnlyFunction",
+  PredecessorFailed = "PredecessorFailed",
+  InvalidAmount = "InvalidAmount",
+}
+export const SwitchboardErrorTypes: string[] =
+  Object.keys(SwitchboardErrorEnum);
+
+export type SwitchboardErrorType =
   | Generic
   | AggregatorInvalidBatchSize
   | InvalidUpdatePeriod
@@ -42,464 +92,636 @@ export type SwitchboardError =
   | PredecessorFailed
   | InvalidAmount;
 
-export class Generic extends Error {
+export abstract class SwitchboardError extends Error {
+  readonly action?: Action;
+  readonly logs?: string[];
+  readonly txnReceipt: FinalExecutionOutcome;
+
+  constructor(
+    readonly code: number,
+    readonly name: string,
+    txnReceipt: FinalExecutionOutcome,
+    readonly msg?: string,
+    action?: Action,
+    logs?: string[]
+  ) {
+    super(`${code}: ${name}${msg ? " - " + msg : ""}`);
+    this.action = action;
+    this.logs = logs;
+    this.txnReceipt = txnReceipt;
+  }
+
+  static fromErrorType(
+    errorType: string,
+    txnReceipt: FinalExecutionOutcome,
+    action?: Action,
+    logs?: string[]
+  ): SwitchboardError {
+    switch (errorType) {
+      case "Generic":
+        return new Generic(txnReceipt, action, logs);
+      case "AggregatorInvalidBatchSize":
+        return new AggregatorInvalidBatchSize(txnReceipt, action, logs);
+      case "InvalidUpdatePeriod":
+        return new InvalidUpdatePeriod(txnReceipt, action, logs);
+      case "InvalidExpiration":
+        return new InvalidExpiration(txnReceipt, action, logs);
+      case "InvalidAggregator":
+        return new InvalidAggregator(txnReceipt, action, logs);
+      case "InvalidCrank":
+        return new InvalidCrank(txnReceipt, action, logs);
+      case "InvalidJob":
+        return new InvalidJob(txnReceipt, action, logs);
+      case "InvalidOracle":
+        return new InvalidOracle(txnReceipt, action, logs);
+      case "InvalidPermission":
+        return new InvalidPermission(txnReceipt, action, logs);
+      case "InvalidQueue":
+        return new InvalidQueue(txnReceipt, action, logs);
+      case "InvalidAggregatorRound":
+        return new InvalidAggregatorRound(txnReceipt, action, logs);
+      case "NoResult":
+        return new NoResult(txnReceipt, action, logs);
+      case "MathOverflow":
+        return new MathOverflow(txnReceipt, action, logs);
+      case "MathUnderflow":
+        return new MathUnderflow(txnReceipt, action, logs);
+      case "DecimalConversionError":
+        return new DecimalConversionError(txnReceipt, action, logs);
+      case "NoAggregatorJobsFound":
+        return new NoAggregatorJobsFound(txnReceipt, action, logs);
+      case "PermissionDenied":
+        return new PermissionDenied(txnReceipt, action, logs);
+      case "ArrayOverflow":
+        return new ArrayOverflow(txnReceipt, action, logs);
+      case "OracleMismatch":
+        return new OracleMismatch(txnReceipt, action, logs);
+      case "InsufficientQueueSize":
+        return new InsufficientQueueSize(txnReceipt, action, logs);
+      case "CrankMaxCapacity":
+        return new CrankMaxCapacity(txnReceipt, action, logs);
+      case "CrankEmptyError":
+        return new CrankEmptyError(txnReceipt, action, logs);
+      case "InvalidAuthority":
+        return new InvalidAuthority(txnReceipt, action, logs);
+      case "OracleAlreadyResponded":
+        return new OracleAlreadyResponded(txnReceipt, action, logs);
+      case "JobChecksumMismatch":
+        return new JobChecksumMismatch(txnReceipt, action, logs);
+      case "IntegerOverflow":
+        return new IntegerOverflow(txnReceipt, action, logs);
+      case "AggregatorIllegalRoundOpenCall":
+        return new AggregatorIllegalRoundOpenCall(txnReceipt, action, logs);
+      case "InvalidEscrow":
+        return new InvalidEscrow(txnReceipt, action, logs);
+      case "InsufficientBalance":
+        return new InsufficientBalance(txnReceipt, action, logs);
+      case "MintMismatch":
+        return new MintMismatch(txnReceipt, action, logs);
+      case "InsufficientStake":
+        return new InsufficientStake(txnReceipt, action, logs);
+      case "ExcessiveCrankPushes":
+        return new ExcessiveCrankPushes(txnReceipt, action, logs);
+      case "CrankNoElementsReady":
+        return new CrankNoElementsReady(txnReceipt, action, logs);
+      case "InvalidKey":
+        return new InvalidKey(txnReceipt, action, logs);
+      case "Unimplemented":
+        return new Unimplemented(txnReceipt, action, logs);
+      case "SelfInvokeRequired":
+        return new SelfInvokeRequired(txnReceipt, action, logs);
+      case "InsufficientGas":
+        return new InsufficientGas(txnReceipt, action, logs);
+      case "AggregatorEmpty":
+        return new AggregatorEmpty(txnReceipt, action, logs);
+      case "NotAllowedInPromise":
+        return new NotAllowedInPromise(txnReceipt, action, logs);
+      case "ViewOnlyFunction":
+        return new ViewOnlyFunction(txnReceipt, action, logs);
+      case "PredecessorFailed":
+        return new PredecessorFailed(txnReceipt, action, logs);
+      case "InvalidAmount":
+        return new InvalidAmount(txnReceipt, action, logs);
+      default:
+        return new Generic(txnReceipt, action, logs);
+    }
+  }
+}
+
+export class Generic extends SwitchboardError {
   static readonly code = 6000;
-  readonly code = 6000;
-  readonly name = "Generic";
-  readonly msg = "Generic";
 
-  constructor(readonly logs?: string[]) {
-    super("6000: Generic");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6000, "Generic", txnReceipt, undefined, action, logs);
   }
 }
 
-export class AggregatorInvalidBatchSize extends Error {
+export class AggregatorInvalidBatchSize extends SwitchboardError {
   static readonly code = 6001;
-  readonly code = 6001;
-  readonly name = "AggregatorInvalidBatchSize";
-  readonly msg = "AggregatorInvalidBatchSize";
 
-  constructor(readonly logs?: string[]) {
-    super("6001: AggregatorInvalidBatchSize");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(
+      6001,
+      "AggregatorInvalidBatchSize",
+      txnReceipt,
+      undefined,
+      action,
+      logs
+    );
   }
 }
 
-export class InvalidUpdatePeriod extends Error {
+export class InvalidUpdatePeriod extends SwitchboardError {
   static readonly code = 6002;
-  readonly code = 6002;
-  readonly name = "InvalidUpdatePeriod";
-  readonly msg = "InvalidUpdatePeriod";
 
-  constructor(readonly logs?: string[]) {
-    super("6002: InvalidUpdatePeriod");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6002, "InvalidUpdatePeriod", txnReceipt, undefined, action, logs);
   }
 }
 
-export class InvalidExpiration extends Error {
+export class InvalidExpiration extends SwitchboardError {
   static readonly code = 6003;
-  readonly code = 6003;
-  readonly name = "InvalidExpiration";
-  readonly msg = "InvalidExpiration";
 
-  constructor(readonly logs?: string[]) {
-    super("6003: InvalidExpiration");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6003, "InvalidExpiration", txnReceipt, undefined, action, logs);
   }
 }
 
-export class InvalidAggregator extends Error {
+export class InvalidAggregator extends SwitchboardError {
   static readonly code = 6004;
-  readonly code = 6004;
-  readonly name = "InvalidAggregator";
-  readonly msg = "InvalidAggregator";
 
-  constructor(readonly logs?: string[]) {
-    super("6004: InvalidAggregator");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6004, "InvalidAggregator", txnReceipt, undefined, action, logs);
   }
 }
 
-export class InvalidCrank extends Error {
+export class InvalidCrank extends SwitchboardError {
   static readonly code = 6005;
-  readonly code = 6005;
-  readonly name = "InvalidCrank";
-  readonly msg = "InvalidCrank";
 
-  constructor(readonly logs?: string[]) {
-    super("6005: InvalidCrank");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6005, "InvalidCrank", txnReceipt, undefined, action, logs);
   }
 }
 
-export class InvalidJob extends Error {
+export class InvalidJob extends SwitchboardError {
   static readonly code = 6006;
-  readonly code = 6006;
-  readonly name = "InvalidJob";
-  readonly msg = "InvalidJob";
 
-  constructor(readonly logs?: string[]) {
-    super("6006: InvalidJob");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6006, "InvalidJob", txnReceipt, undefined, action, logs);
   }
 }
 
-export class InvalidOracle extends Error {
+export class InvalidOracle extends SwitchboardError {
   static readonly code = 6007;
-  readonly code = 6007;
-  readonly name = "InvalidOracle";
-  readonly msg = "InvalidOracle";
 
-  constructor(readonly logs?: string[]) {
-    super("6007: InvalidOracle");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6007, "InvalidOracle", txnReceipt, undefined, action, logs);
   }
 }
 
-export class InvalidPermission extends Error {
+export class InvalidPermission extends SwitchboardError {
   static readonly code = 6008;
-  readonly code = 6008;
-  readonly name = "InvalidPermission";
-  readonly msg = "InvalidPermission";
 
-  constructor(readonly logs?: string[]) {
-    super("6008: InvalidPermission");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6008, "InvalidPermission", txnReceipt, undefined, action, logs);
   }
 }
 
-export class InvalidQueue extends Error {
+export class InvalidQueue extends SwitchboardError {
   static readonly code = 6009;
-  readonly code = 6009;
-  readonly name = "InvalidQueue";
-  readonly msg = "InvalidQueue";
 
-  constructor(readonly logs?: string[]) {
-    super("6009: InvalidQueue");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6009, "InvalidQueue", txnReceipt, undefined, action, logs);
   }
 }
 
-export class InvalidAggregatorRound extends Error {
+export class InvalidAggregatorRound extends SwitchboardError {
   static readonly code = 6010;
-  readonly code = 6010;
-  readonly name = "InvalidAggregatorRound";
-  readonly msg = "InvalidAggregatorRound";
 
-  constructor(readonly logs?: string[]) {
-    super("6010: InvalidAggregatorRound");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6010, "InvalidAggregatorRound", txnReceipt, undefined, action, logs);
   }
 }
 
-export class NoResult extends Error {
+export class NoResult extends SwitchboardError {
   static readonly code = 6011;
-  readonly code = 6011;
-  readonly name = "NoResult";
-  readonly msg = "NoResult";
 
-  constructor(readonly logs?: string[]) {
-    super("6011: NoResult");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6011, "NoResult", txnReceipt, undefined, action, logs);
   }
 }
 
-export class MathOverflow extends Error {
+export class MathOverflow extends SwitchboardError {
   static readonly code = 6012;
-  readonly code = 6012;
-  readonly name = "MathOverflow";
-  readonly msg = "MathOverflow";
 
-  constructor(readonly logs?: string[]) {
-    super("6012: MathOverflow");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6012, "MathOverflow", txnReceipt, undefined, action, logs);
   }
 }
 
-export class MathUnderflow extends Error {
+export class MathUnderflow extends SwitchboardError {
   static readonly code = 6013;
-  readonly code = 6013;
-  readonly name = "MathUnderflow";
-  readonly msg = "MathUnderflow";
 
-  constructor(readonly logs?: string[]) {
-    super("6013: MathUnderflow");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6013, "MathUnderflow", txnReceipt, undefined, action, logs);
   }
 }
 
-export class DecimalConversionError extends Error {
+export class DecimalConversionError extends SwitchboardError {
   static readonly code = 6014;
-  readonly code = 6014;
-  readonly name = "DecimalConversionError";
-  readonly msg = "DecimalConversionError";
 
-  constructor(readonly logs?: string[]) {
-    super("6014: DecimalConversionError");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6014, "DecimalConversionError", txnReceipt, undefined, action, logs);
   }
 }
 
-export class NoAggregatorJobsFound extends Error {
+export class NoAggregatorJobsFound extends SwitchboardError {
   static readonly code = 6015;
-  readonly code = 6015;
-  readonly name = "NoAggregatorJobsFound";
-  readonly msg = "NoAggregatorJobsFound";
 
-  constructor(readonly logs?: string[]) {
-    super("6015: NoAggregatorJobsFound");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6015, "NoAggregatorJobsFound", txnReceipt, undefined, action, logs);
   }
 }
 
-export class PermissionDenied extends Error {
+export class PermissionDenied extends SwitchboardError {
   static readonly code = 6016;
-  readonly code = 6016;
-  readonly name = "PermissionDenied";
-  readonly msg = "PermissionDenied";
 
-  constructor(readonly logs?: string[]) {
-    super("6016: PermissionDenied");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6016, "PermissionDenied", txnReceipt, undefined, action, logs);
   }
 }
 
-export class ArrayOverflow extends Error {
+export class ArrayOverflow extends SwitchboardError {
   static readonly code = 6017;
-  readonly code = 6017;
-  readonly name = "ArrayOverflow";
-  readonly msg = "ArrayOverflow";
 
-  constructor(readonly logs?: string[]) {
-    super("6017: ArrayOverflow");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6017, "ArrayOverflow", txnReceipt, undefined, action, logs);
   }
 }
 
-export class OracleMismatch extends Error {
+export class OracleMismatch extends SwitchboardError {
   static readonly code = 6018;
-  readonly code = 6018;
-  readonly name = "OracleMismatch";
-  readonly msg = "OracleMismatch";
 
-  constructor(readonly logs?: string[]) {
-    super("6018: OracleMismatch");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6018, "OracleMismatch", txnReceipt, undefined, action, logs);
   }
 }
 
-export class InsufficientQueueSize extends Error {
+export class InsufficientQueueSize extends SwitchboardError {
   static readonly code = 6019;
-  readonly code = 6019;
-  readonly name = "InsufficientQueueSize";
-  readonly msg = "InsufficientQueueSize";
 
-  constructor(readonly logs?: string[]) {
-    super("6019: InsufficientQueueSize");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6019, "InsufficientQueueSize", txnReceipt, undefined, action, logs);
   }
 }
 
-export class CrankMaxCapacity extends Error {
+export class CrankMaxCapacity extends SwitchboardError {
   static readonly code = 6020;
-  readonly code = 6020;
-  readonly name = "CrankMaxCapacity";
-  readonly msg = "CrankMaxCapacity";
 
-  constructor(readonly logs?: string[]) {
-    super("6020: CrankMaxCapacity");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6020, "CrankMaxCapacity", txnReceipt, undefined, action, logs);
   }
 }
 
-export class CrankEmptyError extends Error {
+export class CrankEmptyError extends SwitchboardError {
   static readonly code = 6021;
-  readonly code = 6021;
-  readonly name = "CrankEmptyError";
-  readonly msg = "CrankEmptyError";
 
-  constructor(readonly logs?: string[]) {
-    super("6021: CrankEmptyError");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6021, "CrankEmptyError", txnReceipt, undefined, action, logs);
   }
 }
 
-export class InvalidAuthority extends Error {
+export class InvalidAuthority extends SwitchboardError {
   static readonly code = 6022;
-  readonly code = 6022;
-  readonly name = "InvalidAuthority";
-  readonly msg = "InvalidAuthority";
 
-  constructor(readonly logs?: string[]) {
-    super("6022: InvalidAuthority");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6022, "InvalidAuthority", txnReceipt, undefined, action, logs);
   }
 }
 
-export class OracleAlreadyResponded extends Error {
+export class OracleAlreadyResponded extends SwitchboardError {
   static readonly code = 6023;
-  readonly code = 6023;
-  readonly name = "OracleAlreadyResponded";
-  readonly msg = "OracleAlreadyResponded";
 
-  constructor(readonly logs?: string[]) {
-    super("6023: OracleAlreadyResponded");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6023, "OracleAlreadyResponded", txnReceipt, undefined, action, logs);
   }
 }
 
-export class JobChecksumMismatch extends Error {
+export class JobChecksumMismatch extends SwitchboardError {
   static readonly code = 6024;
-  readonly code = 6024;
-  readonly name = "JobChecksumMismatch";
-  readonly msg = "JobChecksumMismatch";
 
-  constructor(readonly logs?: string[]) {
-    super("6024: JobChecksumMismatch");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6024, "JobChecksumMismatch", txnReceipt, undefined, action, logs);
   }
 }
 
-export class IntegerOverflow extends Error {
+export class IntegerOverflow extends SwitchboardError {
   static readonly code = 6025;
-  readonly code = 6025;
-  readonly name = "IntegerOverflow";
-  readonly msg = "IntegerOverflow";
 
-  constructor(readonly logs?: string[]) {
-    super("6025: IntegerOverflow");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6025, "IntegerOverflow", txnReceipt, undefined, action, logs);
   }
 }
 
-export class AggregatorIllegalRoundOpenCall extends Error {
+export class AggregatorIllegalRoundOpenCall extends SwitchboardError {
   static readonly code = 6026;
-  readonly code = 6026;
-  readonly name = "AggregatorIllegalRoundOpenCall";
-  readonly msg = "AggregatorIllegalRoundOpenCall";
 
-  constructor(readonly logs?: string[]) {
-    super("6026: AggregatorIllegalRoundOpenCall");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(
+      6026,
+      "AggregatorIllegalRoundOpenCall",
+      txnReceipt,
+      undefined,
+      action,
+      logs
+    );
   }
 }
 
-export class InvalidEscrow extends Error {
+export class InvalidEscrow extends SwitchboardError {
   static readonly code = 6027;
-  readonly code = 6027;
-  readonly name = "InvalidEscrow";
-  readonly msg = "InvalidEscrow";
 
-  constructor(readonly logs?: string[]) {
-    super("6027: InvalidEscrow");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6027, "InvalidEscrow", txnReceipt, undefined, action, logs);
   }
 }
 
-export class InsufficientBalance extends Error {
+export class InsufficientBalance extends SwitchboardError {
   static readonly code = 6028;
-  readonly code = 6028;
-  readonly name = "InsufficientBalance";
-  readonly msg = "InsufficientBalance";
 
-  constructor(readonly logs?: string[]) {
-    super("6028: InsufficientBalance");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6028, "InsufficientBalance", txnReceipt, undefined, action, logs);
   }
 }
 
-export class MintMismatch extends Error {
+export class MintMismatch extends SwitchboardError {
   static readonly code = 6029;
-  readonly code = 6029;
-  readonly name = "MintMismatch";
-  readonly msg = "MintMismatch";
 
-  constructor(readonly logs?: string[]) {
-    super("6029: MintMismatch");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6029, "MintMismatch", txnReceipt, undefined, action, logs);
   }
 }
 
-export class InsufficientStake extends Error {
+export class InsufficientStake extends SwitchboardError {
   static readonly code = 6030;
-  readonly code = 6030;
-  readonly name = "InsufficientStake";
-  readonly msg = "InsufficientStake";
 
-  constructor(readonly logs?: string[]) {
-    super("6030: InsufficientStake");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6030, "InsufficientStake", txnReceipt, undefined, action, logs);
   }
 }
 
-export class ExcessiveCrankPushes extends Error {
+export class ExcessiveCrankPushes extends SwitchboardError {
   static readonly code = 6031;
-  readonly code = 6031;
-  readonly name = "ExcessiveCrankPushes";
-  readonly msg = "ExcessiveCrankPushes";
 
-  constructor(readonly logs?: string[]) {
-    super("6031: ExcessiveCrankPushes");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6031, "ExcessiveCrankPushes", txnReceipt, undefined, action, logs);
   }
 }
 
-export class CrankNoElementsReady extends Error {
+export class CrankNoElementsReady extends SwitchboardError {
   static readonly code = 6032;
-  readonly code = 6032;
-  readonly name = "CrankNoElementsReady";
-  readonly msg = "CrankNoElementsReady";
 
-  constructor(readonly logs?: string[]) {
-    super("6032: CrankNoElementsReady");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6032, "CrankNoElementsReady", txnReceipt, undefined, action, logs);
   }
 }
 
-export class InvalidKey extends Error {
+export class InvalidKey extends SwitchboardError {
   static readonly code = 6033;
-  readonly code = 6033;
-  readonly name = "InvalidKey";
-  readonly msg = "InvalidKey";
 
-  constructor(readonly logs?: string[]) {
-    super("6033: InvalidKey");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6033, "InvalidKey", txnReceipt, undefined, action, logs);
   }
 }
 
-export class Unimplemented extends Error {
+export class Unimplemented extends SwitchboardError {
   static readonly code = 6034;
-  readonly code = 6034;
-  readonly name = "Unimplemented";
-  readonly msg = "Unimplemented";
 
-  constructor(readonly logs?: string[]) {
-    super("6034: Unimplemented");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6034, "Unimplemented", txnReceipt, undefined, action, logs);
   }
 }
 
-export class SelfInvokeRequired extends Error {
+export class SelfInvokeRequired extends SwitchboardError {
   static readonly code = 6035;
-  readonly code = 6035;
-  readonly name = "SelfInvokeRequired";
-  readonly msg = "SelfInvokeRequired";
 
-  constructor(readonly logs?: string[]) {
-    super("6035: SelfInvokeRequired");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6035, "SelfInvokeRequired", txnReceipt, undefined, action, logs);
   }
 }
 
-export class InsufficientGas extends Error {
+export class InsufficientGas extends SwitchboardError {
   static readonly code = 6036;
-  readonly code = 6036;
-  readonly name = "InsufficientGas";
-  readonly msg = "InsufficientGas";
 
-  constructor(readonly logs?: string[]) {
-    super("6036: InsufficientGas");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6036, "InsufficientGas", txnReceipt, undefined, action, logs);
   }
 }
 
-export class AggregatorEmpty extends Error {
+export class AggregatorEmpty extends SwitchboardError {
   static readonly code = 6037;
-  readonly code = 6037;
-  readonly name = "AggregatorEmpty";
-  readonly msg = "AggregatorEmpty";
 
-  constructor(readonly logs?: string[]) {
-    super("6037: AggregatorEmpty");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6037, "AggregatorEmpty", txnReceipt, undefined, action, logs);
   }
 }
 
-export class NotAllowedInPromise extends Error {
+export class NotAllowedInPromise extends SwitchboardError {
   static readonly code = 6038;
-  readonly code = 6038;
-  readonly name = "NotAllowedInPromise";
-  readonly msg = "NotAllowedInPromise";
 
-  constructor(readonly logs?: string[]) {
-    super("6038: NotAllowedInPromise");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6038, "NotAllowedInPromise", txnReceipt, undefined, action, logs);
   }
 }
 
-export class ViewOnlyFunction extends Error {
+export class ViewOnlyFunction extends SwitchboardError {
   static readonly code = 6039;
-  readonly code = 6039;
-  readonly name = "ViewOnlyFunction";
-  readonly msg = "ViewOnlyFunction";
 
-  constructor(readonly logs?: string[]) {
-    super("6039: ViewOnlyFunction");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6039, "ViewOnlyFunction", txnReceipt, undefined, action, logs);
   }
 }
 
-export class PredecessorFailed extends Error {
+export class PredecessorFailed extends SwitchboardError {
   static readonly code = 6040;
-  readonly code = 6040;
-  readonly name = "PredecessorFailed";
-  readonly msg = "PredecessorFailed";
 
-  constructor(readonly logs?: string[]) {
-    super("6040: PredecessorFailed");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6040, "PredecessorFailed", txnReceipt, undefined, action, logs);
   }
 }
 
-export class InvalidAmount extends Error {
+export class InvalidAmount extends SwitchboardError {
   static readonly code = 6041;
-  readonly code = 6041;
-  readonly name = "InvalidAmount";
-  readonly msg = "InvalidAmount";
 
-  constructor(readonly logs?: string[]) {
-    super("6041: InvalidAmount");
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(6041, "InvalidAmount", txnReceipt, undefined, action, logs);
   }
 }
