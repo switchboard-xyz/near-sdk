@@ -82,16 +82,8 @@ export class SwitchboardProgram {
     mint?: string
   ) {
     this._account = _account;
-    if (programId) {
-      this.programId = programId;
-    } else {
-      this.programId = getProgramId(_account.connection.networkId);
-    }
-    if (mint) {
-      this.mint = mint;
-    } else {
-      this.mint = getWrappedMint(_account.connection.networkId);
-    }
+    this.programId = programId ?? getProgramId(_account.connection.networkId);
+    this.mint = mint ?? getWrappedMint(_account.connection.networkId);
   }
 
   get isReadOnly(): boolean {
@@ -117,13 +109,18 @@ export class SwitchboardProgram {
   }
 
   /** Load the Switchboard Program in Read-Only mode */
-  static async loadReadOnly(networkId: NearNetwork, rpcUrl: string) {
+  static async loadReadOnly(
+    networkId: NearNetwork,
+    rpcUrl: string,
+    programId?: string,
+    mint?: string
+  ) {
     const keystore = new keyStores.InMemoryKeyStore();
 
     const near = await loadNear(networkId, keystore, rpcUrl);
     const account = new Account(near.connection, "READ_ONLY");
 
-    return new SwitchboardProgram(keystore, account);
+    return new SwitchboardProgram(keystore, account, programId, mint);
   }
 
   /** Load the Switchboard Program from a filesystem keypair */
@@ -131,7 +128,9 @@ export class SwitchboardProgram {
     networkId: NearNetwork,
     rpcUrl: string,
     accountId: string,
-    credentialsDir = path.join(homedir(), ".near-credentials")
+    credentialsDir = path.join(homedir(), ".near-credentials"),
+    programId?: string,
+    mint?: string
   ): Promise<SwitchboardProgram> {
     const keystore = new keyStores.UnencryptedFileSystemKeyStore(
       credentialsDir
@@ -140,7 +139,7 @@ export class SwitchboardProgram {
     const near = await loadNear(networkId, keystore, rpcUrl);
     const account = await near.account(accountId);
 
-    return new SwitchboardProgram(keystore, account);
+    return new SwitchboardProgram(keystore, account, programId, mint);
   }
 
   /** Load the Switchboard Program from a KeyPair */
@@ -148,7 +147,9 @@ export class SwitchboardProgram {
     networkId: NearNetwork,
     rpcUrl: string,
     accountId: string,
-    keyPair: KeyPair
+    keyPair: KeyPair,
+    programId?: string,
+    mint?: string
   ): Promise<SwitchboardProgram> {
     const keystore = new keyStores.InMemoryKeyStore();
     await keystore.setKey(networkId, accountId, keyPair);
@@ -156,7 +157,7 @@ export class SwitchboardProgram {
     const near = await loadNear(networkId, keystore, rpcUrl);
     const account = await near.account(accountId);
 
-    return new SwitchboardProgram(keystore, account);
+    return new SwitchboardProgram(keystore, account, programId, mint);
   }
 
   /** Load the Switchboard Program from browser storage */
@@ -165,7 +166,9 @@ export class SwitchboardProgram {
     rpcUrl: string,
     accountId: string,
     browserLocalStorage?: any,
-    browserPrefix?: string
+    browserPrefix?: string,
+    programId?: string,
+    mint?: string
   ): Promise<SwitchboardProgram> {
     const keystore = new keyStores.BrowserLocalStorageKeyStore(
       browserLocalStorage,
@@ -175,7 +178,7 @@ export class SwitchboardProgram {
     const near = await loadNear(networkId, keystore, rpcUrl);
     const account = await near.account(accountId);
 
-    return new SwitchboardProgram(keystore, account);
+    return new SwitchboardProgram(keystore, account, programId, mint);
   }
 
   async sendAction(action: Action): Promise<FinalExecutionOutcome> {
