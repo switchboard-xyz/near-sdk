@@ -111,7 +111,7 @@ export class AggregatorAccount {
           force_report_period: params.forceReportPeriod,
           crank: [...(params.crank ?? new Uint8Array(32))],
           expiration: 0,
-          reward_escrow: [...params.rewardEscrow],
+          reward_escrow: [...(params.rewardEscrow ?? new Uint8Array(32))],
           history_limit: params.historyLimit,
           max_gas_cost: params.maxGasCost ?? 0,
         },
@@ -411,35 +411,23 @@ export class QueueAccount {
 
     const queue = await this.loadData();
 
-    // check if user escrow already exists, if not add createEscrow action
-    let createEscrowAction: Action | undefined;
-    const seedBytes = Buffer.alloc(32);
-    seedBytes.write(this.program.account.accountId);
-    seedBytes.write(DEFAULT_ESCROW_SEED);
-    const seed = new Uint8Array(seedBytes.subarray(0, 32));
-    const escrowKey = EscrowAccount.keyFromSeed(seed);
-    const escrowAccount = new EscrowAccount({
-      program: this.program,
-      address: escrowKey,
-    });
-    try {
-      const escrowData = await escrowAccount.loadData();
-    } catch {
-      [createEscrowAction] = EscrowAccount.createAction(this.program, {
-        authority: params.authority ?? this.program.account.accountId,
-        mint: getWrappedMint(this.program.connection.networkId),
-      });
+    const [escrowAccount, createEscrowAction] =
+      await EscrowAccount.getOrCreateStaticAccountAction(this.program);
+    if (createEscrowAction) {
       actions.push(["escrow_init", createEscrowAction]);
+    }
+    if (createEscrowAction && params.fundUpTo && params.fundUpTo > 0) {
+      throw new Error(
+        `Escrow hasn't been created, unable to initially fund aggregator's escrow`
+      );
     }
 
     const jobs: JobAccount[] = [];
-
     if (!params.jobs || params.jobs.length === 0) {
       throw new Error(
         `Need to provide at least one job in order to create an aggregator`
       );
     }
-
     // create createJob and addJob actions
     for (const jobDefinition of params.jobs) {
       if (typeof jobDefinition === "string") {
@@ -461,7 +449,6 @@ export class QueueAccount {
           )} => ${JSON.stringify(oracleJob.toJSON())}`
         );
       }
-
       const [createJobAction, jobAccount] = JobAccount.createAction(
         this.program,
         {
@@ -492,7 +479,7 @@ export class QueueAccount {
         minJobResults: params.minJobResults ?? 1,
         minUpdateDelaySeconds: params.minUpdateDelaySeconds ?? 30,
         startAfter: params.startAfter ?? 0,
-        rewardEscrow: params.rewardEscrow ?? escrowKey,
+        rewardEscrow: params.rewardEscrow ?? undefined,
         historyLimit: params.historySize ?? 1000,
         varianceThreshold: params.varianceThreshold
           ? SwitchboardDecimal.fromBig(params.varianceThreshold)
@@ -1063,41 +1050,56 @@ export class EscrowAccount {
     program: SwitchboardProgram,
     seedString = DEFAULT_ESCROW_SEED
   ): Promise<EscrowAccount> {
-    const seedBytes = Buffer.alloc(32);
-    seedBytes.write(program.account.accountId);
-    seedBytes.write(seedString);
-    const seed = new Uint8Array(seedBytes.subarray(0, 32));
+    const [escrowAccount, createEscrowAction] =
+      await EscrowAccount.getOrCreateStaticAccountAction(program, seedString);
+
+    if (createEscrowAction) {
+      const txnReceipt = await program.sendAction(createEscrowAction);
+    }
+
+    return escrowAccount;
+  }
+
+  static async getOrCreateStaticAccountAction(
+    program: SwitchboardProgram,
+    seedString = DEFAULT_ESCROW_SEED
+  ): Promise<[EscrowAccount, Action | undefined]> {
+    const seedHash = crypto.createHash("sha256");
+    seedHash.update(Buffer.from(program.account.accountId));
+    seedHash.update(Buffer.from(seedString));
+    const seed = new Uint8Array(seedHash.digest()).slice(0, 32);
 
     const hash = crypto.createHash("sha256");
     hash.update(Buffer.from("Escrow"));
     hash.update(seed);
     const escrowKey = new Uint8Array(hash.digest());
 
-    let escrowAccount: EscrowAccount;
+    const escrowAccount = new EscrowAccount({
+      program,
+      address: escrowKey,
+    });
     try {
-      escrowAccount = new EscrowAccount({
-        program,
-        address: escrowKey,
-      });
-      await escrowAccount.loadData();
-      return escrowAccount;
+      const escrow = await escrowAccount.loadData();
+      if (Buffer.compare(Buffer.from(escrow.address), Buffer.from(escrowKey))) {
+        throw new Error(`EscrowAuthorityMismatch`);
+      }
+      return [escrowAccount, undefined];
     } catch (error) {
-      await program.account.functionCall({
-        contractId: program.programId,
-        methodName: "escrow_init",
-        args: {
+      // TODO: Check error matches resource not found
+      const createEscrowAction = functionCall(
+        "escrow_init",
+        {
           ix: {
             seed: [...seed],
             authority: program.account.accountId,
-            mint: "wrap.test",
+            mint: program.mint,
           },
         },
-      });
-      escrowAccount = new EscrowAccount({
-        program,
-        address: escrowKey,
-      });
-      return escrowAccount;
+        DEFAULT_FUNCTION_CALL_GAS,
+        new BN(0)
+      );
+
+      return [escrowAccount, createEscrowAction];
     }
   }
 
