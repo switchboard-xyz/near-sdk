@@ -185,11 +185,16 @@ if (process.argv.length > 2) {
       ],
     });
 
-  console.log(`NUM ACTIONS: ${actions.length}`);
+  // console.log(`NUM ACTIONS: ${actions.length}`);
 
-  // const batches = _.chunk(actions, 15);
   for await (const [i, batch] of batches.entries()) {
     const txnReceipt = await program.sendActions(batch);
+
+    const result = sbv2.handleReceipt(txnReceipt);
+    if (result instanceof sbv2.types.SwitchboardError) {
+      sbv2.types.SwitchboardError.captureStackTrace(result);
+      throw result;
+    }
 
     console.log(JSON.stringify(txnReceipt, undefined, 2));
 
