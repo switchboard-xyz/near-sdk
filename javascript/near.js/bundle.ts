@@ -1,4 +1,4 @@
-import * as sbv2 from "./src";
+import * as sbv2 from "./lib/cjs";
 import { keyStores, Account, KeyPair } from "near-api-js";
 import Big from "big.js";
 import { homedir } from "os";
@@ -23,7 +23,7 @@ let keypairName: string;
 if (process.argv.length > 2) {
   keypairName = process.argv[2];
 } else {
-  keypairName = sbv2.PID;
+  keypairName = sbv2.TESTNET_PROGRAM_ID;
 }
 
 (async function main() {

@@ -1,12 +1,12 @@
 import { BN } from "bn.js";
 import { DEFAULT_FUNCTION_CALL_GAS } from "near-api-js";
-import * as sbv2 from "./src";
+import * as sbv2 from "./lib/cjs";
 
 let keypairName: string;
 if (process.argv.length > 2) {
   keypairName = process.argv[2];
 } else {
-  keypairName = sbv2.PID;
+  keypairName = sbv2.TESTNET_PROGRAM_ID;
 }
 
 (async function main() {
@@ -19,7 +19,7 @@ if (process.argv.length > 2) {
 
   // Queues
   const queuesTxnReceipt = await program.account.functionCall({
-    contractId: sbv2.PID,
+    contractId: sbv2.TESTNET_PROGRAM_ID,
     methodName: "nuke_queues",
     args: {},
     gas: new BN(3e14),
@@ -31,7 +31,7 @@ if (process.argv.length > 2) {
 
   // Aggregators
   const aggregatorsTxnReceipt = await program.account.functionCall({
-    contractId: sbv2.PID,
+    contractId: sbv2.TESTNET_PROGRAM_ID,
     methodName: "nuke_aggregators",
     args: {},
     gas: new BN(3e14),
@@ -43,7 +43,7 @@ if (process.argv.length > 2) {
 
   // Cranks
   const cranksTxnReceipt = await program.account.functionCall({
-    contractId: sbv2.PID,
+    contractId: sbv2.TESTNET_PROGRAM_ID,
     methodName: "nuke_cranks",
     args: {},
     gas: new BN(3e14),
@@ -55,7 +55,7 @@ if (process.argv.length > 2) {
 
   // Oracles
   const oraclesTxnReceipt = await program.account.functionCall({
-    contractId: sbv2.PID,
+    contractId: sbv2.TESTNET_PROGRAM_ID,
     methodName: "nuke_oracles",
     args: {},
     gas: new BN(3e14),
@@ -67,7 +67,7 @@ if (process.argv.length > 2) {
 
   // Jobs
   const jobsTxnReceipt = await program.account.functionCall({
-    contractId: sbv2.PID,
+    contractId: sbv2.TESTNET_PROGRAM_ID,
     methodName: "nuke_jobs",
     args: {},
     gas: new BN(3e14),
@@ -79,7 +79,7 @@ if (process.argv.length > 2) {
 
   // Permissions
   const permissionsTxnReceipt = await program.account.functionCall({
-    contractId: sbv2.PID,
+    contractId: sbv2.TESTNET_PROGRAM_ID,
     methodName: "nuke_permissions",
     args: {},
     gas: new BN(3e14),
@@ -91,7 +91,7 @@ if (process.argv.length > 2) {
 
   // Escrows
   const escrowsTxnReceipt = await program.account.functionCall({
-    contractId: sbv2.PID,
+    contractId: sbv2.TESTNET_PROGRAM_ID,
     methodName: "nuke_escrows",
     args: {},
     gas: new BN(3e14),
