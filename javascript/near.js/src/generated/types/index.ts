@@ -50,6 +50,7 @@ export * from "./ViewAggregatorExpandedInfo.js";
 export * from "./AggregatorExpandedInfo.js";
 export * from "./ViewAggregatorKeys.js";
 export * from "./ViewAggregatorsOnQueue.js";
+export * from "./ViewAggregatorsStateWithAuthority.js";
 export * from "./ViewAggregatorsWithAuthority.js";
 export * from "./CrankView.js";
 export * from "./ViewCrank.js";
