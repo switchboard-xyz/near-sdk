@@ -9,6 +9,7 @@ import { types } from "./index.js";
 import { fromBase58, isBase58, parseAddressString } from "./utils.js";
 import { getWrappedMint, roClient, SwitchboardProgram } from "./program.js";
 import _ from "lodash";
+import { AggregatorView, AggregatorViewSerde } from "./generated/index.js";
 
 export const TRANSACTION_MAX_GAS = new BN("300000000000000"); // 300 Tgas
 
@@ -140,14 +141,19 @@ export class AggregatorAccount {
   static async loadFromAuthority(
     program: SwitchboardProgram,
     authority: string
-  ): Promise<Array<AggregatorAccount>> {
-    const addresses = await AggregatorAccount.loadAuthorityKeys(
-      program,
-      authority
-    );
-    return addresses.map(
-      (address) => new AggregatorAccount({ program, address })
-    );
+  ): Promise<Array<[AggregatorAccount, AggregatorView]>> {
+    const data = await roClient(program.connection).viewFunction({
+      contractId: program.programId,
+      methodName: "view_aggregators_state_with_authority",
+      args: {
+        ix: { authority: authority },
+      },
+    });
+
+    return (data as AggregatorViewSerde[]).map((a) => [
+      new AggregatorAccount({ program, address: new Uint8Array(a.address) }),
+      AggregatorView.fromSerde(a),
+    ]);
   }
 
   async loadData(): Promise<types.AggregatorView> {
