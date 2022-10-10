@@ -307,7 +307,7 @@ export class AggregatorAccount {
         ix: {
           address: [...this.address],
           funder: [...params.funder],
-          amount: params.amount,
+          amount: Number(params.amount),
         },
       },
       DEFAULT_FUNCTION_CALL_GAS,
@@ -1149,16 +1149,17 @@ export class EscrowAccount {
   }
 
   withdrawAction(params: { amount: number }): Action {
+    const amountYocto = utils.format.parseNearAmount(params.amount.toString());
     return functionCall(
       "escrow_withdraw",
       {
         ix: {
           address: [...this.address],
-          amount: params.amount,
+          amount: Number(amountYocto),
         },
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      new BN(0) // This might need to be updated
+      new BN(amountYocto)
     );
   }
 }
