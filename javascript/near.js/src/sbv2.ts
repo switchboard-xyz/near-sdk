@@ -1136,7 +1136,7 @@ export class EscrowAccount {
     return functionCall(
       "ft_transfer_call",
       {
-        receiver_id: this.program.programId,
+        receiver_id: this.program.mint,
         amount: nearAmount.toString(),
         msg: JSON.stringify({
           address: [...this.address],
