@@ -10,6 +10,7 @@ import { AggregatorView, AggregatorViewSerde } from "./generated/index.js";
 import { types } from "./index.js";
 import { roClient, SwitchboardProgram } from "./program.js";
 import { fromBase58, isBase58, parseAddressString } from "./utils.js";
+import { NEAR, Gas, parse } from "near-units";
 
 export const TRANSACTION_MAX_GAS = new BN("300000000000000"); // 300 Tgas
 
@@ -1123,21 +1124,27 @@ export class EscrowAccount {
     return types.Escrow.fromSerde(data);
   }
 
-  async fund(): Promise<FinalExecutionOutcome> {
-    const txnReceipt = await this.program.sendAction(this.fundAction());
+  async fund(amount: number, gas = "40 Tgas"): Promise<FinalExecutionOutcome> {
+    const txnReceipt = await this.program.sendAction(
+      this.fundAction(amount, gas)
+    );
     return txnReceipt;
   }
 
-  fundAction(): Action {
+  fundAction(amount: number, gas = "40 Tgas"): Action {
+    const nearAmount = NEAR.parse(`${amount} N`);
     return functionCall(
-      "escrow_fund",
+      "ft_transfer_call",
       {
-        ix: {
+        receiver_id: this.program.programId,
+        amount: nearAmount.toString(),
+        msg: JSON.stringify({
           address: [...this.address],
-        },
+          amount: nearAmount.toString(),
+        }),
       },
-      DEFAULT_FUNCTION_CALL_GAS,
-      new BN(0) // This might need to be updated
+      Gas.parse(gas),
+      nearAmount
     );
   }
 
