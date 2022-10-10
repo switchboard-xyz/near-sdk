@@ -1142,12 +1142,10 @@ export class EscrowAccount {
     const actions: Action[] = [];
     let wrappedBalance = 0;
     if (!this.program.mint.isUserAccountCreated(this.program.account)) {
-      actions.push(
-        this.program.mint.createUserAccountAction(this.program.account)
-      );
+      actions.push(this.program.mint.createAccountAction(this.program.account));
     } else {
       wrappedBalance = (
-        await this.program.mint.getUserAccountBalance(this.program.account)
+        await this.program.mint.getBalance(this.program.account)
       ).toNumber();
     }
 
@@ -1168,13 +1166,7 @@ export class EscrowAccount {
     }
 
     if (depositAmount > 0) {
-      actions.push(
-        this.program.mint.depositAction(
-          this.program.account,
-          depositAmount,
-          this
-        )
-      );
+      actions.push(this.fundAction(depositAmount));
     }
 
     return actions;

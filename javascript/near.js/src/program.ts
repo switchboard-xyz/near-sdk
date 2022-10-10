@@ -120,8 +120,10 @@ export class SwitchboardProgram {
 
     const near = await loadNear(networkId, keystore, rpcUrl);
     const account = new Account(near.connection, "READ_ONLY");
+    const switchboardPid = programId ?? getProgramId(networkId);
     const wrappedMint = await FungibleToken.load(
       near.connection,
+      switchboardPid,
       mint ?? getWrappedMint(networkId)
     );
 
@@ -143,8 +145,10 @@ export class SwitchboardProgram {
 
     const near = await loadNear(networkId, keystore, rpcUrl);
     const account = await near.account(accountId);
+    const switchboardPid = programId ?? getProgramId(networkId);
     const wrappedMint = await FungibleToken.load(
       near.connection,
+      switchboardPid,
       mint ?? getWrappedMint(networkId)
     );
 
@@ -165,8 +169,10 @@ export class SwitchboardProgram {
 
     const near = await loadNear(networkId, keystore, rpcUrl);
     const account = await near.account(accountId);
+    const switchboardPid = programId ?? getProgramId(networkId);
     const wrappedMint = await FungibleToken.load(
       near.connection,
+      switchboardPid,
       mint ?? getWrappedMint(networkId)
     );
 
@@ -190,8 +196,10 @@ export class SwitchboardProgram {
 
     const near = await loadNear(networkId, keystore, rpcUrl);
     const account = await near.account(accountId);
+    const switchboardPid = programId ?? getProgramId(networkId);
     const wrappedMint = await FungibleToken.load(
       near.connection,
+      switchboardPid,
       mint ?? getWrappedMint(networkId)
     );
 

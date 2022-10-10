@@ -2,10 +2,18 @@ import Big from "big.js";
 import { BN } from "bn.js";
 import { Account, Connection } from "near-api-js";
 import { roClient, SwitchboardProgram } from "./program.js";
-import { EscrowAccount, SwitchboardDecimal } from "./sbv2.js";
+import {
+  DEFAULT_FUNCTION_CALL_GAS,
+  EscrowAccount,
+  SwitchboardDecimal,
+} from "./sbv2.js";
 import { NEAR, Gas, parse } from "near-units";
 import { Action, functionCall } from "near-api-js/lib/transaction.js";
 import { FinalExecutionOutcome } from "near-api-js/lib/providers/provider.js";
+import { SwitchboardTransaction } from "./transaction.js";
+import { KeyStore } from "near-api-js/lib/key_stores/keystore.js";
+import { handleReceipt } from "./errors.js";
+import { types } from "./index.js";
 
 export const DEFAULT_FT_STORAGE_DEPOSIT = NEAR.parse("0.00125 N");
 
@@ -30,6 +38,7 @@ export class FungibleToken {
   client: Account;
   constructor(
     readonly connection: Connection,
+    readonly switchboardPid: string,
     readonly address: string,
     readonly metadata: {
       spec: string;
@@ -43,6 +52,7 @@ export class FungibleToken {
 
   static async load(
     connection: Connection,
+    switchboardPid: string,
     mint: string
   ): Promise<FungibleToken> {
     const metadata: {
@@ -56,41 +66,7 @@ export class FungibleToken {
       args: {},
     });
 
-    return new FungibleToken(connection, mint, metadata);
-  }
-
-  async fundUserEscrowActions(
-    account: Account,
-    fundUpToAmount: number,
-    escrowAccount: EscrowAccount
-  ): Promise<Action[]> {
-    const actions: Action[] = [];
-    let wrappedBalance = 0;
-    if (!this.isUserAccountCreated(account)) {
-      actions.push(this.createUserAccountAction(account));
-    } else {
-      wrappedBalance = (await this.getUserAccountBalance(account)).toNumber();
-    }
-
-    const escrowBalance = new SwitchboardDecimal(
-      (await escrowAccount.loadData()).amount,
-      this.metadata.decimals
-    )
-      .toBig()
-      .toNumber();
-
-    const depositAmount = fundUpToAmount - escrowBalance;
-    const wrapAmount = depositAmount - wrappedBalance;
-
-    if (wrapAmount > 0) {
-      actions.push(this.wrapAction(account, wrapAmount));
-    }
-
-    if (depositAmount > 0) {
-      actions.push(this.depositAction(account, depositAmount, escrowAccount));
-    }
-
-    return actions;
+    return new FungibleToken(connection, switchboardPid, mint, metadata);
   }
 
   private async getStorageDeposit(
@@ -125,7 +101,7 @@ export class FungibleToken {
     return true;
   }
 
-  createUserAccountAction(account: Account): Action {
+  createAccountAction(account: Account): Action {
     if (this.isUserAccountCreated(account)) {
       throw new FungibleTokenAccountAlreadyCreated(
         this.address,
@@ -144,20 +120,12 @@ export class FungibleToken {
     );
   }
 
-  async createUserAccount(account: Account): Promise<FinalExecutionOutcome> {
-    const action = this.createUserAccountAction(account);
-
-    const txnReceipt = await account.functionCall({
-      contractId: this.address,
-      methodName: action.functionCall.methodName,
-      args: action.functionCall.args,
-      gas: action.functionCall.gas,
-      attachedDeposit: action.functionCall.deposit,
-    });
-    return txnReceipt;
+  async createAccount(account: Account): Promise<FinalExecutionOutcome> {
+    const action = this.createAccountAction(account);
+    return await this.sendAction(account, action);
   }
 
-  async getUserAccountBalance(account: Account): Promise<Big> {
+  async getBalance(account: Account): Promise<Big> {
     const userBalance: string = await this.client.viewFunction({
       contractId: this.address,
       methodName: "ft_balance_of",
@@ -190,15 +158,7 @@ export class FungibleToken {
 
   async wrap(account: Account, amount: number): Promise<FinalExecutionOutcome> {
     const action = this.wrapAction(account, amount);
-
-    const txnReceipt = await account.functionCall({
-      contractId: this.address,
-      methodName: action.functionCall.methodName,
-      args: action.functionCall.args,
-      gas: action.functionCall.gas,
-      attachedDeposit: action.functionCall.deposit,
-    });
-    return txnReceipt;
+    return await this.sendAction(account, action);
   }
 
   unwrapAction(account: Account, amount: number) {
@@ -228,22 +188,10 @@ export class FungibleToken {
     amount: number
   ): Promise<FinalExecutionOutcome> {
     const action = this.unwrapAction(account, amount);
-
-    const txnReceipt = await account.functionCall({
-      contractId: this.address,
-      methodName: action.functionCall.methodName,
-      args: action.functionCall.args,
-      gas: action.functionCall.gas,
-      attachedDeposit: action.functionCall.deposit,
-    });
-    return txnReceipt;
+    return await this.sendAction(account, action);
   }
 
-  depositAction(
-    account: Account,
-    amount: number,
-    escrowAccount: EscrowAccount
-  ) {
+  depositAction(account: Account, amount: number, escrowAddress: Uint8Array) {
     // TODO: Check if its even a wrapped asset
 
     // Verify token account is created
@@ -258,10 +206,10 @@ export class FungibleToken {
     return functionCall(
       "ft_transfer_call",
       {
-        receiver_id: escrowAccount.program.programId,
+        receiver_id: this.switchboardPid,
         amount: nearAmount,
         msg: JSON.stringify({
-          address: [...escrowAccount.address],
+          address: [...escrowAddress],
           amount: nearAmount,
         }),
       },
@@ -273,17 +221,48 @@ export class FungibleToken {
   async deposit(
     account: Account,
     amount: number,
-    escrowAccount: EscrowAccount
+    escrowAddress: Uint8Array
   ): Promise<FinalExecutionOutcome> {
-    const action = this.depositAction(account, amount, escrowAccount);
+    const action = this.depositAction(account, amount, escrowAddress);
+    return await this.sendAction(account, action);
+  }
 
+  async sendAction(
+    account: Account,
+    action: Action,
+    gas = "40 Tgas"
+  ): Promise<FinalExecutionOutcome> {
     const txnReceipt = await account.functionCall({
       contractId: this.address,
       methodName: action.functionCall.methodName,
       args: action.functionCall.args,
-      gas: action.functionCall.gas,
+      gas: gas
+        ? Gas.parse(gas)
+        : action.functionCall.gas ?? DEFAULT_FUNCTION_CALL_GAS,
       attachedDeposit: action.functionCall.deposit,
     });
     return txnReceipt;
+  }
+
+  async sendActions(
+    keystore: KeyStore,
+    account: Account,
+    actions: Action[]
+  ): Promise<FinalExecutionOutcome> {
+    const keyPair = await keystore.getKey(
+      this.connection.networkId,
+      account.accountId
+    );
+
+    const txn = new SwitchboardTransaction(this.address, account, actions);
+    const txnReceipt = await txn.send(keyPair);
+
+    const result = handleReceipt(txnReceipt);
+    if (result instanceof types.SwitchboardError) {
+      types.SwitchboardError.captureStackTrace(result);
+      throw result;
+    }
+
+    return result;
   }
 }
