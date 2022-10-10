@@ -1,15 +1,15 @@
-import { KeyPair, utils } from "near-api-js";
-import { FinalExecutionOutcome } from "near-api-js/lib/providers/provider";
+import { OracleJob } from "@switchboard-xyz/common";
 import Big from "big.js";
 import BN from "bn.js";
 import * as crypto from "crypto";
-import { Action, functionCall } from "near-api-js/lib/transaction";
-import { OracleJob } from "@switchboard-xyz/common";
-import { types } from "./index.js";
-import { fromBase58, isBase58, parseAddressString } from "./utils.js";
-import { getWrappedMint, roClient, SwitchboardProgram } from "./program.js";
 import _ from "lodash";
+import { KeyPair, utils } from "near-api-js";
+import { FinalExecutionOutcome } from "near-api-js/lib/providers/provider";
+import { Action, functionCall } from "near-api-js/lib/transaction";
 import { AggregatorView, AggregatorViewSerde } from "./generated/index.js";
+import { types } from "./index.js";
+import { roClient, SwitchboardProgram } from "./program.js";
+import { fromBase58, isBase58, parseAddressString } from "./utils.js";
 
 export const TRANSACTION_MAX_GAS = new BN("300000000000000"); // 300 Tgas
 
@@ -300,6 +300,7 @@ export class AggregatorAccount {
   }
 
   fundAction(params: { funder: Uint8Array; amount: number }): Action {
+    const amountYocto = utils.format.parseNearAmount(params.amount.toString());
     return functionCall(
       "aggregator_fund",
       {
@@ -310,7 +311,7 @@ export class AggregatorAccount {
         },
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      new BN(0) // This might need to be updated
+      new BN(amountYocto)
     );
   }
 
