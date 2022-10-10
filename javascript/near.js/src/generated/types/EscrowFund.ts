@@ -49,7 +49,9 @@ export class EscrowFund implements IEscrowFund {
   static fromSerde(obj: EscrowFundSerde) {
     return new EscrowFund({
       address: new Uint8Array(obj.address),
-      amount: new BN(obj.amount),
+      amount: new BN(
+        obj.amount.toLocaleString("fullwide", { useGrouping: false })
+      ),
     });
   }
 }

@@ -3,7 +3,7 @@ import Big from "big.js";
 import BN from "bn.js";
 import * as crypto from "crypto";
 import _ from "lodash";
-import { KeyPair, utils } from "near-api-js";
+import { Account, KeyPair, utils } from "near-api-js";
 import { FinalExecutionOutcome } from "near-api-js/lib/providers/provider";
 import { Action, functionCall } from "near-api-js/lib/transaction";
 import { AggregatorView, AggregatorViewSerde } from "./generated/index.js";
@@ -11,6 +11,8 @@ import { types } from "./index.js";
 import { roClient, SwitchboardProgram } from "./program.js";
 import { fromBase58, isBase58, parseAddressString } from "./utils.js";
 import { NEAR, Gas, parse } from "near-units";
+
+Big.DP = 40;
 
 export const TRANSACTION_MAX_GAS = new BN("300000000000000"); // 300 Tgas
 
@@ -40,7 +42,7 @@ export class AggregatorAccount {
   get escrow(): EscrowAccount {
     const hash = crypto.createHash("sha256");
     hash.update(Buffer.from("AggregatorEscrow"));
-    hash.update(this.program.mint);
+    hash.update(this.program.mint.address);
     hash.update(this.address);
     const escrowAddress = new Uint8Array(hash.digest());
     return new EscrowAccount({ program: this.program, address: escrowAddress });
@@ -395,7 +397,7 @@ export class QueueAccount {
     rewardEscrow?: Uint8Array;
     maxGasCost?: number;
     // amount to pre-fund the lease with
-    fundUpTo?: number;
+    // fundUpTo?: number;
     // if queue requires it, whether to enable permissions
     enable?: boolean;
     jobs: (
@@ -423,11 +425,6 @@ export class QueueAccount {
       await EscrowAccount.getOrCreateStaticAccountAction(this.program);
     if (createEscrowAction) {
       actions.push(["escrow_init", createEscrowAction]);
-    }
-    if (createEscrowAction && params.fundUpTo && params.fundUpTo > 0) {
-      throw new Error(
-        `Escrow hasn't been created, unable to initially fund aggregator's escrow`
-      );
     }
 
     const jobs: JobAccount[] = [];
@@ -516,27 +513,6 @@ export class QueueAccount {
         enable: true,
       });
       actions.push(["permission_set", setPermissionAction]);
-    }
-
-    let escrowFundAction: Action | undefined;
-    if (params.fundUpTo) {
-      const fundAmount = new BN(
-        utils.format.parseNearAmount(params.fundUpTo.toString())
-      );
-      const escrowState = await escrowAccount.loadData();
-      const availableAmount = new BN(escrowState.amount).sub(
-        new BN(escrowState.amountLocked)
-      );
-      if (fundAmount.gt(availableAmount)) {
-        throw new Error(
-          `Provided escrow does not have enough funds, need ${fundAmount}, have ${availableAmount}`
-        );
-      }
-      escrowFundAction = aggregator.fundAction({
-        funder: escrowAccount.address,
-        amount: params.fundUpTo,
-      });
-      actions.push(["aggregator_fund", escrowFundAction]);
     }
 
     // add to crank
@@ -915,7 +891,7 @@ export class OracleAccount {
   get escrow(): EscrowAccount {
     const hash = crypto.createHash("sha256");
     hash.update(Buffer.from("OracleEscrow"));
-    hash.update(this.program.mint);
+    hash.update(this.program.mint.address);
     hash.update(this.address);
     const escrowAddress = new Uint8Array(hash.digest());
     return new EscrowAccount({ program: this.program, address: escrowAddress });
@@ -1074,6 +1050,7 @@ export class EscrowAccount {
   ): Promise<[EscrowAccount, Action | undefined]> {
     const seedHash = crypto.createHash("sha256");
     seedHash.update(Buffer.from(program.account.accountId));
+    seedHash.update(Buffer.from(program.mint.address));
     seedHash.update(Buffer.from(seedString));
     const seed = new Uint8Array(seedHash.digest()).slice(0, 32);
 
@@ -1088,8 +1065,11 @@ export class EscrowAccount {
     });
     try {
       const escrow = await escrowAccount.loadData();
-      if (Buffer.compare(Buffer.from(escrow.address), Buffer.from(escrowKey))) {
-        throw new Error(`EscrowAuthorityMismatch`);
+      if (
+        Buffer.compare(Buffer.from(escrow.address), Buffer.from(escrowKey)) !==
+        0
+      ) {
+        throw new Error(`EscrowNotFound`);
       }
       return [escrowAccount, undefined];
     } catch (error) {
@@ -1100,7 +1080,7 @@ export class EscrowAccount {
           ix: {
             seed: [...seed],
             authority: program.account.accountId,
-            mint: program.mint,
+            mint: program.mint.address,
           },
         },
         DEFAULT_FUNCTION_CALL_GAS,
@@ -1126,7 +1106,8 @@ export class EscrowAccount {
 
   async fund(amount: number, gas = "40 Tgas"): Promise<FinalExecutionOutcome> {
     const txnReceipt = await this.program.sendAction(
-      this.fundAction(amount, gas)
+      this.fundAction(amount, gas),
+      this.program.mint.address
     );
     return txnReceipt;
   }
@@ -1136,16 +1117,67 @@ export class EscrowAccount {
     return functionCall(
       "ft_transfer_call",
       {
-        receiver_id: this.program.mint,
-        amount: nearAmount.toString(),
+        receiver_id: this.program.programId,
+        amount: nearAmount,
         msg: JSON.stringify({
           address: [...this.address],
-          amount: nearAmount.toString(),
+          amount: nearAmount,
         }),
       },
       Gas.parse(gas),
-      nearAmount
+      new BN(1) // transferring requires 1 yOcto to be attached
     );
+  }
+
+  async fundUpTo(fundUpToAmount: number): Promise<FinalExecutionOutcome> {
+    const actions = await this.fundUpToActions(fundUpToAmount);
+    const txnReceipt = await this.program.sendActions(
+      actions,
+      this.program.mint.address
+    );
+    return txnReceipt;
+  }
+
+  async fundUpToActions(fundUpToAmount: number) {
+    const actions: Action[] = [];
+    let wrappedBalance = 0;
+    if (!this.program.mint.isUserAccountCreated(this.program.account)) {
+      actions.push(
+        this.program.mint.createUserAccountAction(this.program.account)
+      );
+    } else {
+      wrappedBalance = (
+        await this.program.mint.getUserAccountBalance(this.program.account)
+      ).toNumber();
+    }
+
+    const escrowBalance = new SwitchboardDecimal(
+      (await this.loadData()).amount,
+      this.program.mint.metadata.decimals
+    )
+      .toBig()
+      .toNumber();
+
+    const depositAmount = fundUpToAmount - escrowBalance;
+    const wrapAmount = depositAmount - wrappedBalance;
+
+    if (wrapAmount > 0) {
+      actions.push(
+        this.program.mint.wrapAction(this.program.account, wrapAmount)
+      );
+    }
+
+    if (depositAmount > 0) {
+      actions.push(
+        this.program.mint.depositAction(
+          this.program.account,
+          depositAmount,
+          this
+        )
+      );
+    }
+
+    return actions;
   }
 
   async withdraw(params: { amount: number }): Promise<FinalExecutionOutcome> {

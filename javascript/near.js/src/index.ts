@@ -9,7 +9,7 @@ export * as types from "./generated/index.js";
 export * as actions from "./actions.js";
 
 export * from "./errors.js";
-
+export * from "./token.js";
 export * from "./utils.js";
 export * from "./program.js";
 export * from "./transaction.js";

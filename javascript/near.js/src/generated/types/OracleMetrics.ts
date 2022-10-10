@@ -104,15 +104,45 @@ export class OracleMetrics implements IOracleMetrics {
 
   static fromSerde(obj: OracleMetricsSerde) {
     return new OracleMetrics({
-      consecutiveSuccess: new BN(obj.consecutive_success),
-      consecutiveError: new BN(obj.consecutive_error),
-      consecutiveDisagreement: new BN(obj.consecutive_disagreement),
-      consecutiveLateResponse: new BN(obj.consecutive_late_response),
-      consecutiveFailure: new BN(obj.consecutive_failure),
-      totalSuccess: new BN(obj.total_success),
-      totalError: new BN(obj.total_error),
-      totalDisagreement: new BN(obj.total_disagreement),
-      totalLateResponse: new BN(obj.total_late_response),
+      consecutiveSuccess: new BN(
+        obj.consecutive_success.toLocaleString("fullwide", {
+          useGrouping: false,
+        })
+      ),
+      consecutiveError: new BN(
+        obj.consecutive_error.toLocaleString("fullwide", { useGrouping: false })
+      ),
+      consecutiveDisagreement: new BN(
+        obj.consecutive_disagreement.toLocaleString("fullwide", {
+          useGrouping: false,
+        })
+      ),
+      consecutiveLateResponse: new BN(
+        obj.consecutive_late_response.toLocaleString("fullwide", {
+          useGrouping: false,
+        })
+      ),
+      consecutiveFailure: new BN(
+        obj.consecutive_failure.toLocaleString("fullwide", {
+          useGrouping: false,
+        })
+      ),
+      totalSuccess: new BN(
+        obj.total_success.toLocaleString("fullwide", { useGrouping: false })
+      ),
+      totalError: new BN(
+        obj.total_error.toLocaleString("fullwide", { useGrouping: false })
+      ),
+      totalDisagreement: new BN(
+        obj.total_disagreement.toLocaleString("fullwide", {
+          useGrouping: false,
+        })
+      ),
+      totalLateResponse: new BN(
+        obj.total_late_response.toLocaleString("fullwide", {
+          useGrouping: false,
+        })
+      ),
     });
   }
 }

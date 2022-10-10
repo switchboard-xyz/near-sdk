@@ -186,23 +186,35 @@ export class OracleQueueInit implements IOracleQueueInit {
       mint: obj.mint,
       name: new Uint8Array(obj.name),
       metadata: new Uint8Array(obj.metadata),
-      reward: new BN(obj.reward),
-      minStake: new BN(obj.min_stake),
+      reward: new BN(
+        obj.reward.toLocaleString("fullwide", { useGrouping: false })
+      ),
+      minStake: new BN(
+        obj.min_stake.toLocaleString("fullwide", { useGrouping: false })
+      ),
       feedProbationPeriod: obj.feed_probation_period,
       oracleTimeout: obj.oracle_timeout,
       slashingEnabled: obj.slashing_enabled,
       varianceToleranceMultiplier: types.SwitchboardDecimal.fromSerde(
         obj.variance_tolerance_multiplier
       ),
-      consecutiveFeedFailureLimit: new BN(obj.consecutive_feed_failure_limit),
+      consecutiveFeedFailureLimit: new BN(
+        obj.consecutive_feed_failure_limit.toLocaleString("fullwide", {
+          useGrouping: false,
+        })
+      ),
       consecutiveOracleFailureLimit: new BN(
-        obj.consecutive_oracle_failure_limit
+        obj.consecutive_oracle_failure_limit.toLocaleString("fullwide", {
+          useGrouping: false,
+        })
       ),
       queueSize: obj.queue_size,
       unpermissionedFeeds: obj.unpermissioned_feeds,
       unpermissionedVrf: obj.unpermissioned_vrf,
       enableBufferRelayers: obj.enable_buffer_relayers,
-      maxGasCost: new BN(obj.max_gas_cost),
+      maxGasCost: new BN(
+        obj.max_gas_cost.toLocaleString("fullwide", { useGrouping: false })
+      ),
     });
   }
 }

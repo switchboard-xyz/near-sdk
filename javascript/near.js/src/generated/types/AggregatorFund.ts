@@ -58,7 +58,9 @@ export class AggregatorFund implements IAggregatorFund {
     return new AggregatorFund({
       address: new Uint8Array(obj.address),
       funder: new Uint8Array(obj.funder),
-      amount: new BN(obj.amount),
+      amount: new BN(
+        obj.amount.toLocaleString("fullwide", { useGrouping: false })
+      ),
     });
   }
 }

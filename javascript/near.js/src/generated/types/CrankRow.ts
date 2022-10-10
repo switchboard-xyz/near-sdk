@@ -49,7 +49,9 @@ export class CrankRow implements ICrankRow {
   static fromSerde(obj: CrankRowSerde) {
     return new CrankRow({
       uuid: new Uint8Array(obj.uuid),
-      nextTimestamp: new BN(obj.next_timestamp),
+      nextTimestamp: new BN(
+        obj.next_timestamp.toLocaleString("fullwide", { useGrouping: false })
+      ),
     });
   }
 }

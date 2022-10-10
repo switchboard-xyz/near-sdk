@@ -58,7 +58,9 @@ export class AggregatorWithdraw implements IAggregatorWithdraw {
     return new AggregatorWithdraw({
       address: new Uint8Array(obj.address),
       destination: new Uint8Array(obj.destination),
-      amount: new BN(obj.amount),
+      amount: new BN(
+        obj.amount.toLocaleString("fullwide", { useGrouping: false })
+      ),
     });
   }
 }

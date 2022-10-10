@@ -170,12 +170,18 @@ export class AggregatorRound implements IAggregatorRound {
 
   static fromSerde(obj: AggregatorRoundSerde) {
     return new AggregatorRound({
-      id: new BN(obj.id),
+      id: new BN(obj.id.toLocaleString("fullwide", { useGrouping: false })),
       numSuccess: obj.num_success,
       numError: obj.num_error,
       isClosed: obj.is_closed,
-      roundOpenSlot: new BN(obj.round_open_slot),
-      roundOpenTimestamp: new BN(obj.round_open_timestamp),
+      roundOpenSlot: new BN(
+        obj.round_open_slot.toLocaleString("fullwide", { useGrouping: false })
+      ),
+      roundOpenTimestamp: new BN(
+        obj.round_open_timestamp.toLocaleString("fullwide", {
+          useGrouping: false,
+        })
+      ),
       result: types.SwitchboardDecimal.fromSerde(obj.result),
       stdDeviation: types.SwitchboardDecimal.fromSerde(obj.std_deviation),
       minResponse: types.SwitchboardDecimal.fromSerde(obj.min_response),

@@ -130,14 +130,34 @@ export class Escrow implements IEscrow {
     return new Escrow({
       address: new Uint8Array(obj.address),
       mint: obj.mint,
-      amount: new BN(obj.amount),
+      amount: new BN(
+        obj.amount.toLocaleString("fullwide", { useGrouping: false })
+      ),
       authority: obj.authority,
-      amountLocked: new BN(obj.amount_locked),
+      amountLocked: new BN(
+        obj.amount_locked.toLocaleString("fullwide", { useGrouping: false })
+      ),
       programControlled: obj.program_controlled,
-      creationTimestamp: new BN(obj.creation_timestamp),
-      lastTransferTimestamp: new BN(obj.last_transfer_timestamp),
-      lastDelegationTimestamp: new BN(obj.last_delegation_timestamp),
-      lastDelegationBlock: new BN(obj.last_delegation_block),
+      creationTimestamp: new BN(
+        obj.creation_timestamp.toLocaleString("fullwide", {
+          useGrouping: false,
+        })
+      ),
+      lastTransferTimestamp: new BN(
+        obj.last_transfer_timestamp.toLocaleString("fullwide", {
+          useGrouping: false,
+        })
+      ),
+      lastDelegationTimestamp: new BN(
+        obj.last_delegation_timestamp.toLocaleString("fullwide", {
+          useGrouping: false,
+        })
+      ),
+      lastDelegationBlock: new BN(
+        obj.last_delegation_block.toLocaleString("fullwide", {
+          useGrouping: false,
+        })
+      ),
       _ebuf: new Uint8Array(obj._ebuf),
       features: new Uint8Array(obj.features),
     });

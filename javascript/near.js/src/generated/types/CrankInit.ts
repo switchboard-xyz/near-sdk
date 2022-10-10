@@ -76,7 +76,9 @@ export class CrankInit implements ICrankInit {
       name: new Uint8Array(obj.name),
       metadata: new Uint8Array(obj.metadata),
       queue: new Uint8Array(obj.queue),
-      maxRows: new BN(obj.max_rows),
+      maxRows: new BN(
+        obj.max_rows.toLocaleString("fullwide", { useGrouping: false })
+      ),
     });
   }
 }

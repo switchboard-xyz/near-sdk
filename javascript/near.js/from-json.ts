@@ -33,7 +33,7 @@ if (process.argv.length > 2) {
 
   const queueAccount = new sbv2.QueueAccount({
     program,
-    address: base58.decode("6DtC895RCzCABrkAxyxNUVxFMbhdgnBb6fAnEv8Kk7rP"),
+    address: base58.decode("w7L265ULDFfypoAhZP4Eam4UAUy6mu3NgVqs54JbYiq"),
   });
   const queue = await queueAccount.loadData();
 
@@ -48,6 +48,7 @@ if (process.argv.length > 2) {
       minJobResults: 1,
       minUpdateDelaySeconds: 10,
       historySize: 2000,
+      // fundUpTo: 13.2,
       jobs: [
         {
           authority: program.account.accountId,
@@ -177,9 +178,9 @@ if (process.argv.length > 2) {
         },
         toBase58(
           new Uint8Array([
-            195, 233, 107, 28, 118, 70, 120, 181, 209, 22, 92, 250, 122, 73, 65,
-            50, 62, 249, 193, 93, 67, 91, 207, 33, 155, 224, 208, 195, 128, 184,
-            191, 204,
+            232, 173, 76, 86, 210, 210, 248, 3, 251, 240, 244, 5, 198, 152, 196,
+            151, 210, 235, 95, 198, 47, 91, 5, 55, 160, 101, 173, 201, 13, 135,
+            227, 0,
           ])
         ),
       ],

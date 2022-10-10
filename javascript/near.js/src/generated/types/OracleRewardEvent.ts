@@ -74,9 +74,15 @@ export class OracleRewardEvent implements IOracleRewardEvent {
     return new OracleRewardEvent({
       feedKey: new Uint8Array(obj.feed_key),
       oracleKey: new Uint8Array(obj.oracle_key),
-      amount: new BN(obj.amount),
-      roundId: new BN(obj.round_id),
-      timestamp: new BN(obj.timestamp),
+      amount: new BN(
+        obj.amount.toLocaleString("fullwide", { useGrouping: false })
+      ),
+      roundId: new BN(
+        obj.round_id.toLocaleString("fullwide", { useGrouping: false })
+      ),
+      timestamp: new BN(
+        obj.timestamp.toLocaleString("fullwide", { useGrouping: false })
+      ),
     });
   }
 }

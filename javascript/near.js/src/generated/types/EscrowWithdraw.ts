@@ -57,7 +57,9 @@ export class EscrowWithdraw implements IEscrowWithdraw {
   static fromSerde(obj: EscrowWithdrawSerde) {
     return new EscrowWithdraw({
       address: new Uint8Array(obj.address),
-      amount: new BN(obj.amount),
+      amount: new BN(
+        obj.amount.toLocaleString("fullwide", { useGrouping: false })
+      ),
       destination: obj.destination,
     });
   }

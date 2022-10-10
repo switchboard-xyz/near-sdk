@@ -85,7 +85,9 @@ export class JobInit implements IJobInit {
       name: new Uint8Array(obj.name),
       metadata: new Uint8Array(obj.metadata),
       data: new Uint8Array(obj.data),
-      expiration: new BN(obj.expiration),
+      expiration: new BN(
+        obj.expiration.toLocaleString("fullwide", { useGrouping: false })
+      ),
     });
   }
 }

@@ -18,20 +18,21 @@ import { SwitchboardTransaction } from "./transaction.js";
 import { FinalExecutionOutcome } from "near-api-js/lib/providers/provider.js";
 import { Action } from "near-api-js/lib/transaction.js";
 import { handleReceipt } from "./errors.js";
-import { types } from "./index.js";
+import { DEFAULT_FUNCTION_CALL_GAS, types } from "./index.js";
+import { FungibleToken } from "./token";
 
 export type NearNetwork = "testnet" | "mainnet" | "betanet" | "localnet";
 
 export const getWrappedMint = (networkId: string): string => {
   switch (networkId) {
     case "testnet": {
-      return "wrap.test";
+      return "wrap.testnet";
     }
     case "mainnet": {
-      return "wrap.test";
+      return "wrap.near";
     }
     case "betanet": {
-      return "wrap.beta";
+      return "wrap.betanet";
     }
     case "localnet": {
       return "token.test.near";
@@ -74,18 +75,16 @@ export class SwitchboardProgramReadOnly extends Error {
 
 export class SwitchboardProgram {
   readonly programId: string;
-  readonly mint: string;
   private _account: Account;
 
   constructor(
     readonly keystore: KeyStore,
     _account: Account,
-    programId?: string,
-    mint?: string
+    readonly mint: FungibleToken,
+    programId?: string
   ) {
     this._account = _account;
     this.programId = programId ?? getProgramId(_account.connection.networkId);
-    this.mint = mint ?? getWrappedMint(_account.connection.networkId);
   }
 
   get isReadOnly(): boolean {
@@ -121,8 +120,12 @@ export class SwitchboardProgram {
 
     const near = await loadNear(networkId, keystore, rpcUrl);
     const account = new Account(near.connection, "READ_ONLY");
+    const wrappedMint = await FungibleToken.load(
+      near.connection,
+      mint ?? getWrappedMint(networkId)
+    );
 
-    return new SwitchboardProgram(keystore, account, programId, mint);
+    return new SwitchboardProgram(keystore, account, wrappedMint, programId);
   }
 
   /** Load the Switchboard Program from a filesystem keypair */
@@ -140,8 +143,12 @@ export class SwitchboardProgram {
 
     const near = await loadNear(networkId, keystore, rpcUrl);
     const account = await near.account(accountId);
+    const wrappedMint = await FungibleToken.load(
+      near.connection,
+      mint ?? getWrappedMint(networkId)
+    );
 
-    return new SwitchboardProgram(keystore, account, programId, mint);
+    return new SwitchboardProgram(keystore, account, wrappedMint, programId);
   }
 
   /** Load the Switchboard Program from a KeyPair */
@@ -158,8 +165,12 @@ export class SwitchboardProgram {
 
     const near = await loadNear(networkId, keystore, rpcUrl);
     const account = await near.account(accountId);
+    const wrappedMint = await FungibleToken.load(
+      near.connection,
+      mint ?? getWrappedMint(networkId)
+    );
 
-    return new SwitchboardProgram(keystore, account, programId, mint);
+    return new SwitchboardProgram(keystore, account, wrappedMint, programId);
   }
 
   /** Load the Switchboard Program from browser storage */
@@ -179,24 +190,36 @@ export class SwitchboardProgram {
 
     const near = await loadNear(networkId, keystore, rpcUrl);
     const account = await near.account(accountId);
+    const wrappedMint = await FungibleToken.load(
+      near.connection,
+      mint ?? getWrappedMint(networkId)
+    );
 
-    return new SwitchboardProgram(keystore, account, programId, mint);
+    return new SwitchboardProgram(keystore, account, wrappedMint, programId);
   }
 
-  async sendAction(action: Action): Promise<FinalExecutionOutcome> {
+  async sendAction(
+    action: Action,
+    contractId = this.programId
+  ): Promise<FinalExecutionOutcome> {
     if (this.isReadOnly) {
       throw new SwitchboardProgramReadOnly();
     }
 
     const txnReceipt = await this.account.functionCall({
-      contractId: this.programId,
+      contractId: contractId,
       methodName: action.functionCall.methodName,
       args: action.functionCall.args,
+      gas: action.functionCall.gas ?? DEFAULT_FUNCTION_CALL_GAS,
+      attachedDeposit: action.functionCall.deposit,
     });
     return txnReceipt;
   }
 
-  async sendActions(actions: Action[]): Promise<FinalExecutionOutcome> {
+  async sendActions(
+    actions: Action[],
+    contractId = this.programId
+  ): Promise<FinalExecutionOutcome> {
     if (this.isReadOnly) {
       throw new SwitchboardProgramReadOnly();
     }
@@ -206,11 +229,7 @@ export class SwitchboardProgram {
       this.account.accountId
     );
 
-    const txn = new SwitchboardTransaction(
-      this.programId,
-      this.account,
-      actions
-    );
+    const txn = new SwitchboardTransaction(contractId, this.account, actions);
     const txnReceipt = await txn.send(keyPair);
 
     const result = handleReceipt(txnReceipt);
