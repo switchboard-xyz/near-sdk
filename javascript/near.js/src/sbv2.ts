@@ -301,18 +301,18 @@ export class AggregatorAccount {
   }
 
   fundAction(params: { funder: Uint8Array; amount: number }): Action {
-    const amountYocto = utils.format.parseNearAmount(params.amount.toString());
+    const nearAmount = NEAR.parse(`${params.amount} N`);
     return functionCall(
       "aggregator_fund",
       {
         ix: {
           address: [...this.address],
           funder: [...params.funder],
-          amount: Number(params.amount),
+          amount: nearAmount.toString(),
         },
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      new BN(amountYocto)
+      new BN(0)
     );
   }
 
