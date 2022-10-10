@@ -48,7 +48,9 @@ export class JsonDecimal implements IJsonDecimal {
 
   static fromSerde(obj: JsonDecimalSerde) {
     return new JsonDecimal({
-      mantissa: new BN(obj.mantissa),
+      mantissa: new BN(
+        obj.mantissa.toLocaleString("fullwide", { useGrouping: false })
+      ),
       scale: obj.scale,
     });
   }

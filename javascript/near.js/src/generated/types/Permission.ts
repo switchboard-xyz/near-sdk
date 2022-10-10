@@ -108,9 +108,17 @@ export class Permission implements IPermission {
       permissions: obj.permissions,
       granter: new Uint8Array(obj.granter),
       grantee: new Uint8Array(obj.grantee),
-      expiration: new BN(obj.expiration),
-      creationTimestamp: new BN(obj.creation_timestamp),
-      updateTimestamp: new BN(obj.update_timestamp),
+      expiration: new BN(
+        obj.expiration.toLocaleString("fullwide", { useGrouping: false })
+      ),
+      creationTimestamp: new BN(
+        obj.creation_timestamp.toLocaleString("fullwide", {
+          useGrouping: false,
+        })
+      ),
+      updateTimestamp: new BN(
+        obj.update_timestamp.toLocaleString("fullwide", { useGrouping: false })
+      ),
       _ebuf: new Uint8Array(obj._ebuf),
       features: new Uint8Array(obj.features),
     });

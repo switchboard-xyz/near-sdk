@@ -250,18 +250,32 @@ export class OracleQueue implements IOracleQueue {
       metadata: new Uint8Array(obj.metadata),
       authority: obj.authority,
       oracleTimeout: obj.oracle_timeout,
-      reward: new BN(obj.reward),
-      minStake: new BN(obj.min_stake),
+      reward: new BN(
+        obj.reward.toLocaleString("fullwide", { useGrouping: false })
+      ),
+      minStake: new BN(
+        obj.min_stake.toLocaleString("fullwide", { useGrouping: false })
+      ),
       slashingEnabled: obj.slashing_enabled,
       varianceToleranceMultiplier: types.SwitchboardDecimal.fromSerde(
         obj.variance_tolerance_multiplier
       ),
       feedProbationPeriod: obj.feed_probation_period,
-      currIdx: new BN(obj.curr_idx),
-      gcIdx: new BN(obj.gc_idx),
-      consecutiveFeedFailureLimit: new BN(obj.consecutive_feed_failure_limit),
+      currIdx: new BN(
+        obj.curr_idx.toLocaleString("fullwide", { useGrouping: false })
+      ),
+      gcIdx: new BN(
+        obj.gc_idx.toLocaleString("fullwide", { useGrouping: false })
+      ),
+      consecutiveFeedFailureLimit: new BN(
+        obj.consecutive_feed_failure_limit.toLocaleString("fullwide", {
+          useGrouping: false,
+        })
+      ),
       consecutiveOracleFailureLimit: new BN(
-        obj.consecutive_oracle_failure_limit
+        obj.consecutive_oracle_failure_limit.toLocaleString("fullwide", {
+          useGrouping: false,
+        })
       ),
       unpermissionedFeedsEnabled: obj.unpermissioned_feeds_enabled,
       unpermissionedVrfEnabled: obj.unpermissioned_vrf_enabled,
@@ -273,8 +287,14 @@ export class OracleQueue implements IOracleQueue {
       enableBufferRelayers: obj.enable_buffer_relayers,
       maxSize: obj.max_size,
       data: obj.data.map((item) => new Uint8Array(item)),
-      maxGasCost: new BN(obj.max_gas_cost),
-      creationTimestamp: new BN(obj.creation_timestamp),
+      maxGasCost: new BN(
+        obj.max_gas_cost.toLocaleString("fullwide", { useGrouping: false })
+      ),
+      creationTimestamp: new BN(
+        obj.creation_timestamp.toLocaleString("fullwide", {
+          useGrouping: false,
+        })
+      ),
       _ebuf: new Uint8Array(obj._ebuf),
       features: new Uint8Array(obj.features),
     });

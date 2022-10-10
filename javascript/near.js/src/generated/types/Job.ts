@@ -132,12 +132,18 @@ export class Job implements IJob {
       name: new Uint8Array(obj.name),
       metadata: new Uint8Array(obj.metadata),
       authority: obj.authority,
-      expiration: new BN(obj.expiration),
+      expiration: new BN(
+        obj.expiration.toLocaleString("fullwide", { useGrouping: false })
+      ),
       hash: new Uint8Array(obj.hash),
       data: new Uint8Array(obj.data),
       referenceCount: obj.reference_count,
-      totalSpent: new BN(obj.total_spent),
-      createdAt: new BN(obj.created_at),
+      totalSpent: new BN(
+        obj.total_spent.toLocaleString("fullwide", { useGrouping: false })
+      ),
+      createdAt: new BN(
+        obj.created_at.toLocaleString("fullwide", { useGrouping: false })
+      ),
       _ebuf: new Uint8Array(obj._ebuf),
       features: new Uint8Array(obj.features),
     });

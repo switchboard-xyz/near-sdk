@@ -66,7 +66,9 @@ export class OracleUnstake implements IOracleUnstake {
     return new OracleUnstake({
       oracle: new Uint8Array(obj.oracle),
       destination: new Uint8Array(obj.destination),
-      amount: new BN(obj.amount),
+      amount: new BN(
+        obj.amount.toLocaleString("fullwide", { useGrouping: false })
+      ),
       delegate: obj.delegate,
     });
   }

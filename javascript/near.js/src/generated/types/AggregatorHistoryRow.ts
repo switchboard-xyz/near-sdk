@@ -56,8 +56,12 @@ export class AggregatorHistoryRow implements IAggregatorHistoryRow {
 
   static fromSerde(obj: AggregatorHistoryRowSerde) {
     return new AggregatorHistoryRow({
-      roundId: new BN(obj.round_id),
-      timestamp: new BN(obj.timestamp),
+      roundId: new BN(
+        obj.round_id.toLocaleString("fullwide", { useGrouping: false })
+      ),
+      timestamp: new BN(
+        obj.timestamp.toLocaleString("fullwide", { useGrouping: false })
+      ),
       value: types.SwitchboardDecimal.fromSerde(obj.value),
     });
   }

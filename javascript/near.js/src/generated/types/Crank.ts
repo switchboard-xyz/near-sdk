@@ -116,10 +116,16 @@ export class Crank implements ICrank {
       name: new Uint8Array(obj.name),
       metadata: new Uint8Array(obj.metadata),
       queue: new Uint8Array(obj.queue),
-      maxRows: new BN(obj.max_rows),
+      maxRows: new BN(
+        obj.max_rows.toLocaleString("fullwide", { useGrouping: false })
+      ),
       jitterModifier: obj.jitter_modifier,
       data: obj.data.map((item) => types.CrankRow.fromSerde(item)),
-      creationTimestamp: new BN(obj.creation_timestamp),
+      creationTimestamp: new BN(
+        obj.creation_timestamp.toLocaleString("fullwide", {
+          useGrouping: false,
+        })
+      ),
       _ebuf: new Uint8Array(obj._ebuf),
       features: new Uint8Array(obj.features),
     });

@@ -87,8 +87,12 @@ export class AggregatorValueUpdateEvent implements IAggregatorValueUpdateEvent {
       oracleValues: obj.oracle_values.map((item) =>
         types.SwitchboardDecimal.fromSerde(item)
       ),
-      timestamp: new BN(obj.timestamp),
-      roundId: new BN(obj.round_id),
+      timestamp: new BN(
+        obj.timestamp.toLocaleString("fullwide", { useGrouping: false })
+      ),
+      roundId: new BN(
+        obj.round_id.toLocaleString("fullwide", { useGrouping: false })
+      ),
       value: types.SwitchboardDecimal.fromSerde(obj.value),
     });
   }

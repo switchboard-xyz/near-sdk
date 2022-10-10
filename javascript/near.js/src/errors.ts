@@ -1,5 +1,6 @@
 import { FinalExecutionOutcome } from "near-api-js/lib/providers";
 import { Action } from "near-api-js/lib/transaction.js";
+import { Generic } from "./generated/index.js";
 import { types } from "./index.js";
 
 /** This function takes a txnReceipt and parses the logs for any internal Switchboard errors

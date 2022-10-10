@@ -24,8 +24,8 @@ export const sleep = (ms: number): Promise<any> =>
   new Promise((s) => setTimeout(s, ms));
 
 (async function main() {
-  const MINT = "dev-1664822185796-65918270649539";
-  const PID = "dev-1663462691922-84955131055223";
+  const MINT = "wrap.testnet";
+  const PID = "switchboard-v2.testnet";
   const program = await sbv2.SwitchboardProgram.loadFromFs(
     "testnet",
     "https://rpc.testnet.near.org",
@@ -43,7 +43,7 @@ export const sleep = (ms: number): Promise<any> =>
     rootKeystore,
     "https://rpc.testnet.near.org"
   );
-  const root = await rootNear.account(MINT);
+  // const root = await rootNear.account(MINT);
 
   const escrow = await sbv2.EscrowAccount.create(program, {
     authority: PID,
@@ -51,18 +51,18 @@ export const sleep = (ms: number): Promise<any> =>
   });
 
   console.log("1");
-  await root.functionCall({
+  await program.account.functionCall({
     contractId: MINT,
     methodName: "storage_deposit",
     args: {
-      account_id: "switchboard-v2",
+      account_id: "switchboard-v2.testnet",
     },
     gas: Gas.parse("100 Tgas"),
     attachedDeposit: NEAR.parse("1 N"),
   });
 
   console.log("2");
-  await root.functionCall({
+  await program.account.functionCall({
     contractId: `${MINT}`,
     methodName: "ft_transfer_call",
     args: {

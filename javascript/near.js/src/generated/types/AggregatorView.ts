@@ -297,14 +297,30 @@ export class AggregatorView implements IAggregatorView {
       minOracleResults: obj.min_oracle_results,
       minJobResults: obj.min_job_results,
       minUpdateDelaySeconds: obj.min_update_delay_seconds,
-      startAfter: new BN(obj.start_after),
+      startAfter: new BN(
+        obj.start_after.toLocaleString("fullwide", { useGrouping: false })
+      ),
       varianceThreshold: types.SwitchboardDecimal.fromSerde(
         obj.variance_threshold
       ),
-      forceReportPeriod: new BN(obj.force_report_period),
-      expiration: new BN(obj.expiration),
-      consecutiveFailureCount: new BN(obj.consecutive_failure_count),
-      nextAllowedUpdateTime: new BN(obj.next_allowed_update_time),
+      forceReportPeriod: new BN(
+        obj.force_report_period.toLocaleString("fullwide", {
+          useGrouping: false,
+        })
+      ),
+      expiration: new BN(
+        obj.expiration.toLocaleString("fullwide", { useGrouping: false })
+      ),
+      consecutiveFailureCount: new BN(
+        obj.consecutive_failure_count.toLocaleString("fullwide", {
+          useGrouping: false,
+        })
+      ),
+      nextAllowedUpdateTime: new BN(
+        obj.next_allowed_update_time.toLocaleString("fullwide", {
+          useGrouping: false,
+        })
+      ),
       isLocked: obj.is_locked,
       crank: new Uint8Array(obj.crank),
       crankRowCount: obj.crank_row_count,
@@ -318,15 +334,29 @@ export class AggregatorView implements IAggregatorView {
       history: obj.history.map((item) =>
         types.AggregatorHistoryRow.fromSerde(item)
       ),
-      historyWriteIdx: new BN(obj.history_write_idx),
-      historyLimit: new BN(obj.history_limit),
+      historyWriteIdx: new BN(
+        obj.history_write_idx.toLocaleString("fullwide", { useGrouping: false })
+      ),
+      historyLimit: new BN(
+        obj.history_limit.toLocaleString("fullwide", { useGrouping: false })
+      ),
       previousConfirmedRoundResult: types.SwitchboardDecimal.fromSerde(
         obj.previous_confirmed_round_result
       ),
-      previousConfirmedRoundSlot: new BN(obj.previous_confirmed_round_slot),
+      previousConfirmedRoundSlot: new BN(
+        obj.previous_confirmed_round_slot.toLocaleString("fullwide", {
+          useGrouping: false,
+        })
+      ),
       jobWeights: new Uint8Array(obj.job_weights),
-      creationTimestamp: new BN(obj.creation_timestamp),
-      readCharge: new BN(obj.read_charge),
+      creationTimestamp: new BN(
+        obj.creation_timestamp.toLocaleString("fullwide", {
+          useGrouping: false,
+        })
+      ),
+      readCharge: new BN(
+        obj.read_charge.toLocaleString("fullwide", { useGrouping: false })
+      ),
       rewardEscrow: new Uint8Array(obj.reward_escrow),
     });
   }

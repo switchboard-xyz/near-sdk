@@ -48,7 +48,9 @@ export class SwitchboardDecimal implements ISwitchboardDecimal {
 
   static fromSerde(obj: SwitchboardDecimalSerde) {
     return new SwitchboardDecimal({
-      mantissa: new BN(obj.mantissa),
+      mantissa: new BN(
+        obj.mantissa.toLocaleString("fullwide", { useGrouping: false })
+      ),
       scale: obj.scale,
     });
   }

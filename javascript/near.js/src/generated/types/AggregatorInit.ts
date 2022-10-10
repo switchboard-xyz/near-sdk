@@ -179,16 +179,28 @@ export class AggregatorInit implements IAggregatorInit {
       minOracleResults: obj.min_oracle_results,
       minJobResults: obj.min_job_results,
       minUpdateDelaySeconds: obj.min_update_delay_seconds,
-      startAfter: new BN(obj.start_after),
+      startAfter: new BN(
+        obj.start_after.toLocaleString("fullwide", { useGrouping: false })
+      ),
       varianceThreshold: types.SwitchboardDecimal.fromSerde(
         obj.variance_threshold
       ),
-      forceReportPeriod: new BN(obj.force_report_period),
-      expiration: new BN(obj.expiration),
+      forceReportPeriod: new BN(
+        obj.force_report_period.toLocaleString("fullwide", {
+          useGrouping: false,
+        })
+      ),
+      expiration: new BN(
+        obj.expiration.toLocaleString("fullwide", { useGrouping: false })
+      ),
       crank: new Uint8Array(obj.crank),
       rewardEscrow: new Uint8Array(obj.reward_escrow),
-      historyLimit: new BN(obj.history_limit),
-      maxGasCost: new BN(obj.max_gas_cost),
+      historyLimit: new BN(
+        obj.history_limit.toLocaleString("fullwide", { useGrouping: false })
+      ),
+      maxGasCost: new BN(
+        obj.max_gas_cost.toLocaleString("fullwide", { useGrouping: false })
+      ),
     });
   }
 }

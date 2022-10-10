@@ -58,7 +58,9 @@ export class OracleBootedEvent implements IOracleBootedEvent {
     return new OracleBootedEvent({
       oracle: new Uint8Array(obj.oracle),
       queue: new Uint8Array(obj.queue),
-      timestamp: new BN(obj.timestamp),
+      timestamp: new BN(
+        obj.timestamp.toLocaleString("fullwide", { useGrouping: false })
+      ),
     });
   }
 }

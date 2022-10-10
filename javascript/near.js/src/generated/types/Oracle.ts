@@ -132,12 +132,22 @@ export class Oracle implements IOracle {
       name: new Uint8Array(obj.name),
       metadata: new Uint8Array(obj.metadata),
       authority: obj.authority,
-      lastHeartbeat: new BN(obj.last_heartbeat),
+      lastHeartbeat: new BN(
+        obj.last_heartbeat.toLocaleString("fullwide", { useGrouping: false })
+      ),
       numInUse: obj.num_in_use,
       queue: new Uint8Array(obj.queue),
       metrics: types.OracleMetrics.fromSerde(obj.metrics),
-      creationTimestamp: new BN(obj.creation_timestamp),
-      totalDelegatedStake: new BN(obj.total_delegated_stake),
+      creationTimestamp: new BN(
+        obj.creation_timestamp.toLocaleString("fullwide", {
+          useGrouping: false,
+        })
+      ),
+      totalDelegatedStake: new BN(
+        obj.total_delegated_stake.toLocaleString("fullwide", {
+          useGrouping: false,
+        })
+      ),
       _ebuf: new Uint8Array(obj._ebuf),
       features: new Uint8Array(obj.features),
     });
