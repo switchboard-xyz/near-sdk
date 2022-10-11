@@ -969,6 +969,64 @@ export class OracleAccount {
       new BN(0)
     );
   }
+
+  async stake(
+    funderEscrow: EscrowAccount,
+    amount: number
+  ): Promise<FinalExecutionOutcome> {
+    const txnReceipt = await this.program.sendAction(
+      this.stakeAction(funderEscrow, amount)
+    );
+    return txnReceipt;
+  }
+
+  stakeAction(funderEscrow: EscrowAccount, amount: number): Action {
+    const nearAmount = NEAR.parse(`${amount} N`);
+    return functionCall(
+      "oracle_stake",
+      {
+        ix: {
+          address: [...this.address],
+          funder: [...funderEscrow.address],
+          amount: nearAmount.toString(10),
+        },
+      },
+      DEFAULT_FUNCTION_CALL_GAS,
+      new BN(0)
+    );
+  }
+
+  async unstake(
+    destinationEscrow: EscrowAccount,
+    amount: number,
+    delegate = false
+  ): Promise<FinalExecutionOutcome> {
+    const txnReceipt = await this.program.sendAction(
+      this.unstakeAction(destinationEscrow, amount, delegate)
+    );
+    return txnReceipt;
+  }
+
+  unstakeAction(
+    destinationEscrow: EscrowAccount,
+    amount: number,
+    delegate = false
+  ): Action {
+    const nearAmount = NEAR.parse(`${amount} N`);
+    return functionCall(
+      "oracle_unstake",
+      {
+        ix: {
+          oracle: [...this.address],
+          destination: [...destinationEscrow.address],
+          amount: nearAmount.toString(10),
+          delegate: delegate,
+        },
+      },
+      DEFAULT_FUNCTION_CALL_GAS,
+      new BN(0)
+    );
+  }
 }
 
 export class EscrowAccount {
