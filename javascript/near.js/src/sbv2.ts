@@ -259,7 +259,7 @@ export class AggregatorAccount {
     error: boolean;
     value: SwitchboardDecimal;
     jobsChecksum: Uint8Array;
-    minRespose: SwitchboardDecimal;
+    minResponse: SwitchboardDecimal;
     maxResponse: SwitchboardDecimal;
   }): Promise<FinalExecutionOutcome> {
     const txnReceipt = await this.program.sendAction(
@@ -273,7 +273,7 @@ export class AggregatorAccount {
     error: boolean;
     value: SwitchboardDecimal;
     jobsChecksum: Uint8Array;
-    minRespose: SwitchboardDecimal;
+    minResponse: SwitchboardDecimal;
     maxResponse: SwitchboardDecimal;
   }): Action {
     return functionCall(
@@ -285,7 +285,7 @@ export class AggregatorAccount {
           error: params.error,
           value: params.value.toNearDecimal(),
           jobs_checksum: [...params.jobsChecksum],
-          min_response: params.minRespose.toNearDecimal(),
+          min_response: params.minResponse.toNearDecimal(),
           max_response: params.maxResponse.toNearDecimal(),
         },
       },
