@@ -106,6 +106,9 @@ pub struct Aggregator {
     pub read_charge: u128,
     pub reward_escrow: Uuid,
     pub max_gas_cost: u128, // 0 means no limit
+    pub whitelisted_readers: Vec<Uuid>,
+    pub allow_whitelist_only: bool,
     /// Reserved for future info.
     pub _ebuf: Vec<u8>,
+    pub features: Vec<u8>,
 }
