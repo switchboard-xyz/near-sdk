@@ -10,6 +10,7 @@ import { Gas, NEAR } from "near-units";
 import { AggregatorView, AggregatorViewSerde } from "./generated/index.js";
 import { types } from "./index.js";
 import { roClient, SwitchboardProgram } from "./program.js";
+import { DEFAULT_FT_STORAGE_DEPOSIT } from "./token";
 import { fromBase58, isBase58, parseAddressString } from "./utils.js";
 
 Big.DP = 40;
@@ -1189,8 +1190,11 @@ export class EscrowAccount {
 
   async fundUpToActions(params: { amount: number }) {
     const actions: Action[] = [];
+    const userAccountExists = await this.program.mint.isUserAccountCreated(
+      this.program.account
+    );
 
-    if (!this.program.mint.isUserAccountCreated(this.program.account)) {
+    if (!userAccountExists) {
       // If the the user account doesn't have a wNEAR wallet, we need to create one for them.
       actions.push(this.program.mint.createAccountAction(this.program.account));
     }
@@ -1210,7 +1214,12 @@ export class EscrowAccount {
 
     if (wrapAmount > 0) {
       actions.push(
-        this.program.mint.wrapAction(this.program.account, wrapAmount)
+        this.program.mint.wrapAction(
+          this.program.account,
+          userAccountExists // If the user account doesn't already exist, we need to attach a storage deposit.
+            ? wrappedBalance
+            : wrappedBalance + DEFAULT_FT_STORAGE_DEPOSIT
+        )
       );
     }
 
