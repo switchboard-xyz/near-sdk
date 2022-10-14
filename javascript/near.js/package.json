@@ -31,7 +31,7 @@
     "near-api-js": "^1.0.0",
     "near-lake-framework": "^1.0.4",
     "near-units": "^0.1.9",
-    "typedoc": "^0.23.15",
+    "typedoc": "^0.23.16",
     "wait-for-event": "^2.0.1"
   },
   "devDependencies": {
