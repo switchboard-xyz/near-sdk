@@ -1238,7 +1238,7 @@ export class EscrowAccount {
   }
 
   withdrawAction(params: { amount: number }): Action {
-    const amountYocto = utils.format.parseNearAmount(params.amount.toString());
+    const amountYocto = NEAR.parse(params.amount.toFixed(20));
     return functionCall(
       "escrow_withdraw",
       {
