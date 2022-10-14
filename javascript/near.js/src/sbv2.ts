@@ -1243,12 +1243,12 @@ export class EscrowAccount {
       "escrow_withdraw",
       {
         ix: {
-          address: [...this.address],
+          destination: [...this.address],
           amount: Number(amountYocto),
         },
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      new BN(amountYocto)
+      new BN(0)
     );
   }
 }
