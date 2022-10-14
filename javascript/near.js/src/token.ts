@@ -11,7 +11,7 @@ import { roClient } from "./program.js";
 import { DEFAULT_FUNCTION_CALL_GAS, SwitchboardDecimal } from "./sbv2.js";
 import { SwitchboardTransaction } from "./transaction.js";
 
-export const DEFAULT_FT_STORAGE_DEPOSIT = NEAR.parse("0.00125 N");
+export const DEFAULT_FT_STORAGE_DEPOSIT = 0.00125; // Described in units of NEAR.
 
 export class FungibleTokenAccountAlreadyCreated extends Error {
   constructor(mint: string, accountId: string) {
@@ -89,7 +89,7 @@ export class FungibleToken {
     const storageDeposit = await this.getStorageDeposit(account);
     if (
       storageDeposit === null ||
-      storageDeposit.total.lt(DEFAULT_FT_STORAGE_DEPOSIT)
+      storageDeposit.total.lt(NEAR.from(DEFAULT_FT_STORAGE_DEPOSIT))
     ) {
       return false;
     }
@@ -112,7 +112,7 @@ export class FungibleToken {
         account_id: account.accountId,
       },
       Gas.parse("20 Tgas"),
-      DEFAULT_FT_STORAGE_DEPOSIT
+      NEAR.from(DEFAULT_FT_STORAGE_DEPOSIT)
     );
   }
 
