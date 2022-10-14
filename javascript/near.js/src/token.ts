@@ -1,19 +1,15 @@
 import Big from "big.js";
 import { BN } from "bn.js";
 import { Account, Connection } from "near-api-js";
-import { roClient, SwitchboardProgram } from "./program.js";
-import {
-  DEFAULT_FUNCTION_CALL_GAS,
-  EscrowAccount,
-  SwitchboardDecimal,
-} from "./sbv2.js";
-import { NEAR, Gas, parse } from "near-units";
-import { Action, functionCall } from "near-api-js/lib/transaction.js";
-import { FinalExecutionOutcome } from "near-api-js/lib/providers/provider.js";
-import { SwitchboardTransaction } from "./transaction.js";
 import { KeyStore } from "near-api-js/lib/key_stores/keystore.js";
+import { FinalExecutionOutcome } from "near-api-js/lib/providers/provider.js";
+import { Action, functionCall } from "near-api-js/lib/transaction.js";
+import { Gas, NEAR } from "near-units";
 import { handleReceipt } from "./errors.js";
 import { types } from "./index.js";
+import { roClient } from "./program.js";
+import { DEFAULT_FUNCTION_CALL_GAS, SwitchboardDecimal } from "./sbv2.js";
+import { SwitchboardTransaction } from "./transaction.js";
 
 export const DEFAULT_FT_STORAGE_DEPOSIT = NEAR.parse("0.00125 N");
 
@@ -152,7 +148,7 @@ export class FungibleToken {
       );
     }
 
-    const nearAmount = NEAR.parse(`${amount} N`);
+    const nearAmount = NEAR.parse(amount.toFixed(20));
     return functionCall("near_deposit", {}, Gas.parse("20 Tgas"), nearAmount);
   }
 
@@ -172,12 +168,10 @@ export class FungibleToken {
       );
     }
 
-    const nearAmount = NEAR.parse(`${amount} N`);
+    const nearAmount = NEAR.parse(amount.toFixed(20));
     return functionCall(
       "near_withdraw",
-      {
-        amount: nearAmount,
-      },
+      { amount: nearAmount },
       Gas.parse("20 Tgas"),
       new BN(1) // unwrapping requires 1 yOcto to be attached
     );
@@ -202,7 +196,7 @@ export class FungibleToken {
       );
     }
 
-    const nearAmount = NEAR.parse(`${amount} N`);
+    const nearAmount = NEAR.parse(amount.toFixed(20));
     return functionCall(
       "ft_transfer_call",
       {

@@ -1,20 +1,11 @@
 import * as sbv2 from "@switchboard-xyz/near.js";
-import { keyStores, Account, DEFAULT_FUNCTION_CALL_GAS } from "near-api-js";
-import { NEAR, Gas, parse } from "near-units";
-import Big from "big.js";
 import BN from "bn.js";
-import { homedir } from "os";
-import bs58 from "bs58";
-import { waitFor } from "wait-for-event";
 import { EventEmitter } from "events";
-import { OracleJob } from "@switchboard-xyz/common";
-import {
-  Action,
-  functionCall,
-  SignedTransaction,
-  Transaction,
-} from "near-api-js/lib/transaction";
+import { keyStores } from "near-api-js";
+import { Gas, NEAR } from "near-units";
+import { homedir } from "os";
 import path from "path";
+import { waitFor } from "wait-for-event";
 
 export function waitForever(): Promise<void> {
   return waitFor("", new EventEmitter());
@@ -50,7 +41,6 @@ export const sleep = (ms: number): Promise<any> =>
     mint: MINT,
   });
 
-  console.log("1");
   await program.account.functionCall({
     contractId: MINT,
     methodName: "storage_deposit",
@@ -61,7 +51,6 @@ export const sleep = (ms: number): Promise<any> =>
     attachedDeposit: NEAR.parse("1 N"),
   });
 
-  console.log("2");
   await program.account.functionCall({
     contractId: `${MINT}`,
     methodName: "ft_transfer_call",
@@ -77,7 +66,6 @@ export const sleep = (ms: number): Promise<any> =>
     gas: Gas.parse("100 Tgas"),
     attachedDeposit: new BN(1),
   });
-  console.log("3");
 
   await console.log(await escrow.loadData());
 })();

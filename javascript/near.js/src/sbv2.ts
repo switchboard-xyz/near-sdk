@@ -3,14 +3,14 @@ import Big from "big.js";
 import BN from "bn.js";
 import * as crypto from "crypto";
 import _ from "lodash";
-import { Account, KeyPair, utils } from "near-api-js";
+import { KeyPair, utils } from "near-api-js";
 import { FinalExecutionOutcome } from "near-api-js/lib/providers/provider";
 import { Action, functionCall } from "near-api-js/lib/transaction";
+import { Gas, NEAR } from "near-units";
 import { AggregatorView, AggregatorViewSerde } from "./generated/index.js";
 import { types } from "./index.js";
 import { roClient, SwitchboardProgram } from "./program.js";
 import { fromBase58, isBase58, parseAddressString } from "./utils.js";
-import { NEAR, Gas, parse } from "near-units";
 
 Big.DP = 40;
 
@@ -73,6 +73,7 @@ export class AggregatorAccount {
       params
     );
     const txnReceipt = await program.sendAction(action);
+    // TODO: do we want to handle failure case?
     return aggregator;
   }
 
@@ -134,9 +135,7 @@ export class AggregatorAccount {
     const data = await roClient(program.connection).viewFunction({
       contractId: program.programId,
       methodName: "view_aggregators_with_authority",
-      args: {
-        ix: { authority: authority },
-      },
+      args: { ix: { authority: authority } },
     });
     return (data as number[][]).map((bytes) => new Uint8Array(bytes));
   }
@@ -148,9 +147,7 @@ export class AggregatorAccount {
     const data = await roClient(program.connection).viewFunction({
       contractId: program.programId,
       methodName: "view_aggregators_state_with_authority",
-      args: {
-        ix: { authority: authority },
-      },
+      args: { ix: { authority: authority } },
     });
 
     return (data as AggregatorViewSerde[]).map((a) => [
@@ -165,9 +162,7 @@ export class AggregatorAccount {
     ).viewFunction({
       contractId: this.program.programId,
       methodName: "view_aggregator",
-      args: {
-        ix: { address: [...this.address] },
-      },
+      args: { ix: { address: [...this.address] } },
     });
     return types.AggregatorView.fromSerde(data);
   }
@@ -303,7 +298,7 @@ export class AggregatorAccount {
   }
 
   fundAction(params: { funder: Uint8Array; amount: number }): Action {
-    const nearAmount = NEAR.parse(`${params.amount} N`);
+    const nearAmount = NEAR.parse(params.amount.toFixed(20));
     return functionCall(
       "aggregator_fund",
       {
@@ -797,6 +792,7 @@ export class JobAccount {
   ): Promise<JobAccount> {
     const [action, job] = JobAccount.createAction(program, params);
     const txnReceipt = await program.sendAction(action);
+    // TODO: do we want to handle failure case?
     return job;
   }
 
@@ -835,40 +831,33 @@ export class JobAccount {
     ).viewFunction({
       contractId: this.program.programId,
       methodName: "view_job",
-      args: {
-        ix: { address: [...this.address] },
-      },
+      args: { ix: { address: [...this.address] } },
     });
     return types.Job.fromSerde(data);
   }
 
   public static async loadJobs(
     program: SwitchboardProgram,
-    addrs: Array<Uint8Array>
-  ): Promise<Array<OracleJob>> {
-    const addresses = [];
-    for (const addr of addrs) {
-      addresses.push([...addr]);
-    }
-    const parsed = [];
-    const results = await roClient(program.connection).viewFunction({
-      contractId: program.programId,
-      methodName: "view_jobs",
-      args: {
-        ix: { addresses },
-      },
-    });
-    for (const res of results) {
-      parsed.push(OracleJob.decodeDelimited(res.data));
-    }
-    return parsed;
+    params: { addrs: Uint8Array[] }
+  ): Promise<OracleJob[]> {
+    const addresses = params.addrs.map((addr) => [...addr]);
+    return roClient(program.connection)
+      .viewFunction({
+        contractId: program.programId,
+        methodName: "view_jobs",
+        args: { ix: { addresses } },
+      })
+      .then((results) =>
+        results.map((result) => OracleJob.decodeDelimited(result.data))
+      );
   }
 
   static produceJobsHash(jobs: Array<OracleJob>): crypto.Hash {
     const hash = crypto.createHash("sha256");
     for (const job of jobs) {
-      const jobHasher = crypto.createHash("sha256");
-      jobHasher.update(OracleJob.encodeDelimited(job).finish());
+      const jobHasher = crypto
+        .createHash("sha256")
+        .update(OracleJob.encodeDelimited(job).finish());
       hash.update(jobHasher.digest());
     }
     return hash;
@@ -970,24 +959,22 @@ export class OracleAccount {
     );
   }
 
-  async stake(
-    funderEscrow: EscrowAccount,
-    amount: number
-  ): Promise<FinalExecutionOutcome> {
-    const txnReceipt = await this.program.sendAction(
-      this.stakeAction(funderEscrow, amount)
-    );
+  async stake(params: {
+    funderEscrow: EscrowAccount;
+    amount: number;
+  }): Promise<FinalExecutionOutcome> {
+    const txnReceipt = await this.program.sendAction(this.stakeAction(params));
     return txnReceipt;
   }
 
-  stakeAction(funderEscrow: EscrowAccount, amount: number): Action {
-    const nearAmount = NEAR.parse(`${amount} N`);
+  stakeAction(params: { funderEscrow: EscrowAccount; amount: number }): Action {
+    const nearAmount = NEAR.parse(params.amount.toFixed(20));
     return functionCall(
       "oracle_stake",
       {
         ix: {
           address: [...this.address],
-          funder: [...funderEscrow.address],
+          funder: [...params.funderEscrow.address],
           amount: nearAmount.toString(10),
         },
       },
@@ -996,31 +983,31 @@ export class OracleAccount {
     );
   }
 
-  async unstake(
-    destinationEscrow: EscrowAccount,
-    amount: number,
-    delegate = false
-  ): Promise<FinalExecutionOutcome> {
+  async unstake(params: {
+    destinationEscrow: EscrowAccount;
+    amount: number;
+    delegate?: boolean;
+  }): Promise<FinalExecutionOutcome> {
     const txnReceipt = await this.program.sendAction(
-      this.unstakeAction(destinationEscrow, amount, delegate)
+      this.unstakeAction(params)
     );
     return txnReceipt;
   }
 
-  unstakeAction(
-    destinationEscrow: EscrowAccount,
-    amount: number,
-    delegate = false
-  ): Action {
-    const nearAmount = NEAR.parse(`${amount} N`);
+  unstakeAction(params: {
+    destinationEscrow: EscrowAccount;
+    amount: number;
+    delegate?: boolean;
+  }): Action {
+    const nearAmount = NEAR.parse(params.amount.toFixed(20));
     return functionCall(
       "oracle_unstake",
       {
         ix: {
           oracle: [...this.address],
-          destination: [...destinationEscrow.address],
+          destination: [...params.destinationEscrow.address],
           amount: nearAmount.toString(10),
-          delegate: delegate,
+          delegate: params.delegate ?? false,
         },
       },
       DEFAULT_FUNCTION_CALL_GAS,
@@ -1034,9 +1021,10 @@ export class EscrowAccount {
   address: Uint8Array;
 
   public static keyFromSeed(seed: Uint8Array): Uint8Array {
-    const hash = crypto.createHash("sha256");
-    hash.update(Buffer.from("Escrow"));
-    hash.update(seed);
+    const hash = crypto
+      .createHash("sha256")
+      .update(Buffer.from("Escrow"))
+      .update(seed);
     return new Uint8Array(hash.digest());
   }
 
@@ -1162,16 +1150,19 @@ export class EscrowAccount {
     return types.Escrow.fromSerde(data);
   }
 
-  async fund(amount: number, gas = "40 Tgas"): Promise<FinalExecutionOutcome> {
+  async fund(
+    params: { amount: number },
+    gas = "40 Tgas"
+  ): Promise<FinalExecutionOutcome> {
     const txnReceipt = await this.program.sendAction(
-      this.fundAction(amount, gas),
+      this.fundAction(params, gas),
       this.program.mint.address
     );
     return txnReceipt;
   }
 
-  fundAction(amount: number, gas = "40 Tgas"): Action {
-    const nearAmount = NEAR.parse(`${amount} N`);
+  fundAction(params: { amount: number }, gas = "40 Tgas"): Action {
+    const nearAmount = NEAR.parse(params.amount.toFixed(20));
     return functionCall(
       "ft_transfer_call",
       {
@@ -1187,8 +1178,8 @@ export class EscrowAccount {
     );
   }
 
-  async fundUpTo(fundUpToAmount: number): Promise<FinalExecutionOutcome> {
-    const actions = await this.fundUpToActions(fundUpToAmount);
+  async fundUpTo(params: { amount: number }): Promise<FinalExecutionOutcome> {
+    const actions = await this.fundUpToActions(params);
     const txnReceipt = await this.program.sendActions(
       actions,
       this.program.mint.address
@@ -1196,25 +1187,25 @@ export class EscrowAccount {
     return txnReceipt;
   }
 
-  async fundUpToActions(fundUpToAmount: number) {
+  async fundUpToActions(params: { amount: number }) {
     const actions: Action[] = [];
-    let wrappedBalance = 0;
+
     if (!this.program.mint.isUserAccountCreated(this.program.account)) {
+      // If the the user account doesn't have a wNEAR wallet, we need to create one for them.
       actions.push(this.program.mint.createAccountAction(this.program.account));
-    } else {
-      wrappedBalance = (
-        await this.program.mint.getBalance(this.program.account)
-      ).toNumber();
     }
 
-    const escrowBalance = new SwitchboardDecimal(
-      (await this.loadData()).amount,
-      this.program.mint.metadata.decimals
-    )
-      .toBig()
-      .toNumber();
+    // Try to load the amount of wNEAR in the user-controlled wallet. Return 0 if the account can't be loaded.
+    const wrappedBalance: number = await this.program.mint
+      .getBalance(this.program.account)
+      .then((balance) => balance.toNumber())
+      .catch(() => 0);
+    // Try to load the balance on `this` EscrowAccount. Return 0 if the account can't be loaded.
+    const escrowBalance: number = await this.loadData()
+      .then((data) => +utils.format.formatNearAmount(data.amount.toString()))
+      .catch(() => 0);
 
-    const depositAmount = fundUpToAmount - escrowBalance;
+    const depositAmount = params.amount - escrowBalance;
     const wrapAmount = depositAmount - wrappedBalance;
 
     if (wrapAmount > 0) {
@@ -1224,7 +1215,7 @@ export class EscrowAccount {
     }
 
     if (depositAmount > 0) {
-      actions.push(this.fundAction(depositAmount));
+      actions.push(this.fundAction({ amount: depositAmount }));
     }
 
     return actions;
@@ -1292,6 +1283,7 @@ export class PermissionAccount {
       params
     );
     const txnReceipt = await program.sendAction(action);
+    // TODO: do we want to handle failure case?
     return permission;
   }
 
