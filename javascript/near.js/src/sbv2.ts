@@ -314,6 +314,29 @@ export class AggregatorAccount {
     );
   }
 
+  async withdraw(params: {
+    authority: Uint8Array;
+    amount: number;
+  }): Promise<FinalExecutionOutcome> {
+    return this.program.sendAction(this.withdrawAction(params));
+  }
+
+  withdrawAction(params: { authority: Uint8Array; amount: number }): Action {
+    const nearAmount = NEAR.parse(params.amount.toFixed(20));
+    return functionCall(
+      "aggregator_withdraw",
+      {
+        ix: {
+          address: [...this.address],
+          destination: [...params.authority],
+          amount: nearAmount.toString(),
+        },
+      },
+      DEFAULT_FUNCTION_CALL_GAS,
+      new BN(0)
+    );
+  }
+
   async addJob(params: {
     job: Uint8Array;
     weight?: number;
@@ -1188,7 +1211,7 @@ export class EscrowAccount {
     return txnReceipt;
   }
 
-  async fundUpToActions(params: { amount: number }) {
+  async fundUpToActions(params: { amount: number }): Promise<Action[]> {
     const actions: Action[] = [];
     const userAccountExists = await this.program.mint.isUserAccountCreated(
       this.program.account
@@ -1230,20 +1253,21 @@ export class EscrowAccount {
     return actions;
   }
 
-  async withdraw(params: { amount: number }): Promise<FinalExecutionOutcome> {
-    const txnReceipt = await this.program.sendAction(
-      this.withdrawAction(params)
-    );
-    return txnReceipt;
+  async withdraw(params: {
+    amount: number;
+    destination: string;
+  }): Promise<FinalExecutionOutcome> {
+    return this.program.sendAction(this.withdrawAction(params));
   }
 
-  withdrawAction(params: { amount: number }): Action {
+  withdrawAction(params: { amount: number; destination: string }): Action {
     const amountYocto = NEAR.parse(params.amount.toFixed(20));
     return functionCall(
       "escrow_withdraw",
       {
         ix: {
-          destination: [...this.address],
+          address: [...this.address],
+          destination: params.destination,
           amount: Number(amountYocto),
         },
       },
