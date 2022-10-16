@@ -14,7 +14,7 @@ export const isBase58 = (value: string): boolean =>
 export const parseAddressString = (address: string): Uint8Array => {
   // check if base58
   if (isBase58(address)) {
-    return bs58.decode(address);
+    return fromBase58(address);
   }
   // check if array of bytes
   // TODO: Make brackets optional
