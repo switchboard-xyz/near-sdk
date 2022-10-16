@@ -329,7 +329,7 @@ export class AggregatorAccount {
         ix: {
           address: [...this.address],
           destination: [...params.authority],
-          amount: nearAmount.toString(),
+          amount: nearAmount.toNumber(),
         },
       },
       DEFAULT_FUNCTION_CALL_GAS,
