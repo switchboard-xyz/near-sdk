@@ -201,6 +201,7 @@ export class AggregatorAccount {
     varianceThreshold?: SwitchboardDecimal;
     forceReportPeriod?: number;
     crank?: Uint8Array;
+    rewardEscrow?: Uint8Array;
   }): Action {
     return functionCall(
       "aggregator_set_configs",
@@ -219,6 +220,7 @@ export class AggregatorAccount {
           variance_threshold: params.varianceThreshold?.toNearDecimal(),
           force_report_period: params.forceReportPeriod,
           crank: params.crank ? [...params.crank] : null,
+          reward_escrow: params.rewardEscrow ? [...params.rewardEscrow] : null,
         },
       },
       DEFAULT_FUNCTION_CALL_GAS,
