@@ -19,6 +19,7 @@ export interface IAggregatorInit {
   rewardEscrow: Uint8Array;
   historyLimit: BN;
   maxGasCost: BN;
+  readCharge: BN;
 }
 
 export interface AggregatorInitJSON {
@@ -39,6 +40,7 @@ export interface AggregatorInitJSON {
   rewardEscrow: Array<number>;
   historyLimit: string;
   maxGasCost: string;
+  readCharge: string;
 }
 
 export interface AggregatorInitSerde {
@@ -59,6 +61,7 @@ export interface AggregatorInitSerde {
   reward_escrow: Array<number>;
   history_limit: number;
   max_gas_cost: number;
+  read_charge: number;
 }
 
 export class AggregatorInit implements IAggregatorInit {
@@ -79,6 +82,7 @@ export class AggregatorInit implements IAggregatorInit {
   readonly rewardEscrow: Uint8Array;
   readonly historyLimit: BN;
   readonly maxGasCost: BN;
+  readonly readCharge: BN;
 
   constructor(fields: IAggregatorInit) {
     this.address = fields.address;
@@ -98,6 +102,7 @@ export class AggregatorInit implements IAggregatorInit {
     this.rewardEscrow = fields.rewardEscrow;
     this.historyLimit = fields.historyLimit;
     this.maxGasCost = fields.maxGasCost;
+    this.readCharge = fields.readCharge;
   }
 
   toJSON(): AggregatorInitJSON {
@@ -119,6 +124,7 @@ export class AggregatorInit implements IAggregatorInit {
       rewardEscrow: [...this.rewardEscrow],
       historyLimit: this.historyLimit.toString(),
       maxGasCost: this.maxGasCost.toString(),
+      readCharge: this.readCharge.toString(),
     };
   }
 
@@ -141,6 +147,7 @@ export class AggregatorInit implements IAggregatorInit {
       reward_escrow: [...this.rewardEscrow],
       history_limit: this.historyLimit.toNumber(),
       max_gas_cost: this.maxGasCost.toNumber(),
+      read_charge: this.readCharge.toNumber(),
     };
   }
 
@@ -165,6 +172,7 @@ export class AggregatorInit implements IAggregatorInit {
       rewardEscrow: new Uint8Array(obj.rewardEscrow),
       historyLimit: new BN(obj.historyLimit),
       maxGasCost: new BN(obj.maxGasCost),
+      readCharge: new BN(obj.readCharge),
     });
   }
 
@@ -200,6 +208,9 @@ export class AggregatorInit implements IAggregatorInit {
       ),
       maxGasCost: new BN(
         obj.max_gas_cost.toLocaleString("fullwide", { useGrouping: false })
+      ),
+      readCharge: new BN(
+        obj.read_charge.toLocaleString("fullwide", { useGrouping: false })
       ),
     });
   }

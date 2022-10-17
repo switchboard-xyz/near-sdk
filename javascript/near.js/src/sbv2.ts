@@ -102,25 +102,28 @@ export class AggregatorAccount {
     const action = functionCall(
       "aggregator_init",
       {
-        ix: {
-          address: [...address],
+        ix: new types.AggregatorInit({
+          address: address,
           authority: params.authority,
-          queue: [...params.queue],
-          name: [...params.name],
-          metadata: [...params.metadata],
-          batch_size: params.batchSize,
-          min_oracle_results: params.minOracleResults,
-          min_job_results: params.minJobResults,
-          min_update_delay_seconds: params.minUpdateDelaySeconds,
-          start_after: params.startAfter,
-          variance_threshold: { mantissa: 0, scale: 0 },
-          force_report_period: params.forceReportPeriod,
-          crank: [...(params.crank ?? new Uint8Array(32))],
-          expiration: 0,
-          reward_escrow: [...(params.rewardEscrow ?? new Uint8Array(32))],
-          history_limit: params.historyLimit,
-          max_gas_cost: params.maxGasCost ?? 0,
-        },
+          queue: params.queue,
+          name: params.name,
+          metadata: params.metadata,
+          batchSize: params.batchSize,
+          minOracleResults: params.minOracleResults,
+          minJobResults: params.minJobResults,
+          minUpdateDelaySeconds: params.minUpdateDelaySeconds,
+          startAfter: new BN(params.startAfter),
+          varianceThreshold: new types.SwitchboardDecimal({
+            mantissa: params.varianceThreshold.mantissa,
+            scale: params.varianceThreshold.scale,
+          }),
+          forceReportPeriod: new BN(params.forceReportPeriod),
+          crank: params.crank ?? new Uint8Array(32),
+          expiration: new BN(0),
+          rewardEscrow: params.rewardEscrow ?? new Uint8Array(32),
+          historyLimit: new BN(params.historyLimit),
+          maxGasCost: new BN(params.maxGasCost ?? 0),
+        }),
       },
       DEFAULT_FUNCTION_CALL_GAS,
       new BN(0)
@@ -136,7 +139,9 @@ export class AggregatorAccount {
     const data = await roClient(program.connection).viewFunction({
       contractId: program.programId,
       methodName: "view_aggregators_with_authority",
-      args: { ix: { authority: authority } },
+      args: {
+        ix: new types.ViewAggregatorsWithAuthority({ authority: authority }),
+      },
     });
     return (data as number[][]).map((bytes) => new Uint8Array(bytes));
   }
@@ -148,7 +153,11 @@ export class AggregatorAccount {
     const data = await roClient(program.connection).viewFunction({
       contractId: program.programId,
       methodName: "view_aggregators_state_with_authority",
-      args: { ix: { authority: authority } },
+      args: {
+        ix: new types.ViewAggregatorsStateWithAuthority({
+          authority: authority,
+        }),
+      },
     });
 
     return (data as AggregatorViewSerde[]).map((a) => [
@@ -163,7 +172,7 @@ export class AggregatorAccount {
     ).viewFunction({
       contractId: this.program.programId,
       methodName: "view_aggregator",
-      args: { ix: { address: [...this.address] } },
+      args: { ix: new types.ViewAggregator({ address: this.address }) },
     });
     return types.AggregatorView.fromSerde(data);
   }
@@ -201,25 +210,36 @@ export class AggregatorAccount {
     varianceThreshold?: SwitchboardDecimal;
     forceReportPeriod?: number;
     crank?: Uint8Array;
+    rewardEscrow?: Uint8Array;
   }): Action {
     return functionCall(
       "aggregator_set_configs",
       {
-        ix: {
-          address: [...this.address],
+        ix: new types.AggregatorSetConfigs({
+          address: this.address,
           authority: params.authority,
-          queue: params.queue ? [...params.queue] : null,
-          name: params.name ? [...params.name] : null,
-          metadata: params.metadata ? [...params.metadata] : null,
-          batch_size: params.batchSize,
-          min_oracle_results: params.minOracleResults,
-          min_job_results: params.minJobResults,
-          min_update_delay_seconds: params.minUpdateDelaySeconds,
-          start_after: params.startAfter,
-          variance_threshold: params.varianceThreshold?.toNearDecimal(),
-          force_report_period: params.forceReportPeriod,
-          crank: params.crank ? [...params.crank] : null,
-        },
+          queue: params.queue,
+          name: params.name,
+          metadata: params.metadata,
+          batchSize: params.batchSize,
+          minOracleResults: params.minOracleResults,
+          minJobResults: params.minJobResults,
+          minUpdateDelaySeconds: params.minUpdateDelaySeconds,
+          startAfter:
+            params === undefined ? undefined : new BN(params.startAfter),
+          varianceThreshold: params.varianceThreshold
+            ? new types.JsonDecimal({
+                mantissa: params.varianceThreshold.mantissa,
+                scale: params.varianceThreshold.scale,
+              })
+            : undefined,
+          forceReportPeriod:
+            params.forceReportPeriod === undefined
+              ? undefined
+              : new BN(params.forceReportPeriod),
+          crank: params.crank,
+          rewardEscrow: params.rewardEscrow,
+        }),
       },
       DEFAULT_FUNCTION_CALL_GAS,
       new BN(0)
@@ -239,11 +259,11 @@ export class AggregatorAccount {
     return functionCall(
       "aggregator_open_round",
       {
-        ix: {
-          aggregator: [...this.address],
+        ix: new types.AggregatorOpenRound({
+          aggregator: this.address,
           jitter: 0,
-          reward_recipient: [...params.rewardRecipient],
-        },
+          rewardRecipient: params.rewardRecipient,
+        }),
       },
       DEFAULT_FUNCTION_CALL_GAS,
       new BN(0)
@@ -275,15 +295,24 @@ export class AggregatorAccount {
     return functionCall(
       "aggregator_save_result",
       {
-        ix: {
-          aggregator_key: [...this.address],
-          oracle_idx: params.oracleIdx,
+        ix: new types.AggregatorSaveResult({
+          aggregatorKey: this.address,
+          oracleIdx: params.oracleIdx,
           error: params.error,
-          value: params.value.toNearDecimal(),
-          jobs_checksum: [...params.jobsChecksum],
-          min_response: params.minResponse.toNearDecimal(),
-          max_response: params.maxResponse.toNearDecimal(),
-        },
+          value: new types.JsonDecimal({
+            mantissa: params.value.mantissa,
+            scale: params.value.scale,
+          }),
+          jobsChecksum: params.jobsChecksum,
+          minResponse: new types.JsonDecimal({
+            mantissa: params.minResponse.mantissa,
+            scale: params.minResponse.scale,
+          }),
+          maxResponse: new types.JsonDecimal({
+            mantissa: params.maxResponse.mantissa,
+            scale: params.maxResponse.scale,
+          }),
+        }),
       },
       DEFAULT_FUNCTION_CALL_GAS,
       new BN(0)
@@ -299,15 +328,36 @@ export class AggregatorAccount {
   }
 
   fundAction(params: { funder: Uint8Array; amount: number }): Action {
-    const nearAmount = NEAR.parse(params.amount.toFixed(20));
     return functionCall(
       "aggregator_fund",
       {
-        ix: {
-          address: [...this.address],
-          funder: [...params.funder],
-          amount: nearAmount.toString(),
-        },
+        ix: new types.AggregatorFund({
+          address: this.address,
+          funder: params.funder,
+          amount: NEAR.parse(params.amount.toFixed(20)),
+        }),
+      },
+      DEFAULT_FUNCTION_CALL_GAS,
+      new BN(0)
+    );
+  }
+
+  async withdraw(params: {
+    authority: Uint8Array;
+    amount: number;
+  }): Promise<FinalExecutionOutcome> {
+    return this.program.sendAction(this.withdrawAction(params));
+  }
+
+  withdrawAction(params: { authority: Uint8Array; amount: number }): Action {
+    return functionCall(
+      "aggregator_withdraw",
+      {
+        ix: new types.AggregatorWithdraw({
+          address: this.address,
+          destination: params.authority,
+          amount: NEAR.parse(params.amount.toFixed(20)),
+        }),
       },
       DEFAULT_FUNCTION_CALL_GAS,
       new BN(0)
@@ -348,10 +398,10 @@ export class AggregatorAccount {
     return functionCall(
       "aggregator_remove_job",
       {
-        ix: {
-          address: [...this.address],
+        ix: new types.AggregatorRemoveJob({
+          address: this.address,
           idx: params.idx,
-        },
+        }),
       },
       DEFAULT_FUNCTION_CALL_GAS,
       new BN(0)
@@ -547,9 +597,7 @@ export class QueueAccount {
     const data = await roClient(this.program.connection).viewFunction({
       contractId: this.program.programId,
       methodName: "view_aggregators_on_queue",
-      args: {
-        ix: { queue: [...this.address] },
-      },
+      args: { ix: new types.ViewAggregatorsOnQueue({ queue: this.address }) },
     });
     return (data as number[][]).map((bytes) => new Uint8Array(bytes));
   }
@@ -614,28 +662,33 @@ export class QueueAccount {
     const action = functionCall(
       "oracle_queue_init",
       {
-        ix: {
-          address: [...address],
+        ix: new types.OracleQueueInit({
+          address: address,
           authority: params.authority,
           mint: params.mint,
-          reward: params.reward,
-          min_stake: params.minStake,
-          queue_size: params.queueSize,
-          oracle_timeout: params.oracleTimeout,
-          name: [...(params.name ?? [])],
-          metadata: [...(params.metadata ?? [])],
-          variance_tolerance_multiplier: { mantissa: 0, scale: 0 },
-          feed_probation_period: params.feedProbationPeriod ?? 0,
-          slashing_enabled: params.slashingEnabled ?? false,
-          consecutive_feed_failure_limit:
-            params.consecutiveFeedFailureLimit ?? 0,
-          consecutive_oracle_failure_limit:
-            params.consecutiveOracleFailureLimit ?? 0,
-          unpermissioned_feeds: params.unpermissionedFeeds ?? false,
-          unpermissioned_vrf: params.unpermissionedVrf ?? false,
-          enable_buffer_relayers: params.enableBufferRelayers ?? false,
-          max_gas_cost: params.maxGasCost ?? 0,
-        },
+          reward: new BN(params.reward),
+          minStake: new BN(params.minStake),
+          queueSize: params.queueSize,
+          oracleTimeout: params.oracleTimeout,
+          name: params.name,
+          metadata: params.metadata,
+          varianceToleranceMultiplier: new types.SwitchboardDecimal({
+            mantissa: new BN(0),
+            scale: 0,
+          }),
+          feedProbationPeriod: params.feedProbationPeriod ?? 0,
+          slashingEnabled: params.slashingEnabled ?? false,
+          consecutiveFeedFailureLimit: new BN(
+            params.consecutiveFeedFailureLimit ?? 0
+          ),
+          consecutiveOracleFailureLimit: new BN(
+            params.consecutiveOracleFailureLimit ?? 0
+          ),
+          unpermissionedFeeds: params.unpermissionedFeeds ?? false,
+          unpermissionedVrf: params.unpermissionedVrf ?? false,
+          enableBufferRelayers: params.enableBufferRelayers ?? false,
+          maxGasCost: new BN(params.maxGasCost ?? 0),
+        }),
       },
       DEFAULT_FUNCTION_CALL_GAS,
       new BN(0)
@@ -650,9 +703,7 @@ export class QueueAccount {
     ).viewFunction({
       contractId: this.program.programId,
       methodName: "view_queue",
-      args: {
-        ix: { address: [...this.address] },
-      },
+      args: { ix: new types.ViewQueue({ address: this.address }) },
     });
     return types.OracleQueueView.fromSerde(data);
   }
@@ -698,13 +749,13 @@ export class CrankAccount {
     const action = functionCall(
       "crank_init",
       {
-        ix: {
-          address: [...address],
-          name: [...(params.name ?? [])],
-          metadata: [...(params.metadata ?? [])],
-          queue: [...params.queue],
-          max_rows: params.maxRows,
-        },
+        ix: new types.CrankInit({
+          address: address,
+          name: params.name ?? new Uint8Array(),
+          metadata: params.metadata ?? new Uint8Array(),
+          queue: params.queue,
+          maxRows: new BN(params.maxRows),
+        }),
       },
       DEFAULT_FUNCTION_CALL_GAS,
       new BN(0)
@@ -719,9 +770,7 @@ export class CrankAccount {
     ).viewFunction({
       contractId: this.program.programId,
       methodName: "view_crank",
-      args: {
-        ix: { address: [...this.address] },
-      },
+      args: { ix: new types.ViewCrank({ address: this.address }) },
     });
     return types.CrankView.fromSerde(data);
   }
@@ -737,10 +786,10 @@ export class CrankAccount {
     return functionCall(
       "crank_push",
       {
-        ix: {
-          crank: [...this.address],
-          aggregator: [...params.aggregator],
-        },
+        ix: new types.CrankPush({
+          crank: this.address,
+          aggregator: params.aggregator,
+        }),
       },
       DEFAULT_FUNCTION_CALL_GAS,
       new BN(0)
@@ -758,10 +807,10 @@ export class CrankAccount {
     return functionCall(
       "crank_pop",
       {
-        ix: {
-          crank: [...this.address],
-          reward_recipient: [...params.rewardRecipient],
-        },
+        ix: new types.CrankPop({
+          crank: this.address,
+          rewardRecipient: params.rewardRecipient,
+        }),
       },
       DEFAULT_FUNCTION_CALL_GAS,
       new BN(0)
@@ -810,14 +859,14 @@ export class JobAccount {
     const action = functionCall(
       "job_init",
       {
-        ix: {
-          address: [...address],
+        ix: new types.JobInit({
+          address: address,
           authority: params.authority ?? program.account.accountId,
-          name: [...(params.name ?? [])],
-          metadata: [...(params.metadata ?? [])],
-          data: [...params.data],
-          expiration: 0,
-        },
+          name: params.name ?? new Uint8Array(),
+          metadata: params.metadata ?? new Uint8Array(),
+          data: params.data,
+          expiration: new BN(0),
+        }),
       },
       DEFAULT_FUNCTION_CALL_GAS,
       new BN(0)
@@ -832,7 +881,7 @@ export class JobAccount {
     ).viewFunction({
       contractId: this.program.programId,
       methodName: "view_job",
-      args: { ix: { address: [...this.address] } },
+      args: { ix: new types.ViewJob({ address: this.address }) },
     });
     return types.Job.fromSerde(data);
   }
@@ -840,17 +889,14 @@ export class JobAccount {
   public static async loadJobs(
     program: SwitchboardProgram,
     params: { addrs: Uint8Array[] }
-  ): Promise<OracleJob[]> {
-    const addresses = params.addrs.map((addr) => [...addr]);
+  ): Promise<types.Job[]> {
     return roClient(program.connection)
       .viewFunction({
         contractId: program.programId,
         methodName: "view_jobs",
-        args: { ix: { addresses } },
+        args: { ix: new types.ViewJobs({ addresses: params.addrs }) },
       })
-      .then((results) =>
-        results.map((result) => OracleJob.decodeDelimited(result.data))
-      );
+      .then((results) => results.map((result) => types.Job.fromSerde(result)));
   }
 
   static produceJobsHash(jobs: Array<OracleJob>): crypto.Hash {
@@ -914,13 +960,13 @@ export class OracleAccount {
     const action = functionCall(
       "oracle_init",
       {
-        ix: {
-          address: [...address],
+        ix: new types.OracleInit({
+          address: address,
           authority: params.authority,
-          queue: [...params.queue],
-          name: [...(params.name ?? [])],
-          metadata: [...(params.metadata ?? [])],
-        },
+          queue: params.queue,
+          name: params.name ?? new Uint8Array(),
+          metadata: params.metadata ?? new Uint8Array(),
+        }),
       },
       DEFAULT_FUNCTION_CALL_GAS,
       new BN(0)
@@ -935,9 +981,7 @@ export class OracleAccount {
     ).viewFunction({
       contractId: this.program.programId,
       methodName: "view_oracle",
-      args: {
-        ix: { address: [...this.address] },
-      },
+      args: { ix: new types.ViewOracle({ address: this.address }) },
     });
     return types.Oracle.fromSerde(data);
   }
@@ -950,11 +994,7 @@ export class OracleAccount {
   heartbeatAction(): Action {
     return functionCall(
       "oracle_heartbeat",
-      {
-        ix: {
-          address: [...this.address],
-        },
-      },
+      { ix: new types.OracleHeartbeat({ address: this.address }) },
       DEFAULT_FUNCTION_CALL_GAS,
       new BN(0)
     );
@@ -969,15 +1009,14 @@ export class OracleAccount {
   }
 
   stakeAction(params: { funderEscrow: EscrowAccount; amount: number }): Action {
-    const nearAmount = NEAR.parse(params.amount.toFixed(20));
     return functionCall(
       "oracle_stake",
       {
-        ix: {
-          address: [...this.address],
-          funder: [...params.funderEscrow.address],
-          amount: nearAmount.toString(10),
-        },
+        ix: new types.OracleStake({
+          address: this.address,
+          funder: params.funderEscrow.address,
+          amount: NEAR.parse(params.amount.toFixed(20)),
+        }),
       },
       DEFAULT_FUNCTION_CALL_GAS,
       new BN(0)
@@ -989,10 +1028,7 @@ export class OracleAccount {
     amount: number;
     delegate?: boolean;
   }): Promise<FinalExecutionOutcome> {
-    const txnReceipt = await this.program.sendAction(
-      this.unstakeAction(params)
-    );
-    return txnReceipt;
+    return this.program.sendAction(this.unstakeAction(params));
   }
 
   unstakeAction(params: {
@@ -1000,16 +1036,15 @@ export class OracleAccount {
     amount: number;
     delegate?: boolean;
   }): Action {
-    const nearAmount = NEAR.parse(params.amount.toFixed(20));
     return functionCall(
       "oracle_unstake",
       {
-        ix: {
-          oracle: [...this.address],
-          destination: [...params.destinationEscrow.address],
-          amount: nearAmount.toString(10),
+        ix: new types.OracleUnstake({
+          oracle: this.address,
+          destination: params.destinationEscrow.address,
+          amount: NEAR.parse(params.amount.toFixed(20)),
           delegate: params.delegate ?? false,
-        },
+        }),
       },
       DEFAULT_FUNCTION_CALL_GAS,
       new BN(0)
@@ -1061,11 +1096,11 @@ export class EscrowAccount {
     const action = functionCall(
       "escrow_init",
       {
-        ix: {
-          seed: [...seed],
+        ix: new types.EscrowInit({
+          seed: seed,
           authority: params.authority,
           mint: params.mint,
-        },
+        }),
       },
       DEFAULT_FUNCTION_CALL_GAS,
       new BN(0)
@@ -1124,11 +1159,11 @@ export class EscrowAccount {
       const createEscrowAction = functionCall(
         "escrow_init",
         {
-          ix: {
-            seed: [...seed],
+          ix: new types.EscrowInit({
+            seed: seed,
             authority: program.account.accountId,
             mint: program.mint.address,
-          },
+          }),
         },
         DEFAULT_FUNCTION_CALL_GAS,
         new BN(0)
@@ -1144,9 +1179,7 @@ export class EscrowAccount {
     ).viewFunction({
       contractId: this.program.programId,
       methodName: "view_escrow",
-      args: {
-        ix: { address: [...this.address] },
-      },
+      args: { ix: new types.ViewEscrow({ address: this.address }) },
     });
     return types.Escrow.fromSerde(data);
   }
@@ -1188,7 +1221,7 @@ export class EscrowAccount {
     return txnReceipt;
   }
 
-  async fundUpToActions(params: { amount: number }) {
+  async fundUpToActions(params: { amount: number }): Promise<Action[]> {
     const actions: Action[] = [];
     const userAccountExists = await this.program.mint.isUserAccountCreated(
       this.program.account
@@ -1230,22 +1263,22 @@ export class EscrowAccount {
     return actions;
   }
 
-  async withdraw(params: { amount: number }): Promise<FinalExecutionOutcome> {
-    const txnReceipt = await this.program.sendAction(
-      this.withdrawAction(params)
-    );
-    return txnReceipt;
+  async withdraw(params: {
+    amount: number;
+    destination: string;
+  }): Promise<FinalExecutionOutcome> {
+    return this.program.sendAction(this.withdrawAction(params));
   }
 
-  withdrawAction(params: { amount: number }): Action {
-    const amountYocto = NEAR.parse(params.amount.toFixed(20));
+  withdrawAction(params: { amount: number; destination: string }): Action {
     return functionCall(
       "escrow_withdraw",
       {
-        ix: {
-          destination: [...this.address],
-          amount: Number(amountYocto),
-        },
+        ix: new types.EscrowWithdraw({
+          address: this.address,
+          destination: params.destination,
+          amount: NEAR.parse(params.amount.toFixed(20)),
+        }),
       },
       DEFAULT_FUNCTION_CALL_GAS,
       new BN(0)
@@ -1306,13 +1339,7 @@ export class PermissionAccount {
   ): [Action, PermissionAccount] {
     const action = functionCall(
       "permission_init",
-      {
-        ix: {
-          authority: params.authority,
-          granter: [...params.granter],
-          grantee: [...params.grantee],
-        },
-      },
+      { ix: new types.PermissionInit(params) },
       DEFAULT_FUNCTION_CALL_GAS,
       new BN(0)
     );
@@ -1333,9 +1360,7 @@ export class PermissionAccount {
     ).viewFunction({
       contractId: this.program.programId,
       methodName: "view_permission",
-      args: {
-        ix: { address: [...this.address] },
-      },
+      args: { ix: new types.ViewPermission({ address: this.address }) },
     });
     return types.Permission.fromSerde(data);
   }
@@ -1354,13 +1379,7 @@ export class PermissionAccount {
   }): Action {
     return functionCall(
       "permission_set",
-      {
-        ix: {
-          address: [...this.address],
-          permission: params.permission,
-          enable: params.enable,
-        },
-      },
+      { ix: new types.PermissionSet({ address: this.address, ...params }) },
       DEFAULT_FUNCTION_CALL_GAS,
       new BN(0)
     );
