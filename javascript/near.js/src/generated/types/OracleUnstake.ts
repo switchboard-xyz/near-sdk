@@ -18,7 +18,7 @@ export interface OracleUnstakeJSON {
 export interface OracleUnstakeSerde {
   oracle: Array<number>;
   destination: Array<number>;
-  amount: number;
+  amount: string;
   delegate: boolean;
 }
 
@@ -48,7 +48,7 @@ export class OracleUnstake implements IOracleUnstake {
     return {
       oracle: [...this.oracle],
       destination: [...this.destination],
-      amount: this.amount.toNumber(),
+      amount: this.amount.toString(10),
       delegate: this.delegate,
     };
   }
@@ -66,9 +66,7 @@ export class OracleUnstake implements IOracleUnstake {
     return new OracleUnstake({
       oracle: new Uint8Array(obj.oracle),
       destination: new Uint8Array(obj.destination),
-      amount: new BN(
-        obj.amount.toLocaleString("fullwide", { useGrouping: false })
-      ),
+      amount: new BN(obj.amount),
       delegate: obj.delegate,
     });
   }

@@ -60,8 +60,8 @@ export interface AggregatorInitSerde {
   crank: Array<number>;
   reward_escrow: Array<number>;
   history_limit: number;
-  max_gas_cost: number;
-  read_charge: number;
+  max_gas_cost: string;
+  read_charge: string;
 }
 
 export class AggregatorInit implements IAggregatorInit {
@@ -146,8 +146,8 @@ export class AggregatorInit implements IAggregatorInit {
       crank: [...this.crank],
       reward_escrow: [...this.rewardEscrow],
       history_limit: this.historyLimit.toNumber(),
-      max_gas_cost: this.maxGasCost.toNumber(),
-      read_charge: this.readCharge.toNumber(),
+      max_gas_cost: this.maxGasCost.toString(10),
+      read_charge: this.readCharge.toString(10),
     };
   }
 
@@ -206,12 +206,8 @@ export class AggregatorInit implements IAggregatorInit {
       historyLimit: new BN(
         obj.history_limit.toLocaleString("fullwide", { useGrouping: false })
       ),
-      maxGasCost: new BN(
-        obj.max_gas_cost.toLocaleString("fullwide", { useGrouping: false })
-      ),
-      readCharge: new BN(
-        obj.read_charge.toLocaleString("fullwide", { useGrouping: false })
-      ),
+      maxGasCost: new BN(obj.max_gas_cost),
+      readCharge: new BN(obj.read_charge),
     });
   }
 }

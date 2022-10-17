@@ -13,7 +13,7 @@ export interface EscrowFundJSON {
 
 export interface EscrowFundSerde {
   address: Array<number>;
-  amount: number;
+  amount: string;
 }
 
 export class EscrowFund implements IEscrowFund {
@@ -35,7 +35,7 @@ export class EscrowFund implements IEscrowFund {
   toSerde(): EscrowFundSerde {
     return {
       address: [...this.address],
-      amount: this.amount.toNumber(),
+      amount: this.amount.toString(10),
     };
   }
 
@@ -49,9 +49,7 @@ export class EscrowFund implements IEscrowFund {
   static fromSerde(obj: EscrowFundSerde) {
     return new EscrowFund({
       address: new Uint8Array(obj.address),
-      amount: new BN(
-        obj.amount.toLocaleString("fullwide", { useGrouping: false })
-      ),
+      amount: new BN(obj.amount),
     });
   }
 }

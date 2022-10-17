@@ -42,8 +42,8 @@ if (process.argv.length > 2) {
   const queue = await sbv2.QueueAccount.create(program, {
     authority: program.account.accountId,
     mint: program.mint.address,
-    reward: new BN(0),
-    minStake: new BN(100),
+    reward: 0.5,
+    minStake: 0,
     queueSize: 100,
     oracleTimeout: 180,
     unpermissionedFeeds: true,

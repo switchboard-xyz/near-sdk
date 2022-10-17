@@ -71,8 +71,8 @@ export class AggregatorAccount {
       rewardEscrow?: Uint8Array;
       historyLimit: number;
       crank?: Uint8Array;
-      maxGasCost?: BN;
-      readCharge?: BN;
+      maxGasCost?: number;
+      readCharge?: number;
     }
   ): Promise<AggregatorAccount> {
     const [action, aggregator] = AggregatorAccount.createAction(
@@ -101,8 +101,8 @@ export class AggregatorAccount {
       rewardEscrow?: Uint8Array;
       historyLimit: number;
       crank?: Uint8Array;
-      maxGasCost?: BN;
-      readCharge?: BN;
+      maxGasCost?: number;
+      readCharge?: number;
     }
   ): [Action, AggregatorAccount] {
     const address = KeyPair.fromRandom("ed25519").getPublicKey().data;
@@ -129,8 +129,8 @@ export class AggregatorAccount {
           expiration: new BN(0),
           rewardEscrow: params.rewardEscrow ?? new Uint8Array(32),
           historyLimit: new BN(params.historyLimit),
-          maxGasCost: params.maxGasCost ?? new BN(0),
-          readCharge: params.readCharge ?? new BN(0),
+          maxGasCost: NEAR.parse(`${params.maxGasCost ?? 0} N`),
+          readCharge: NEAR.parse(`${params.readCharge ?? 0} N`),
         }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
@@ -630,8 +630,8 @@ export class QueueAccount {
     params: {
       authority: string;
       mint: string;
-      reward: BN;
-      minStake: BN;
+      reward: number;
+      minStake: number;
       queueSize: number;
       oracleTimeout: number;
       name?: Buffer;
@@ -644,7 +644,7 @@ export class QueueAccount {
       unpermissionedFeeds?: boolean;
       unpermissionedVrf?: boolean;
       enableBufferRelayers?: boolean;
-      maxGasCost?: BN;
+      maxGasCost?: number;
     }
   ): Promise<QueueAccount> {
     const [action, queue] = QueueAccount.createAction(program, params);
@@ -657,8 +657,8 @@ export class QueueAccount {
     params: {
       authority: string;
       mint: string;
-      reward: BN;
-      minStake: BN;
+      reward: number;
+      minStake: number;
       queueSize: number;
       oracleTimeout: number;
       name?: Buffer;
@@ -671,7 +671,7 @@ export class QueueAccount {
       unpermissionedFeeds?: boolean;
       unpermissionedVrf?: boolean;
       enableBufferRelayers?: boolean;
-      maxGasCost?: BN;
+      maxGasCost?: number;
     }
   ): [Action, QueueAccount] {
     const address = KeyPair.fromRandom("ed25519").getPublicKey().data;
@@ -682,8 +682,8 @@ export class QueueAccount {
           address: address,
           authority: params.authority,
           mint: params.mint,
-          reward: new BN(params.reward ?? 0),
-          minStake: new BN(params.minStake ?? 0),
+          reward: NEAR.parse(`${params.reward ?? 0} N`),
+          minStake: NEAR.parse(`${params.minStake ?? 0} N`),
           queueSize: params.queueSize,
           oracleTimeout: params.oracleTimeout,
           name: (params.name ?? Buffer.from("")).slice(0, 32),
@@ -703,7 +703,7 @@ export class QueueAccount {
           unpermissionedFeeds: params.unpermissionedFeeds ?? false,
           unpermissionedVrf: params.unpermissionedVrf ?? false,
           enableBufferRelayers: params.enableBufferRelayers ?? false,
-          maxGasCost: new BN(params.maxGasCost ?? 0),
+          maxGasCost: NEAR.parse(`${params.maxGasCost ?? 0} N`),
         }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,

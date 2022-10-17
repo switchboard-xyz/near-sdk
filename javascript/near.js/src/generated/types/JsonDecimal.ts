@@ -34,7 +34,7 @@ export class JsonDecimal implements IJsonDecimal {
 
   toSerde(): JsonDecimalSerde {
     return {
-      mantissa: this.mantissa.toString(),
+      mantissa: this.mantissa.toString(10),
       scale: this.scale,
     };
   }

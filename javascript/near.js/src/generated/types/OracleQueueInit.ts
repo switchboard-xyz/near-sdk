@@ -49,8 +49,8 @@ export interface OracleQueueInitSerde {
   mint: string;
   name: Array<number>;
   metadata: Array<number>;
-  reward: number;
-  min_stake: number;
+  reward: string;
+  min_stake: string;
   feed_probation_period: number;
   oracle_timeout: number;
   slashing_enabled: boolean;
@@ -61,7 +61,7 @@ export interface OracleQueueInitSerde {
   unpermissioned_feeds: boolean;
   unpermissioned_vrf: boolean;
   enable_buffer_relayers: boolean;
-  max_gas_cost: number;
+  max_gas_cost: string;
 }
 
 export class OracleQueueInit implements IOracleQueueInit {
@@ -136,8 +136,8 @@ export class OracleQueueInit implements IOracleQueueInit {
       mint: this.mint,
       name: [...this.name],
       metadata: [...this.metadata],
-      reward: this.reward.toNumber(),
-      min_stake: this.minStake.toNumber(),
+      reward: this.reward.toString(10),
+      min_stake: this.minStake.toString(10),
       feed_probation_period: this.feedProbationPeriod,
       oracle_timeout: this.oracleTimeout,
       slashing_enabled: this.slashingEnabled,
@@ -150,7 +150,7 @@ export class OracleQueueInit implements IOracleQueueInit {
       unpermissioned_feeds: this.unpermissionedFeeds,
       unpermissioned_vrf: this.unpermissionedVrf,
       enable_buffer_relayers: this.enableBufferRelayers,
-      max_gas_cost: this.maxGasCost.toNumber(),
+      max_gas_cost: this.maxGasCost.toString(10),
     };
   }
 
@@ -186,12 +186,8 @@ export class OracleQueueInit implements IOracleQueueInit {
       mint: obj.mint,
       name: new Uint8Array(obj.name),
       metadata: new Uint8Array(obj.metadata),
-      reward: new BN(
-        obj.reward.toLocaleString("fullwide", { useGrouping: false })
-      ),
-      minStake: new BN(
-        obj.min_stake.toLocaleString("fullwide", { useGrouping: false })
-      ),
+      reward: new BN(obj.reward),
+      minStake: new BN(obj.min_stake),
       feedProbationPeriod: obj.feed_probation_period,
       oracleTimeout: obj.oracle_timeout,
       slashingEnabled: obj.slashing_enabled,
@@ -212,9 +208,7 @@ export class OracleQueueInit implements IOracleQueueInit {
       unpermissionedFeeds: obj.unpermissioned_feeds,
       unpermissionedVrf: obj.unpermissioned_vrf,
       enableBufferRelayers: obj.enable_buffer_relayers,
-      maxGasCost: new BN(
-        obj.max_gas_cost.toLocaleString("fullwide", { useGrouping: false })
-      ),
+      maxGasCost: new BN(obj.max_gas_cost),
     });
   }
 }

@@ -16,7 +16,7 @@ export interface AggregatorFundJSON {
 export interface AggregatorFundSerde {
   address: Array<number>;
   funder: Array<number>;
-  amount: number;
+  amount: string;
 }
 
 export class AggregatorFund implements IAggregatorFund {
@@ -42,7 +42,7 @@ export class AggregatorFund implements IAggregatorFund {
     return {
       address: [...this.address],
       funder: [...this.funder],
-      amount: this.amount.toNumber(),
+      amount: this.amount.toString(10),
     };
   }
 
@@ -58,9 +58,7 @@ export class AggregatorFund implements IAggregatorFund {
     return new AggregatorFund({
       address: new Uint8Array(obj.address),
       funder: new Uint8Array(obj.funder),
-      amount: new BN(
-        obj.amount.toLocaleString("fullwide", { useGrouping: false })
-      ),
+      amount: new BN(obj.amount),
     });
   }
 }

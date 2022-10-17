@@ -52,7 +52,7 @@ export interface AggregatorSetConfigsSerde {
   force_report_period: number | null;
   crank: Array<number> | null;
   reward_escrow: Array<number> | null;
-  read_charge: number | null;
+  read_charge: string | null;
 }
 
 export class AggregatorSetConfigs implements IAggregatorSetConfigs {
@@ -108,7 +108,7 @@ export class AggregatorSetConfigs implements IAggregatorSetConfigs {
       forceReportPeriod: this.forceReportPeriod?.toString(),
       crank: this.crank ? [...this.crank] : undefined,
       rewardEscrow: this.rewardEscrow ? [...this.rewardEscrow] : undefined,
-      readCharge: this.readCharge?.toString(),
+      readCharge: this.readCharge ? this.readCharge.toString() : undefined,
     };
   }
 
@@ -130,7 +130,7 @@ export class AggregatorSetConfigs implements IAggregatorSetConfigs {
       force_report_period: this.forceReportPeriod?.toNumber(),
       crank: this.crank ? [...this.crank] : null,
       reward_escrow: this.rewardEscrow ? [...this.rewardEscrow] : null,
-      read_charge: this.readCharge?.toNumber(),
+      read_charge: this.readCharge?.toString(10),
     };
   }
 
