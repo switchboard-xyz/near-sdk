@@ -8,6 +8,7 @@ import {
 } from "./sbv2.js";
 import BN from "bn.js";
 import { Gas, NEAR } from "near-units";
+import { handleReceipt } from "./errors.js";
 
 const ZERO_NEAR = NEAR.parse("0");
 const ONE_YOCTO = NEAR.parse("0.000000000000000000000001");
@@ -87,7 +88,13 @@ export abstract class SwitchboardAction<
       sendAction(action: Action): Promise<FinalExecutionOutcome>;
     }
   >(program: T): Promise<FinalExecutionOutcome> {
-    return await program.sendAction(this.action);
+    const txnReceipt = await program.sendAction(this.action);
+    const result = handleReceipt(txnReceipt);
+    if (result instanceof types.SwitchboardError || result instanceof Error) {
+      throw result;
+    }
+
+    return txnReceipt;
   }
 }
 
@@ -138,7 +145,7 @@ export class AggregatorInitAction extends SwitchboardAction<types.AggregatorInit
 export class AggregatorOpenRoundAction extends SwitchboardAction<types.AggregatorOpenRound> {
   static actionName: SwitchboardActionType = "aggregator_open_round";
   static gas = DEFAULT_FUNCTION_CALL_GAS;
-  static storageDeposit = ONE_YOCTO;
+  static storageDeposit = STORAGE_COST_PER_BYTE.mul(new BN(250));
 
   constructor(
     params: types.AggregatorOpenRound,
@@ -194,7 +201,7 @@ export class AggregatorSaveResultAction extends SwitchboardAction<types.Aggregat
 export class AggregatorSetConfigsAction extends SwitchboardAction<types.AggregatorSetConfigs> {
   static actionName: SwitchboardActionType = "aggregator_set_configs";
   static gas = DEFAULT_FUNCTION_CALL_GAS;
-  static storageDeposit = ZERO_NEAR;
+  static storageDeposit = STORAGE_COST_PER_BYTE.mul(new BN(100));
 
   constructor(
     params: types.AggregatorSetConfigs,
@@ -400,7 +407,7 @@ export class PermissionInitAction extends SwitchboardAction<types.PermissionInit
 export class PermissionSetAction extends SwitchboardAction<types.PermissionSet> {
   static actionName: SwitchboardActionType = "permission_set";
   static gas = DEFAULT_FUNCTION_CALL_GAS;
-  static storageDeposit = ZERO_NEAR;
+  static storageDeposit = STORAGE_COST_PER_BYTE.mul(new BN(50));
 
   constructor(
     params: types.PermissionSet,
