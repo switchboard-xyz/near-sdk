@@ -1,21 +1,46 @@
 import * as types from "./generated/index.js";
 import { FinalExecutionOutcome } from "near-api-js/lib/providers";
 import { Action, functionCall } from "near-api-js/lib/transaction";
-import { DEFAULT_FUNCTION_CALL_GAS } from "./sbv2.js";
+import {
+  DEFAULT_FUNCTION_CALL_GAS,
+  DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT,
+  STORAGE_COST_PER_BYTE,
+} from "./sbv2.js";
 import BN from "bn.js";
+import { Gas, NEAR } from "near-units";
 
-export function getDefaultGas(action: string): BN {
-  switch (action) {
-    case "escrow_init":
-      return new BN("10000000000000");
-    default:
-      return DEFAULT_FUNCTION_CALL_GAS;
-  }
+const ZERO_NEAR = NEAR.parse("0");
+
+export type SwitchboardActionType =
+  | "aggregator_add_job"
+  | "aggregator_fund"
+  | "aggregator_init"
+  | "aggregator_open_round"
+  | "aggregator_read"
+  | "aggregator_remove_job"
+  | "aggregator_save_result"
+  | "aggregator_set_configs"
+  | "aggregator_withdraw"
+  | "crank_init"
+  | "crank_pop"
+  | "crank_push"
+  | "escrow_fund"
+  | "escrow_init"
+  | "escrow_withdraw"
+  | "job_init"
+  | "oracle_heartbeat"
+  | "oracle_init"
+  | "oracle_stake"
+  | "oracle_unstake"
+  | "permission_init"
+  | "permission_set"
+  | "oracle_queue_init";
+
+export interface ISwitchboardAction {
+  name: SwitchboardActionType;
+  gas: Gas;
+  storageDeposit: NEAR;
 }
-
-export const ACTION_GAS_MAP = new Map<string, BN>([
-  ["escrow_init", new BN("20000000000000")],
-]);
 
 export abstract class SwitchboardAction<
   T extends
@@ -25,14 +50,15 @@ export abstract class SwitchboardAction<
     | {
         toJSON(): Record<string, any>;
       }
-> {
+> implements ISwitchboardAction
+{
   readonly action: Action;
 
   constructor(
-    readonly name: string,
+    readonly name: SwitchboardActionType,
     params: T,
-    gas = DEFAULT_FUNCTION_CALL_GAS,
-    deposit = new BN(0)
+    readonly gas: Gas,
+    readonly storageDeposit: NEAR
   ) {
     const ix =
       "toSerde" in params
@@ -51,7 +77,7 @@ export abstract class SwitchboardAction<
         ix,
       },
       gas,
-      deposit
+      storageDeposit
     );
   }
 
@@ -64,194 +90,338 @@ export abstract class SwitchboardAction<
   }
 }
 
-export class AggregatorCreateAction extends SwitchboardAction<types.AggregatorInit> {
-  static action_name = "aggregator_init";
+/** AGGREGATOR ACTIONS */
+
+export class AggregatorAddJobAction extends SwitchboardAction<types.AggregatorAddJob> {
+  static actionName: SwitchboardActionType = "aggregator_add_job";
+  static gas = DEFAULT_FUNCTION_CALL_GAS;
+  static storageDeposit = STORAGE_COST_PER_BYTE.mul(new BN(40));
 
   constructor(
-    params: types.AggregatorInit,
-    gas = DEFAULT_FUNCTION_CALL_GAS,
-    deposit = new BN(0)
+    params: types.AggregatorAddJob,
+    gas = AggregatorAddJobAction.gas,
+    storage = AggregatorAddJobAction.storageDeposit
   ) {
-    super(AggregatorCreateAction.action_name, params, gas, deposit);
-  }
-}
-
-export class AggregatorSetConfigsAction extends SwitchboardAction<types.AggregatorSetConfigs> {
-  static action_name = "aggregator_set_configs";
-
-  constructor(
-    params: types.AggregatorSetConfigs,
-    gas = DEFAULT_FUNCTION_CALL_GAS,
-    deposit = new BN(0)
-  ) {
-    super(AggregatorSetConfigsAction.action_name, params, gas, deposit);
-  }
-}
-
-export class AggregatorOpenRoundAction extends SwitchboardAction<types.AggregatorOpenRound> {
-  static action_name = "aggregator_open_round";
-
-  constructor(
-    params: types.AggregatorOpenRound,
-    gas = DEFAULT_FUNCTION_CALL_GAS,
-    deposit = new BN(0)
-  ) {
-    super(AggregatorOpenRoundAction.action_name, params, gas, deposit);
-  }
-}
-
-export class AggregatorSaveResultAction extends SwitchboardAction<types.AggregatorSaveResult> {
-  static action_name = "aggregator_save_result";
-
-  constructor(
-    params: types.AggregatorSaveResult,
-    gas = DEFAULT_FUNCTION_CALL_GAS,
-    deposit = new BN(0)
-  ) {
-    super(AggregatorSaveResultAction.action_name, params, gas, deposit);
+    super(AggregatorAddJobAction.actionName, params, gas, storage);
   }
 }
 
 export class AggregatorFundAction extends SwitchboardAction<types.AggregatorFund> {
-  static action_name = "aggregator_fund";
+  static actionName: SwitchboardActionType = "aggregator_fund";
+  static gas = DEFAULT_FUNCTION_CALL_GAS;
+  static storageDeposit = ZERO_NEAR;
 
   constructor(
     params: types.AggregatorFund,
-    gas = DEFAULT_FUNCTION_CALL_GAS,
-    deposit = new BN(0)
+    gas = AggregatorFundAction.gas,
+    storage = AggregatorFundAction.storageDeposit
   ) {
-    super(AggregatorFundAction.action_name, params, gas, deposit);
+    super(AggregatorFundAction.actionName, params, gas, storage);
   }
 }
 
-export class AggregatorAddJobAction extends SwitchboardAction<types.AggregatorAddJob> {
-  static action_name = "aggregator_add_job";
+export class AggregatorInitAction extends SwitchboardAction<types.AggregatorInit> {
+  static actionName: SwitchboardActionType = "aggregator_init";
+  static gas = DEFAULT_FUNCTION_CALL_GAS;
+  static storageDeposit = STORAGE_COST_PER_BYTE.mul(new BN(3000));
 
   constructor(
-    params: types.AggregatorAddJob,
-    gas = DEFAULT_FUNCTION_CALL_GAS,
-    deposit = new BN(0)
+    params: types.AggregatorInit,
+    gas = AggregatorInitAction.gas,
+    storage = AggregatorInitAction.storageDeposit
   ) {
-    super(AggregatorAddJobAction.action_name, params, gas, deposit);
+    super(AggregatorInitAction.actionName, params, gas, storage);
+  }
+}
+
+export class AggregatorOpenRoundAction extends SwitchboardAction<types.AggregatorOpenRound> {
+  static actionName: SwitchboardActionType = "aggregator_open_round";
+  static gas = DEFAULT_FUNCTION_CALL_GAS;
+  static storageDeposit = ZERO_NEAR;
+
+  constructor(
+    params: types.AggregatorOpenRound,
+    gas = AggregatorOpenRoundAction.gas,
+    storage = AggregatorOpenRoundAction.storageDeposit
+  ) {
+    super(AggregatorOpenRoundAction.actionName, params, gas, storage);
+  }
+}
+
+export class AggregatorReadAction extends SwitchboardAction<types.AggregatorRead> {
+  static actionName: SwitchboardActionType = "aggregator_read";
+  static gas = DEFAULT_FUNCTION_CALL_GAS;
+  static storageDeposit = ZERO_NEAR;
+
+  constructor(
+    params: types.AggregatorRead,
+    gas = AggregatorReadAction.gas,
+    storage = AggregatorReadAction.storageDeposit
+  ) {
+    super(AggregatorReadAction.actionName, params, gas, storage);
   }
 }
 
 export class AggregatorRemoveJobAction extends SwitchboardAction<types.AggregatorRemoveJob> {
-  static action_name = "aggregator_remove_job";
+  static actionName: SwitchboardActionType = "aggregator_remove_job";
+  static gas = DEFAULT_FUNCTION_CALL_GAS;
+  static storageDeposit = ZERO_NEAR;
 
   constructor(
     params: types.AggregatorRemoveJob,
-    gas = DEFAULT_FUNCTION_CALL_GAS,
-    deposit = new BN(0)
+    gas = AggregatorRemoveJobAction.gas,
+    storage = AggregatorRemoveJobAction.storageDeposit
   ) {
-    super(AggregatorRemoveJobAction.action_name, params, gas, deposit);
+    super(AggregatorRemoveJobAction.actionName, params, gas, storage);
   }
 }
 
-export class OracleQueueInitAction extends SwitchboardAction<types.OracleQueueInit> {
-  static action_name = "oracle_queue_init";
+export class AggregatorSaveResultAction extends SwitchboardAction<types.AggregatorSaveResult> {
+  static actionName: SwitchboardActionType = "aggregator_save_result";
+  static gas = DEFAULT_FUNCTION_CALL_GAS;
+  static storageDeposit = STORAGE_COST_PER_BYTE.mul(new BN(150));
 
   constructor(
-    params: types.OracleQueueInit,
-    gas = DEFAULT_FUNCTION_CALL_GAS,
-    deposit = new BN(0)
+    params: types.AggregatorSaveResult,
+    gas = AggregatorSaveResultAction.gas,
+    storage = AggregatorSaveResultAction.storageDeposit
   ) {
-    super(OracleQueueInitAction.action_name, params, gas, deposit);
+    super(AggregatorSaveResultAction.actionName, params, gas, storage);
   }
 }
 
-export class OracleInitInitAction extends SwitchboardAction<types.OracleInit> {
-  static action_name = "oracle_init";
+export class AggregatorSetConfigsAction extends SwitchboardAction<types.AggregatorSetConfigs> {
+  static actionName: SwitchboardActionType = "aggregator_set_configs";
+  static gas = DEFAULT_FUNCTION_CALL_GAS;
+  static storageDeposit = ZERO_NEAR;
 
   constructor(
-    params: types.OracleInit,
-    gas = DEFAULT_FUNCTION_CALL_GAS,
-    deposit = new BN(0)
+    params: types.AggregatorSetConfigs,
+    gas = AggregatorSetConfigsAction.gas,
+    storage = AggregatorSetConfigsAction.storageDeposit
   ) {
-    super(OracleInitInitAction.action_name, params, gas, deposit);
+    super(AggregatorSetConfigsAction.actionName, params, gas, storage);
   }
 }
 
-export class OracleHeartbeatAction extends SwitchboardAction<types.OracleHeartbeat> {
-  static action_name = "oracle_heartbeat";
+export class AggregatorWithdrawAction extends SwitchboardAction<types.AggregatorWithdraw> {
+  static actionName: SwitchboardActionType = "aggregator_withdraw";
+  static gas = DEFAULT_FUNCTION_CALL_GAS;
+  static storageDeposit = ZERO_NEAR;
 
   constructor(
-    params: types.OracleHeartbeat,
-    gas = DEFAULT_FUNCTION_CALL_GAS,
-    deposit = new BN(0)
+    params: types.AggregatorWithdraw,
+    gas = AggregatorWithdrawAction.gas,
+    storage = AggregatorWithdrawAction.storageDeposit
   ) {
-    super(OracleHeartbeatAction.action_name, params, gas, deposit);
+    super(AggregatorWithdrawAction.actionName, params, gas, storage);
   }
 }
+
+/** CRANK ACTIONS */
 
 export class CrankInitAction extends SwitchboardAction<types.CrankInit> {
-  static action_name = "crank_init";
+  static actionName: SwitchboardActionType = "crank_init";
+  static gas = DEFAULT_FUNCTION_CALL_GAS;
+  static storageDeposit = STORAGE_COST_PER_BYTE.mul(new BN(250));
 
   constructor(
     params: types.CrankInit,
-    gas = DEFAULT_FUNCTION_CALL_GAS,
-    deposit = new BN(0)
+    gas = CrankInitAction.gas,
+    storage = CrankInitAction.storageDeposit
   ) {
-    super(CrankInitAction.action_name, params, gas, deposit);
-  }
-}
-
-export class CrankPushAction extends SwitchboardAction<types.CrankPush> {
-  static action_name = "crank_push";
-
-  constructor(
-    params: types.CrankPush,
-    gas = DEFAULT_FUNCTION_CALL_GAS,
-    deposit = new BN(0)
-  ) {
-    super(CrankPushAction.action_name, params, gas, deposit);
+    super(CrankInitAction.actionName, params, gas, storage);
   }
 }
 
 export class CrankPopAction extends SwitchboardAction<types.CrankPop> {
-  static action_name = "crank_pop";
+  static actionName: SwitchboardActionType = "crank_pop";
+  static gas = DEFAULT_FUNCTION_CALL_GAS;
+  static storageDeposit = ZERO_NEAR;
 
   constructor(
     params: types.CrankPop,
-    gas = DEFAULT_FUNCTION_CALL_GAS,
-    deposit = new BN(0)
+    gas = CrankPopAction.gas,
+    storage = CrankPopAction.storageDeposit
   ) {
-    super(CrankPopAction.action_name, params, gas, deposit);
+    super(CrankPopAction.actionName, params, gas, storage);
+  }
+}
+
+export class CrankPushAction extends SwitchboardAction<types.CrankPush> {
+  static actionName: SwitchboardActionType = "crank_push";
+  static gas = DEFAULT_FUNCTION_CALL_GAS;
+  static storageDeposit = STORAGE_COST_PER_BYTE.mul(new BN(120));
+
+  constructor(
+    params: types.CrankPush,
+    gas = CrankPushAction.gas,
+    storage = CrankPushAction.storageDeposit
+  ) {
+    super(CrankPushAction.actionName, params, gas, storage);
+  }
+}
+
+/** ESCROW ACTIONS */
+
+export class EscrowFundAction extends SwitchboardAction<types.EscrowFund> {
+  static actionName: SwitchboardActionType = "escrow_fund";
+  static gas = DEFAULT_FUNCTION_CALL_GAS;
+  static storageDeposit = DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT;
+
+  constructor(
+    params: types.EscrowFund,
+    gas = EscrowFundAction.gas,
+    storage = EscrowFundAction.storageDeposit
+  ) {
+    super(EscrowFundAction.actionName, params, gas, storage);
   }
 }
 
 export class EscrowInitAction extends SwitchboardAction<types.EscrowInit> {
-  static action_name = "escrow_init";
+  static actionName: SwitchboardActionType = "escrow_init";
+  static gas = DEFAULT_FUNCTION_CALL_GAS;
+  static storageDeposit = STORAGE_COST_PER_BYTE.mul(new BN(400));
 
   constructor(
     params: types.EscrowInit,
-    gas = DEFAULT_FUNCTION_CALL_GAS,
-    deposit = new BN(0)
+    gas = EscrowInitAction.gas,
+    storage = EscrowInitAction.storageDeposit
   ) {
-    super(EscrowInitAction.action_name, params, gas, deposit);
-  }
-}
-
-export class EscrowFundAction extends SwitchboardAction<types.EscrowFund> {
-  static action_name = "escrow_fund";
-
-  constructor(
-    params: types.EscrowFund,
-    gas = DEFAULT_FUNCTION_CALL_GAS,
-    deposit = new BN(0)
-  ) {
-    super(EscrowFundAction.action_name, params, gas, deposit);
+    super(EscrowInitAction.actionName, params, gas, storage);
   }
 }
 
 export class EscrowWithdrawAction extends SwitchboardAction<types.EscrowWithdraw> {
-  static action_name = "escrow_withdraw";
+  static actionName: SwitchboardActionType = "escrow_withdraw";
+  static gas = DEFAULT_FUNCTION_CALL_GAS;
+  static storageDeposit = ZERO_NEAR;
 
   constructor(
     params: types.EscrowWithdraw,
-    gas = DEFAULT_FUNCTION_CALL_GAS,
-    deposit = new BN(0)
+    gas = EscrowWithdrawAction.gas,
+    storage = EscrowWithdrawAction.storageDeposit
   ) {
-    super(EscrowWithdrawAction.action_name, params, gas, deposit);
+    super(EscrowWithdrawAction.actionName, params, gas, storage);
+  }
+}
+
+/** JOB ACTIONS */
+
+export class JobInitAction extends SwitchboardAction<types.JobInit> {
+  static actionName: SwitchboardActionType = "job_init";
+  static gas = DEFAULT_FUNCTION_CALL_GAS;
+  static storageDeposit = DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT;
+
+  constructor(
+    params: types.JobInit,
+    gas = JobInitAction.gas,
+    storage = JobInitAction.storageDeposit
+  ) {
+    super(JobInitAction.actionName, params, gas, storage);
+  }
+}
+
+/** ORACLE ACTIONS */
+
+export class OracleHeartbeatAction extends SwitchboardAction<types.OracleHeartbeat> {
+  static actionName: SwitchboardActionType = "oracle_heartbeat";
+  static gas = DEFAULT_FUNCTION_CALL_GAS;
+  static storageDeposit = ZERO_NEAR;
+
+  constructor(
+    params: types.OracleHeartbeat,
+    gas = OracleHeartbeatAction.gas,
+    storage = OracleHeartbeatAction.storageDeposit
+  ) {
+    super(OracleHeartbeatAction.actionName, params, gas, storage);
+  }
+}
+
+export class OracleInitInitAction extends SwitchboardAction<types.OracleInit> {
+  static actionName: SwitchboardActionType = "oracle_init";
+  static gas = DEFAULT_FUNCTION_CALL_GAS;
+  static storageDeposit = DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT;
+
+  constructor(
+    params: types.OracleInit,
+    gas = OracleInitInitAction.gas,
+    storage = OracleInitInitAction.storageDeposit
+  ) {
+    super(OracleInitInitAction.actionName, params, gas, storage);
+  }
+}
+
+export class OracleStakeAction extends SwitchboardAction<types.OracleStake> {
+  static actionName: SwitchboardActionType = "oracle_stake";
+  static gas = DEFAULT_FUNCTION_CALL_GAS;
+  static storageDeposit = ZERO_NEAR;
+
+  constructor(
+    params: types.OracleStake,
+    gas = OracleStakeAction.gas,
+    storage = OracleStakeAction.storageDeposit
+  ) {
+    super(OracleStakeAction.actionName, params, gas, storage);
+  }
+}
+
+export class OracleUnstakeAction extends SwitchboardAction<types.OracleUnstake> {
+  static actionName: SwitchboardActionType = "oracle_unstake";
+  static gas = DEFAULT_FUNCTION_CALL_GAS;
+  static storageDeposit = ZERO_NEAR;
+
+  constructor(
+    params: types.OracleUnstake,
+    gas = OracleUnstakeAction.gas,
+    storage = OracleUnstakeAction.storageDeposit
+  ) {
+    super(OracleUnstakeAction.actionName, params, gas, storage);
+  }
+}
+
+/** PERMISSION ACTIONS */
+
+export class PermissionInitAction extends SwitchboardAction<types.PermissionInit> {
+  static actionName: SwitchboardActionType = "permission_init";
+  static gas = DEFAULT_FUNCTION_CALL_GAS;
+  static storageDeposit = DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT;
+
+  constructor(
+    params: types.PermissionInit,
+    gas = PermissionInitAction.gas,
+    storage = PermissionInitAction.storageDeposit
+  ) {
+    super(PermissionInitAction.actionName, params, gas, storage);
+  }
+}
+
+export class PermissionSetAction extends SwitchboardAction<types.PermissionSet> {
+  static actionName: SwitchboardActionType = "permission_set";
+  static gas = DEFAULT_FUNCTION_CALL_GAS;
+  static storageDeposit = ZERO_NEAR;
+
+  constructor(
+    params: types.PermissionSet,
+    gas = PermissionSetAction.gas,
+    storage = PermissionSetAction.storageDeposit
+  ) {
+    super(PermissionSetAction.actionName, params, gas, storage);
+  }
+}
+
+/** ORACLE QUEUE ACTIONS */
+
+export class OracleQueueInitAction extends SwitchboardAction<types.OracleQueueInit> {
+  static actionName: SwitchboardActionType = "oracle_queue_init";
+  static gas = DEFAULT_FUNCTION_CALL_GAS;
+  static storageDeposit = DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT;
+
+  constructor(
+    params: types.OracleQueueInit,
+    gas = OracleQueueInitAction.gas,
+    storage = OracleQueueInitAction.storageDeposit
+  ) {
+    super(OracleQueueInitAction.actionName, params, gas, storage);
   }
 }

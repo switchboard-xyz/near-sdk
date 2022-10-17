@@ -15,12 +15,13 @@ import { fromBase58, isBase58, parseAddressString } from "./utils.js";
 
 Big.DP = 40;
 
-export const TRANSACTION_MAX_GAS = new BN("300000000000000"); // 300 Tgas
+export const TRANSACTION_MAX_GAS = Gas.parse(`300 Tgas`);
 
-export const DEFAULT_FUNCTION_CALL_GAS = new BN("20000000000000"); // 20 Tgas
-export const MINIMAL_FUNCTION_CALL_GAS = new BN("10000000000000"); // 10 Tgas
+export const DEFAULT_FUNCTION_CALL_GAS = Gas.parse(`20 Tgas`);
+export const MINIMAL_FUNCTION_CALL_GAS = Gas.parse(`10 TGas`);
 
-export const DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT = NEAR.parse(`0.1 N`);
+export const DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT = NEAR.parse("0.025");
+export const STORAGE_COST_PER_BYTE = NEAR.parse("0.00001");
 
 export const DEFAULT_ESCROW_SEED: string = "DefaultEscrowSeed";
 
@@ -134,7 +135,7 @@ export class AggregatorAccount {
         }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
+      DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
     );
     const aggregator = new AggregatorAccount({ program, address });
     return [action, aggregator];
@@ -256,7 +257,7 @@ export class AggregatorAccount {
         }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
+      DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
     );
   }
 
@@ -280,7 +281,7 @@ export class AggregatorAccount {
         }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
+      new BN(0)
     );
   }
 
@@ -317,7 +318,7 @@ export class AggregatorAccount {
           value: new types.JsonDecimal({
             mantissa: params.value.mantissa,
             scale: params.value.scale,
-          }), // for some reason i128 needs to be a string and not number ??
+          }),
           minResponse: new types.JsonDecimal({
             mantissa: params.minResponse.mantissa,
             scale: params.minResponse.scale,
@@ -329,7 +330,7 @@ export class AggregatorAccount {
         }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
+      NEAR.parse("0.00125")
     );
   }
 
@@ -352,7 +353,7 @@ export class AggregatorAccount {
         }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
+      new BN(0)
     );
   }
 
@@ -374,7 +375,7 @@ export class AggregatorAccount {
         }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
+      DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
     );
   }
 
@@ -397,7 +398,7 @@ export class AggregatorAccount {
         }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
+      NEAR.parse("0.00033")
     );
   }
 
@@ -418,7 +419,7 @@ export class AggregatorAccount {
         }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
+      new BN(0)
     );
   }
 }
@@ -774,7 +775,7 @@ export class CrankAccount {
         }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
+      DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
     );
     const crank = new CrankAccount({ program, address });
     return [action, crank];
@@ -808,7 +809,7 @@ export class CrankAccount {
         }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
+      DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
     );
   }
 
@@ -829,7 +830,7 @@ export class CrankAccount {
         }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
+      DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
     );
   }
 }
@@ -885,7 +886,7 @@ export class JobAccount {
         }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
+      DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
     );
     const job = new JobAccount({ program, address });
     return [action, job];
@@ -985,7 +986,7 @@ export class OracleAccount {
         }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
+      DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
     );
     const oracle = new OracleAccount({ program, address });
     return [action, oracle];
@@ -1012,7 +1013,7 @@ export class OracleAccount {
       "oracle_heartbeat",
       { ix: new types.OracleHeartbeat({ address: this.address }).toSerde() },
       DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
+      DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
     );
   }
 
@@ -1035,7 +1036,7 @@ export class OracleAccount {
         }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
+      DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
     );
   }
 
@@ -1063,7 +1064,7 @@ export class OracleAccount {
         }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
+      new BN(0)
     );
   }
 }
@@ -1119,7 +1120,7 @@ export class EscrowAccount {
         }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
+      DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
     );
     const escrow = new EscrowAccount({
       program,
@@ -1182,7 +1183,7 @@ export class EscrowAccount {
           }).toSerde(),
         },
         DEFAULT_FUNCTION_CALL_GAS,
-        DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
+        DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
       );
 
       return [escrowAccount, createEscrowAction];
@@ -1297,7 +1298,7 @@ export class EscrowAccount {
         }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
+      DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
     );
   }
 }
@@ -1357,7 +1358,7 @@ export class PermissionAccount {
       "permission_init",
       { ix: new types.PermissionInit(params).toSerde() },
       DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
+      DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
     );
     const permission = new PermissionAccount({
       program,
@@ -1404,7 +1405,7 @@ export class PermissionAccount {
         }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
+      DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
     );
   }
 }
