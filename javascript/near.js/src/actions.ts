@@ -10,6 +10,7 @@ import BN from "bn.js";
 import { Gas, NEAR } from "near-units";
 
 const ZERO_NEAR = NEAR.parse("0");
+const ONE_YOCTO = NEAR.parse("0.000000000000000000000001");
 
 export type SwitchboardActionType =
   | "aggregator_add_job"
@@ -95,7 +96,7 @@ export abstract class SwitchboardAction<
 export class AggregatorAddJobAction extends SwitchboardAction<types.AggregatorAddJob> {
   static actionName: SwitchboardActionType = "aggregator_add_job";
   static gas = DEFAULT_FUNCTION_CALL_GAS;
-  static storageDeposit = STORAGE_COST_PER_BYTE.mul(new BN(40));
+  static storageDeposit = STORAGE_COST_PER_BYTE.mul(new BN(200)); // maybe 65
 
   constructor(
     params: types.AggregatorAddJob,
@@ -109,7 +110,7 @@ export class AggregatorAddJobAction extends SwitchboardAction<types.AggregatorAd
 export class AggregatorFundAction extends SwitchboardAction<types.AggregatorFund> {
   static actionName: SwitchboardActionType = "aggregator_fund";
   static gas = DEFAULT_FUNCTION_CALL_GAS;
-  static storageDeposit = ZERO_NEAR;
+  static storageDeposit = ONE_YOCTO;
 
   constructor(
     params: types.AggregatorFund,
@@ -137,7 +138,7 @@ export class AggregatorInitAction extends SwitchboardAction<types.AggregatorInit
 export class AggregatorOpenRoundAction extends SwitchboardAction<types.AggregatorOpenRound> {
   static actionName: SwitchboardActionType = "aggregator_open_round";
   static gas = DEFAULT_FUNCTION_CALL_GAS;
-  static storageDeposit = ZERO_NEAR;
+  static storageDeposit = ONE_YOCTO;
 
   constructor(
     params: types.AggregatorOpenRound,
@@ -151,7 +152,7 @@ export class AggregatorOpenRoundAction extends SwitchboardAction<types.Aggregato
 export class AggregatorReadAction extends SwitchboardAction<types.AggregatorRead> {
   static actionName: SwitchboardActionType = "aggregator_read";
   static gas = DEFAULT_FUNCTION_CALL_GAS;
-  static storageDeposit = ZERO_NEAR;
+  static storageDeposit = ONE_YOCTO;
 
   constructor(
     params: types.AggregatorRead,
@@ -207,7 +208,7 @@ export class AggregatorSetConfigsAction extends SwitchboardAction<types.Aggregat
 export class AggregatorWithdrawAction extends SwitchboardAction<types.AggregatorWithdraw> {
   static actionName: SwitchboardActionType = "aggregator_withdraw";
   static gas = DEFAULT_FUNCTION_CALL_GAS;
-  static storageDeposit = ZERO_NEAR;
+  static storageDeposit = ONE_YOCTO;
 
   constructor(
     params: types.AggregatorWithdraw,
@@ -223,7 +224,7 @@ export class AggregatorWithdrawAction extends SwitchboardAction<types.Aggregator
 export class CrankInitAction extends SwitchboardAction<types.CrankInit> {
   static actionName: SwitchboardActionType = "crank_init";
   static gas = DEFAULT_FUNCTION_CALL_GAS;
-  static storageDeposit = STORAGE_COST_PER_BYTE.mul(new BN(250));
+  static storageDeposit = STORAGE_COST_PER_BYTE.mul(new BN(500));
 
   constructor(
     params: types.CrankInit,
@@ -237,7 +238,7 @@ export class CrankInitAction extends SwitchboardAction<types.CrankInit> {
 export class CrankPopAction extends SwitchboardAction<types.CrankPop> {
   static actionName: SwitchboardActionType = "crank_pop";
   static gas = DEFAULT_FUNCTION_CALL_GAS;
-  static storageDeposit = ZERO_NEAR;
+  static storageDeposit = ONE_YOCTO;
 
   constructor(
     params: types.CrankPop,
@@ -266,8 +267,8 @@ export class CrankPushAction extends SwitchboardAction<types.CrankPush> {
 
 export class EscrowFundAction extends SwitchboardAction<types.EscrowFund> {
   static actionName: SwitchboardActionType = "escrow_fund";
-  static gas = DEFAULT_FUNCTION_CALL_GAS;
-  static storageDeposit = DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT;
+  static gas = Gas.parse("40 Tgas");
+  static storageDeposit = ONE_YOCTO;
 
   constructor(
     params: types.EscrowFund,
@@ -295,7 +296,7 @@ export class EscrowInitAction extends SwitchboardAction<types.EscrowInit> {
 export class EscrowWithdrawAction extends SwitchboardAction<types.EscrowWithdraw> {
   static actionName: SwitchboardActionType = "escrow_withdraw";
   static gas = DEFAULT_FUNCTION_CALL_GAS;
-  static storageDeposit = ZERO_NEAR;
+  static storageDeposit = ONE_YOCTO;
 
   constructor(
     params: types.EscrowWithdraw,
@@ -327,7 +328,7 @@ export class JobInitAction extends SwitchboardAction<types.JobInit> {
 export class OracleHeartbeatAction extends SwitchboardAction<types.OracleHeartbeat> {
   static actionName: SwitchboardActionType = "oracle_heartbeat";
   static gas = DEFAULT_FUNCTION_CALL_GAS;
-  static storageDeposit = ZERO_NEAR;
+  static storageDeposit = STORAGE_COST_PER_BYTE.mul(new BN(250));
 
   constructor(
     params: types.OracleHeartbeat,
@@ -338,24 +339,24 @@ export class OracleHeartbeatAction extends SwitchboardAction<types.OracleHeartbe
   }
 }
 
-export class OracleInitInitAction extends SwitchboardAction<types.OracleInit> {
+export class OracleInitAction extends SwitchboardAction<types.OracleInit> {
   static actionName: SwitchboardActionType = "oracle_init";
   static gas = DEFAULT_FUNCTION_CALL_GAS;
-  static storageDeposit = DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT;
+  static storageDeposit = STORAGE_COST_PER_BYTE.mul(new BN(2000));
 
   constructor(
     params: types.OracleInit,
-    gas = OracleInitInitAction.gas,
-    storage = OracleInitInitAction.storageDeposit
+    gas = OracleInitAction.gas,
+    storage = OracleInitAction.storageDeposit
   ) {
-    super(OracleInitInitAction.actionName, params, gas, storage);
+    super(OracleInitAction.actionName, params, gas, storage);
   }
 }
 
 export class OracleStakeAction extends SwitchboardAction<types.OracleStake> {
   static actionName: SwitchboardActionType = "oracle_stake";
   static gas = DEFAULT_FUNCTION_CALL_GAS;
-  static storageDeposit = ZERO_NEAR;
+  static storageDeposit = ONE_YOCTO;
 
   constructor(
     params: types.OracleStake,
@@ -369,7 +370,7 @@ export class OracleStakeAction extends SwitchboardAction<types.OracleStake> {
 export class OracleUnstakeAction extends SwitchboardAction<types.OracleUnstake> {
   static actionName: SwitchboardActionType = "oracle_unstake";
   static gas = DEFAULT_FUNCTION_CALL_GAS;
-  static storageDeposit = ZERO_NEAR;
+  static storageDeposit = ONE_YOCTO;
 
   constructor(
     params: types.OracleUnstake,
@@ -385,7 +386,7 @@ export class OracleUnstakeAction extends SwitchboardAction<types.OracleUnstake> 
 export class PermissionInitAction extends SwitchboardAction<types.PermissionInit> {
   static actionName: SwitchboardActionType = "permission_init";
   static gas = DEFAULT_FUNCTION_CALL_GAS;
-  static storageDeposit = DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT;
+  static storageDeposit = STORAGE_COST_PER_BYTE.mul(new BN(500));
 
   constructor(
     params: types.PermissionInit,

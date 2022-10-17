@@ -9,6 +9,7 @@ import { Action, functionCall } from "near-api-js/lib/transaction";
 import { Gas, NEAR } from "near-units";
 import { AggregatorView, AggregatorViewSerde } from "./generated/index.js";
 import { types } from "./index.js";
+import * as actions from "./actions.js";
 import { roClient, SwitchboardProgram } from "./program.js";
 import { DEFAULT_FT_STORAGE_DEPOSIT } from "./token";
 import { fromBase58, isBase58, parseAddressString } from "./utils.js";
@@ -108,7 +109,7 @@ export class AggregatorAccount {
   ): [Action, AggregatorAccount] {
     const address = KeyPair.fromRandom("ed25519").getPublicKey().data;
     const action = functionCall(
-      "aggregator_init",
+      actions.AggregatorInitAction.actionName,
       {
         ix: new types.AggregatorInit({
           address: address,
@@ -134,8 +135,8 @@ export class AggregatorAccount {
           readCharge: NEAR.parse(`${params.readCharge ?? 0} N`),
         }).toSerde(),
       },
-      DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
+      actions.AggregatorInitAction.gas,
+      actions.AggregatorInitAction.storageDeposit
     );
     const aggregator = new AggregatorAccount({ program, address });
     return [action, aggregator];
@@ -227,7 +228,7 @@ export class AggregatorAccount {
     readCharge?: BN;
   }): Action {
     return functionCall(
-      "aggregator_set_configs",
+      actions.AggregatorSetConfigsAction.actionName,
       {
         ix: new types.AggregatorSetConfigs({
           address: this.address,
@@ -256,8 +257,8 @@ export class AggregatorAccount {
           readCharge: params.readCharge ?? new BN(0),
         }).toSerde(),
       },
-      DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
+      actions.AggregatorSetConfigsAction.gas,
+      actions.AggregatorSetConfigsAction.storageDeposit
     );
   }
 
@@ -272,7 +273,7 @@ export class AggregatorAccount {
 
   openRoundAction(params: { rewardRecipient: Uint8Array }): Action {
     return functionCall(
-      "aggregator_open_round",
+      actions.AggregatorOpenRoundAction.actionName,
       {
         ix: new types.AggregatorOpenRound({
           aggregator: this.address,
@@ -280,8 +281,8 @@ export class AggregatorAccount {
           rewardRecipient: params.rewardRecipient,
         }).toSerde(),
       },
-      DEFAULT_FUNCTION_CALL_GAS,
-      new BN(0)
+      actions.AggregatorOpenRoundAction.gas,
+      actions.AggregatorOpenRoundAction.storageDeposit
     );
   }
 
@@ -308,7 +309,7 @@ export class AggregatorAccount {
     maxResponse: SwitchboardDecimal;
   }): Action {
     return functionCall(
-      "aggregator_save_result",
+      actions.AggregatorSaveResultAction.actionName,
       {
         ix: new types.AggregatorSaveResult({
           aggregatorKey: this.address,
@@ -329,8 +330,8 @@ export class AggregatorAccount {
           }),
         }).toSerde(),
       },
-      DEFAULT_FUNCTION_CALL_GAS,
-      NEAR.parse("0.00125")
+      actions.AggregatorSaveResultAction.gas,
+      actions.AggregatorSaveResultAction.storageDeposit
     );
   }
 
@@ -344,7 +345,7 @@ export class AggregatorAccount {
 
   fundAction(params: { funder: Uint8Array; amount: number }): Action {
     return functionCall(
-      "aggregator_fund",
+      actions.AggregatorFundAction.actionName,
       {
         ix: new types.AggregatorFund({
           address: this.address,
@@ -352,8 +353,8 @@ export class AggregatorAccount {
           amount: NEAR.parse(params.amount.toFixed(20)),
         }).toSerde(),
       },
-      DEFAULT_FUNCTION_CALL_GAS,
-      new BN(0)
+      actions.AggregatorFundAction.gas,
+      actions.AggregatorFundAction.storageDeposit
     );
   }
 
@@ -366,7 +367,7 @@ export class AggregatorAccount {
 
   withdrawAction(params: { authority: Uint8Array; amount: number }): Action {
     return functionCall(
-      "aggregator_withdraw",
+      actions.AggregatorWithdrawAction.actionName,
       {
         ix: new types.AggregatorWithdraw({
           address: this.address,
@@ -374,8 +375,8 @@ export class AggregatorAccount {
           amount: NEAR.parse(params.amount.toFixed(20)),
         }).toSerde(),
       },
-      DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
+      actions.AggregatorWithdrawAction.gas,
+      actions.AggregatorWithdrawAction.storageDeposit
     );
   }
 
@@ -389,7 +390,7 @@ export class AggregatorAccount {
 
   addJobAction(params: { job: Uint8Array; weight?: number }): Action {
     return functionCall(
-      "aggregator_add_job",
+      actions.AggregatorAddJobAction.actionName,
       {
         ix: new types.AggregatorAddJob({
           address: this.address,
@@ -397,8 +398,8 @@ export class AggregatorAccount {
           weight: params.weight ?? 1,
         }).toSerde(),
       },
-      DEFAULT_FUNCTION_CALL_GAS,
-      NEAR.parse("0.00033")
+      actions.AggregatorAddJobAction.gas,
+      actions.AggregatorAddJobAction.storageDeposit
     );
   }
 
@@ -411,15 +412,15 @@ export class AggregatorAccount {
 
   removeJobAction(params: { idx: number }): Action {
     return functionCall(
-      "aggregator_remove_job",
+      actions.AggregatorRemoveJobAction.actionName,
       {
         ix: new types.AggregatorRemoveJob({
           address: this.address,
           idx: params.idx,
         }).toSerde(),
       },
-      DEFAULT_FUNCTION_CALL_GAS,
-      new BN(0)
+      actions.AggregatorRemoveJobAction.gas,
+      actions.AggregatorRemoveJobAction.storageDeposit
     );
   }
 }
@@ -677,7 +678,7 @@ export class QueueAccount {
   ): [Action, QueueAccount] {
     const address = KeyPair.fromRandom("ed25519").getPublicKey().data;
     const action = functionCall(
-      "oracle_queue_init",
+      actions.OracleQueueInitAction.actionName,
       {
         ix: new types.OracleQueueInit({
           address: address,
@@ -707,8 +708,8 @@ export class QueueAccount {
           maxGasCost: NEAR.parse(`${params.maxGasCost ?? 0} N`),
         }).toSerde(),
       },
-      DEFAULT_FUNCTION_CALL_GAS,
-      NEAR.parse(`0.1 N`)
+      actions.OracleQueueInitAction.gas,
+      actions.OracleQueueInitAction.storageDeposit
     );
     const queue = new QueueAccount({ program, address });
     return [action, queue];
@@ -764,7 +765,7 @@ export class CrankAccount {
   ): [Action, CrankAccount] {
     const address = KeyPair.fromRandom("ed25519").getPublicKey().data;
     const action = functionCall(
-      "crank_init",
+      actions.CrankInitAction.actionName,
       {
         ix: new types.CrankInit({
           address: address,
@@ -774,8 +775,8 @@ export class CrankAccount {
           maxRows: new BN(params.maxRows),
         }).toSerde(),
       },
-      DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
+      actions.CrankInitAction.gas,
+      actions.CrankInitAction.storageDeposit
     );
     const crank = new CrankAccount({ program, address });
     return [action, crank];
@@ -801,15 +802,15 @@ export class CrankAccount {
 
   pushAction(params: { aggregator: Uint8Array }): Action {
     return functionCall(
-      "crank_push",
+      actions.CrankPushAction.actionName,
       {
         ix: new types.CrankPush({
           crank: this.address,
           aggregator: params.aggregator,
         }).toSerde(),
       },
-      DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
+      actions.CrankPushAction.gas,
+      actions.CrankPushAction.storageDeposit
     );
   }
 
@@ -822,15 +823,15 @@ export class CrankAccount {
 
   popAction(params: { rewardRecipient: Uint8Array }): Action {
     return functionCall(
-      "crank_pop",
+      actions.CrankPopAction.actionName,
       {
         ix: new types.CrankPop({
           crank: this.address,
           rewardRecipient: params.rewardRecipient,
         }).toSerde(),
       },
-      DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
+      actions.CrankPopAction.gas,
+      actions.CrankPopAction.storageDeposit
     );
   }
 }
@@ -874,7 +875,7 @@ export class JobAccount {
   ): [Action, JobAccount] {
     const address = KeyPair.fromRandom("ed25519").getPublicKey().data;
     const action = functionCall(
-      "job_init",
+      actions.JobInitAction.actionName,
       {
         ix: new types.JobInit({
           address: address,
@@ -885,8 +886,8 @@ export class JobAccount {
           expiration: new BN(0),
         }).toSerde(),
       },
-      DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
+      actions.JobInitAction.gas,
+      actions.JobInitAction.storageDeposit
     );
     const job = new JobAccount({ program, address });
     return [action, job];
@@ -975,7 +976,7 @@ export class OracleAccount {
   ): [Action, OracleAccount] {
     const address = KeyPair.fromRandom("ed25519").getPublicKey().data;
     const action = functionCall(
-      "oracle_init",
+      actions.OracleInitAction.actionName,
       {
         ix: new types.OracleInit({
           address: address,
@@ -985,8 +986,8 @@ export class OracleAccount {
           metadata: params.metadata ?? new Uint8Array(),
         }).toSerde(),
       },
-      DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
+      actions.OracleInitAction.gas,
+      actions.OracleInitAction.storageDeposit
     );
     const oracle = new OracleAccount({ program, address });
     return [action, oracle];
@@ -1010,10 +1011,10 @@ export class OracleAccount {
 
   heartbeatAction(): Action {
     return functionCall(
-      "oracle_heartbeat",
+      actions.OracleHeartbeatAction.actionName,
       { ix: new types.OracleHeartbeat({ address: this.address }).toSerde() },
-      DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
+      actions.OracleHeartbeatAction.gas,
+      actions.OracleHeartbeatAction.storageDeposit
     );
   }
 
@@ -1027,7 +1028,7 @@ export class OracleAccount {
 
   stakeAction(params: { funderEscrow: EscrowAccount; amount: number }): Action {
     return functionCall(
-      "oracle_stake",
+      actions.OracleStakeAction.actionName,
       {
         ix: new types.OracleStake({
           address: this.address,
@@ -1035,8 +1036,8 @@ export class OracleAccount {
           amount: NEAR.parse(params.amount.toFixed(20)),
         }).toSerde(),
       },
-      DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
+      actions.OracleStakeAction.gas,
+      actions.OracleStakeAction.storageDeposit
     );
   }
 
@@ -1054,7 +1055,7 @@ export class OracleAccount {
     delegate?: boolean;
   }): Action {
     return functionCall(
-      "oracle_unstake",
+      actions.OracleUnstakeAction.actionName,
       {
         ix: new types.OracleUnstake({
           oracle: this.address,
@@ -1063,8 +1064,8 @@ export class OracleAccount {
           delegate: params.delegate ?? false,
         }).toSerde(),
       },
-      DEFAULT_FUNCTION_CALL_GAS,
-      new BN(0)
+      actions.OracleUnstakeAction.gas,
+      actions.OracleUnstakeAction.storageDeposit
     );
   }
 }
@@ -1111,7 +1112,7 @@ export class EscrowAccount {
   ): [Action, EscrowAccount] {
     const seed = KeyPair.fromRandom("ed25519").getPublicKey().data;
     const action = functionCall(
-      "escrow_init",
+      actions.EscrowInitAction.actionName,
       {
         ix: new types.EscrowInit({
           seed: seed,
@@ -1119,8 +1120,8 @@ export class EscrowAccount {
           mint: params.mint,
         }).toSerde(),
       },
-      DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
+      actions.EscrowInitAction.gas,
+      actions.EscrowInitAction.storageDeposit
     );
     const escrow = new EscrowAccount({
       program,
@@ -1174,7 +1175,7 @@ export class EscrowAccount {
     } catch (error) {
       // TODO: Check error matches resource not found
       const createEscrowAction = functionCall(
-        "escrow_init",
+        actions.EscrowInitAction.actionName,
         {
           ix: new types.EscrowInit({
             seed: seed,
@@ -1182,8 +1183,8 @@ export class EscrowAccount {
             mint: program.mint.address,
           }).toSerde(),
         },
-        DEFAULT_FUNCTION_CALL_GAS,
-        DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
+        actions.EscrowInitAction.gas,
+        actions.EscrowInitAction.storageDeposit
       );
 
       return [escrowAccount, createEscrowAction];
@@ -1224,8 +1225,8 @@ export class EscrowAccount {
           amount: nearAmount,
         }),
       },
-      Gas.parse(gas),
-      new BN(1) // transferring requires 1 yOcto to be attached
+      actions.EscrowFundAction.gas,
+      actions.EscrowFundAction.storageDeposit
     );
   }
 
@@ -1289,7 +1290,7 @@ export class EscrowAccount {
 
   withdrawAction(params: { amount: number; destination: string }): Action {
     return functionCall(
-      "escrow_withdraw",
+      actions.EscrowWithdrawAction.actionName,
       {
         ix: new types.EscrowWithdraw({
           address: this.address,
@@ -1297,8 +1298,8 @@ export class EscrowAccount {
           amount: NEAR.parse(params.amount.toFixed(20)),
         }).toSerde(),
       },
-      DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
+      actions.EscrowWithdrawAction.gas,
+      actions.EscrowWithdrawAction.storageDeposit
     );
   }
 }
@@ -1355,10 +1356,10 @@ export class PermissionAccount {
     }
   ): [Action, PermissionAccount] {
     const action = functionCall(
-      "permission_init",
+      actions.PermissionInitAction.actionName,
       { ix: new types.PermissionInit(params).toSerde() },
-      DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
+      actions.PermissionInitAction.gas,
+      actions.PermissionInitAction.storageDeposit
     );
     const permission = new PermissionAccount({
       program,
@@ -1397,15 +1398,15 @@ export class PermissionAccount {
     enable: boolean;
   }): Action {
     return functionCall(
-      "permission_set",
+      actions.PermissionSetAction.actionName,
       {
         ix: new types.PermissionSet({
           address: this.address,
           ...params,
         }).toSerde(),
       },
-      DEFAULT_FUNCTION_CALL_GAS,
-      DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT
+      actions.PermissionSetAction.gas,
+      actions.PermissionSetAction.storageDeposit
     );
   }
 }
