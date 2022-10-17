@@ -16,6 +16,7 @@ export interface IAggregatorSetConfigs {
   forceReportPeriod: BN | undefined;
   crank: Uint8Array | undefined;
   rewardEscrow: Uint8Array | undefined;
+  readCharge: BN | undefined;
 }
 
 export interface AggregatorSetConfigsJSON {
@@ -33,6 +34,7 @@ export interface AggregatorSetConfigsJSON {
   forceReportPeriod: string | undefined;
   crank: Array<number> | undefined;
   rewardEscrow: Array<number> | undefined;
+  readCharge: string | undefined;
 }
 
 export interface AggregatorSetConfigsSerde {
@@ -50,6 +52,7 @@ export interface AggregatorSetConfigsSerde {
   force_report_period: number | null;
   crank: Array<number> | null;
   reward_escrow: Array<number> | null;
+  read_charge: number | null;
 }
 
 export class AggregatorSetConfigs implements IAggregatorSetConfigs {
@@ -67,6 +70,7 @@ export class AggregatorSetConfigs implements IAggregatorSetConfigs {
   readonly forceReportPeriod: BN | undefined;
   readonly crank: Uint8Array | undefined;
   readonly rewardEscrow: Uint8Array | undefined;
+  readonly readCharge: BN | undefined;
 
   constructor(fields: IAggregatorSetConfigs) {
     this.address = fields.address;
@@ -83,6 +87,7 @@ export class AggregatorSetConfigs implements IAggregatorSetConfigs {
     this.forceReportPeriod = fields.forceReportPeriod;
     this.crank = fields.crank;
     this.rewardEscrow = fields.rewardEscrow;
+    this.readCharge = fields.readCharge;
   }
 
   toJSON(): AggregatorSetConfigsJSON {
@@ -103,6 +108,7 @@ export class AggregatorSetConfigs implements IAggregatorSetConfigs {
       forceReportPeriod: this.forceReportPeriod?.toString(),
       crank: this.crank ? [...this.crank] : undefined,
       rewardEscrow: this.rewardEscrow ? [...this.rewardEscrow] : undefined,
+      readCharge: this.readCharge?.toString(),
     };
   }
 
@@ -124,6 +130,7 @@ export class AggregatorSetConfigs implements IAggregatorSetConfigs {
       force_report_period: this.forceReportPeriod?.toNumber(),
       crank: this.crank ? [...this.crank] : null,
       reward_escrow: this.rewardEscrow ? [...this.rewardEscrow] : null,
+      read_charge: this.readCharge?.toNumber(),
     };
   }
 
@@ -147,6 +154,7 @@ export class AggregatorSetConfigs implements IAggregatorSetConfigs {
         : undefined,
       crank: new Uint8Array(obj.crank ?? []),
       rewardEscrow: new Uint8Array(obj.rewardEscrow ?? []),
+      readCharge: obj.readCharge ? new BN(obj.readCharge) : undefined,
     });
   }
 
@@ -170,6 +178,7 @@ export class AggregatorSetConfigs implements IAggregatorSetConfigs {
         : null,
       crank: new Uint8Array(obj.crank ?? []),
       rewardEscrow: new Uint8Array(obj.reward_escrow ?? []),
+      readCharge: obj.read_charge ? new BN(obj.read_charge) : null,
     });
   }
 }
