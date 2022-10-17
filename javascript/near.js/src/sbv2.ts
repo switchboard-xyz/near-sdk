@@ -20,6 +20,8 @@ export const TRANSACTION_MAX_GAS = new BN("300000000000000"); // 300 Tgas
 export const DEFAULT_FUNCTION_CALL_GAS = new BN("20000000000000"); // 20 Tgas
 export const MINIMAL_FUNCTION_CALL_GAS = new BN("10000000000000"); // 10 Tgas
 
+export const DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT = NEAR.parse(`0.1 N`);
+
 export const DEFAULT_ESCROW_SEED: string = "DefaultEscrowSeed";
 
 export interface AccountParams {
@@ -41,12 +43,15 @@ export class AggregatorAccount {
   }
 
   get escrow(): EscrowAccount {
-    const hash = crypto.createHash("sha256");
-    hash.update(Buffer.from("AggregatorEscrow"));
-    hash.update(this.program.mint.address);
-    hash.update(this.address);
-    const escrowAddress = new Uint8Array(hash.digest());
-    return new EscrowAccount({ program: this.program, address: escrowAddress });
+    const hash = crypto
+      .createHash("sha256")
+      .update(Buffer.from("AggregatorEscrow"))
+      .update(this.program.mint.address)
+      .update(this.address);
+    return new EscrowAccount({
+      program: this.program,
+      address: new Uint8Array(hash.digest()),
+    });
   }
 
   public static async create(
@@ -63,7 +68,7 @@ export class AggregatorAccount {
       startAfter: number;
       varianceThreshold: SwitchboardDecimal;
       forceReportPeriod: number;
-      rewardEscrow: Uint8Array;
+      rewardEscrow?: Uint8Array;
       historyLimit: number;
       crank?: Uint8Array;
       maxGasCost?: BN;
@@ -93,7 +98,7 @@ export class AggregatorAccount {
       startAfter: number;
       varianceThreshold: SwitchboardDecimal;
       forceReportPeriod: number;
-      rewardEscrow: Uint8Array;
+      rewardEscrow?: Uint8Array;
       historyLimit: number;
       crank?: Uint8Array;
       maxGasCost?: BN;
@@ -126,10 +131,10 @@ export class AggregatorAccount {
           historyLimit: new BN(params.historyLimit),
           maxGasCost: params.maxGasCost ?? new BN(0),
           readCharge: params.readCharge ?? new BN(0),
-        }),
+        }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      new BN(0)
+      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
     );
     const aggregator = new AggregatorAccount({ program, address });
     return [action, aggregator];
@@ -143,7 +148,9 @@ export class AggregatorAccount {
       contractId: program.programId,
       methodName: "view_aggregators_with_authority",
       args: {
-        ix: new types.ViewAggregatorsWithAuthority({ authority: authority }),
+        ix: new types.ViewAggregatorsWithAuthority({
+          authority: authority,
+        }).toSerde(),
       },
     });
     return (data as number[][]).map((bytes) => new Uint8Array(bytes));
@@ -159,7 +166,7 @@ export class AggregatorAccount {
       args: {
         ix: new types.ViewAggregatorsStateWithAuthority({
           authority: authority,
-        }),
+        }).toSerde(),
       },
     });
 
@@ -175,7 +182,9 @@ export class AggregatorAccount {
     ).viewFunction({
       contractId: this.program.programId,
       methodName: "view_aggregator",
-      args: { ix: new types.ViewAggregator({ address: this.address }) },
+      args: {
+        ix: new types.ViewAggregator({ address: this.address }).toSerde(),
+      },
     });
     return types.AggregatorView.fromSerde(data);
   }
@@ -244,10 +253,10 @@ export class AggregatorAccount {
           crank: params.crank,
           rewardEscrow: params.rewardEscrow,
           readCharge: params.readCharge ?? new BN(0),
-        }),
+        }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      new BN(0)
+      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
     );
   }
 
@@ -268,10 +277,10 @@ export class AggregatorAccount {
           aggregator: this.address,
           jitter: 0,
           rewardRecipient: params.rewardRecipient,
-        }),
+        }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      new BN(0)
+      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
     );
   }
 
@@ -317,10 +326,10 @@ export class AggregatorAccount {
             mantissa: params.maxResponse.mantissa,
             scale: params.maxResponse.scale,
           }),
-        }),
+        }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      new BN(0)
+      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
     );
   }
 
@@ -340,10 +349,10 @@ export class AggregatorAccount {
           address: this.address,
           funder: params.funder,
           amount: NEAR.parse(params.amount.toFixed(20)),
-        }),
+        }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      new BN(0)
+      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
     );
   }
 
@@ -362,10 +371,10 @@ export class AggregatorAccount {
           address: this.address,
           destination: params.authority,
           amount: NEAR.parse(params.amount.toFixed(20)),
-        }),
+        }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      new BN(0)
+      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
     );
   }
 
@@ -385,10 +394,10 @@ export class AggregatorAccount {
           address: this.address,
           job: params.job,
           weight: params.weight ?? 1,
-        }).toJSON(),
+        }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      new BN(0)
+      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
     );
   }
 
@@ -406,10 +415,10 @@ export class AggregatorAccount {
         ix: new types.AggregatorRemoveJob({
           address: this.address,
           idx: params.idx,
-        }),
+        }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      new BN(0)
+      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
     );
   }
 }
@@ -602,7 +611,9 @@ export class QueueAccount {
     const data = await roClient(this.program.connection).viewFunction({
       contractId: this.program.programId,
       methodName: "view_aggregators_on_queue",
-      args: { ix: new types.ViewAggregatorsOnQueue({ queue: this.address }) },
+      args: {
+        ix: new types.ViewAggregatorsOnQueue({ queue: this.address }).toSerde(),
+      },
     });
     return (data as number[][]).map((bytes) => new Uint8Array(bytes));
   }
@@ -619,8 +630,8 @@ export class QueueAccount {
     params: {
       authority: string;
       mint: string;
-      reward: number;
-      minStake: number;
+      reward: BN;
+      minStake: BN;
       queueSize: number;
       oracleTimeout: number;
       name?: Buffer;
@@ -628,12 +639,12 @@ export class QueueAccount {
       varianceToleranceMultiplier?: SwitchboardDecimal;
       feedProbationPeriod?: number;
       slashingEnabled?: boolean;
-      consecutiveFeedFailureLimit?: number;
-      consecutiveOracleFailureLimit?: number;
+      consecutiveFeedFailureLimit?: BN;
+      consecutiveOracleFailureLimit?: BN;
       unpermissionedFeeds?: boolean;
       unpermissionedVrf?: boolean;
       enableBufferRelayers?: boolean;
-      maxGasCost?: number;
+      maxGasCost?: BN;
     }
   ): Promise<QueueAccount> {
     const [action, queue] = QueueAccount.createAction(program, params);
@@ -646,8 +657,8 @@ export class QueueAccount {
     params: {
       authority: string;
       mint: string;
-      reward: number;
-      minStake: number;
+      reward: BN;
+      minStake: BN;
       queueSize: number;
       oracleTimeout: number;
       name?: Buffer;
@@ -655,12 +666,12 @@ export class QueueAccount {
       varianceToleranceMultiplier?: SwitchboardDecimal;
       feedProbationPeriod?: number;
       slashingEnabled?: boolean;
-      consecutiveFeedFailureLimit?: number;
-      consecutiveOracleFailureLimit?: number;
+      consecutiveFeedFailureLimit?: BN;
+      consecutiveOracleFailureLimit?: BN;
       unpermissionedFeeds?: boolean;
       unpermissionedVrf?: boolean;
       enableBufferRelayers?: boolean;
-      maxGasCost?: number;
+      maxGasCost?: BN;
     }
   ): [Action, QueueAccount] {
     const address = KeyPair.fromRandom("ed25519").getPublicKey().data;
@@ -671,12 +682,12 @@ export class QueueAccount {
           address: address,
           authority: params.authority,
           mint: params.mint,
-          reward: new BN(params.reward),
-          minStake: new BN(params.minStake),
+          reward: new BN(params.reward ?? 0),
+          minStake: new BN(params.minStake ?? 0),
           queueSize: params.queueSize,
           oracleTimeout: params.oracleTimeout,
-          name: params.name,
-          metadata: params.metadata,
+          name: (params.name ?? Buffer.from("")).slice(0, 32),
+          metadata: params.metadata ?? Buffer.from(""),
           varianceToleranceMultiplier: new types.SwitchboardDecimal({
             mantissa: new BN(0),
             scale: 0,
@@ -693,10 +704,10 @@ export class QueueAccount {
           unpermissionedVrf: params.unpermissionedVrf ?? false,
           enableBufferRelayers: params.enableBufferRelayers ?? false,
           maxGasCost: new BN(params.maxGasCost ?? 0),
-        }),
+        }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      new BN(0)
+      NEAR.parse(`0.1 N`)
     );
     const queue = new QueueAccount({ program, address });
     return [action, queue];
@@ -708,7 +719,7 @@ export class QueueAccount {
     ).viewFunction({
       contractId: this.program.programId,
       methodName: "view_queue",
-      args: { ix: new types.ViewQueue({ address: this.address }) },
+      args: { ix: new types.ViewQueue({ address: this.address }).toSerde() },
     });
     return types.OracleQueueView.fromSerde(data);
   }
@@ -760,10 +771,10 @@ export class CrankAccount {
           metadata: params.metadata ?? new Uint8Array(),
           queue: params.queue,
           maxRows: new BN(params.maxRows),
-        }),
+        }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      new BN(0)
+      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
     );
     const crank = new CrankAccount({ program, address });
     return [action, crank];
@@ -775,7 +786,7 @@ export class CrankAccount {
     ).viewFunction({
       contractId: this.program.programId,
       methodName: "view_crank",
-      args: { ix: new types.ViewCrank({ address: this.address }) },
+      args: { ix: new types.ViewCrank({ address: this.address }).toSerde() },
     });
     return types.CrankView.fromSerde(data);
   }
@@ -794,10 +805,10 @@ export class CrankAccount {
         ix: new types.CrankPush({
           crank: this.address,
           aggregator: params.aggregator,
-        }),
+        }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      new BN(0)
+      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
     );
   }
 
@@ -815,10 +826,10 @@ export class CrankAccount {
         ix: new types.CrankPop({
           crank: this.address,
           rewardRecipient: params.rewardRecipient,
-        }),
+        }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      new BN(0)
+      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
     );
   }
 }
@@ -871,10 +882,10 @@ export class JobAccount {
           metadata: params.metadata ?? new Uint8Array(),
           data: params.data,
           expiration: new BN(0),
-        }),
+        }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      new BN(0)
+      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
     );
     const job = new JobAccount({ program, address });
     return [action, job];
@@ -886,7 +897,7 @@ export class JobAccount {
     ).viewFunction({
       contractId: this.program.programId,
       methodName: "view_job",
-      args: { ix: new types.ViewJob({ address: this.address }) },
+      args: { ix: new types.ViewJob({ address: this.address }).toSerde() },
     });
     return types.Job.fromSerde(data);
   }
@@ -899,7 +910,7 @@ export class JobAccount {
       .viewFunction({
         contractId: program.programId,
         methodName: "view_jobs",
-        args: { ix: new types.ViewJobs({ addresses: params.addrs }) },
+        args: { ix: new types.ViewJobs({ addresses: params.addrs }).toSerde() },
       })
       .then((results) => results.map((result) => types.Job.fromSerde(result)));
   }
@@ -971,10 +982,10 @@ export class OracleAccount {
           queue: params.queue,
           name: params.name ?? new Uint8Array(),
           metadata: params.metadata ?? new Uint8Array(),
-        }),
+        }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      new BN(0)
+      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
     );
     const oracle = new OracleAccount({ program, address });
     return [action, oracle];
@@ -986,7 +997,7 @@ export class OracleAccount {
     ).viewFunction({
       contractId: this.program.programId,
       methodName: "view_oracle",
-      args: { ix: new types.ViewOracle({ address: this.address }) },
+      args: { ix: new types.ViewOracle({ address: this.address }).toSerde() },
     });
     return types.Oracle.fromSerde(data);
   }
@@ -999,9 +1010,9 @@ export class OracleAccount {
   heartbeatAction(): Action {
     return functionCall(
       "oracle_heartbeat",
-      { ix: new types.OracleHeartbeat({ address: this.address }) },
+      { ix: new types.OracleHeartbeat({ address: this.address }).toSerde() },
       DEFAULT_FUNCTION_CALL_GAS,
-      new BN(0)
+      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
     );
   }
 
@@ -1021,10 +1032,10 @@ export class OracleAccount {
           address: this.address,
           funder: params.funderEscrow.address,
           amount: NEAR.parse(params.amount.toFixed(20)),
-        }),
+        }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      new BN(0)
+      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
     );
   }
 
@@ -1049,10 +1060,10 @@ export class OracleAccount {
           destination: params.destinationEscrow.address,
           amount: NEAR.parse(params.amount.toFixed(20)),
           delegate: params.delegate ?? false,
-        }),
+        }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      new BN(0)
+      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
     );
   }
 }
@@ -1105,10 +1116,10 @@ export class EscrowAccount {
           seed: seed,
           authority: params.authority,
           mint: params.mint,
-        }),
+        }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      new BN(0)
+      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
     );
     const escrow = new EscrowAccount({
       program,
@@ -1168,10 +1179,10 @@ export class EscrowAccount {
             seed: seed,
             authority: program.account.accountId,
             mint: program.mint.address,
-          }),
+          }).toSerde(),
         },
         DEFAULT_FUNCTION_CALL_GAS,
-        new BN(0)
+        DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
       );
 
       return [escrowAccount, createEscrowAction];
@@ -1184,7 +1195,7 @@ export class EscrowAccount {
     ).viewFunction({
       contractId: this.program.programId,
       methodName: "view_escrow",
-      args: { ix: new types.ViewEscrow({ address: this.address }) },
+      args: { ix: new types.ViewEscrow({ address: this.address }).toSerde() },
     });
     return types.Escrow.fromSerde(data);
   }
@@ -1283,10 +1294,10 @@ export class EscrowAccount {
           address: this.address,
           destination: params.destination,
           amount: NEAR.parse(params.amount.toFixed(20)),
-        }),
+        }).toSerde(),
       },
       DEFAULT_FUNCTION_CALL_GAS,
-      new BN(0)
+      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
     );
   }
 }
@@ -1344,9 +1355,9 @@ export class PermissionAccount {
   ): [Action, PermissionAccount] {
     const action = functionCall(
       "permission_init",
-      { ix: new types.PermissionInit(params) },
+      { ix: new types.PermissionInit(params).toSerde() },
       DEFAULT_FUNCTION_CALL_GAS,
-      new BN(0)
+      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
     );
     const permission = new PermissionAccount({
       program,
@@ -1365,7 +1376,9 @@ export class PermissionAccount {
     ).viewFunction({
       contractId: this.program.programId,
       methodName: "view_permission",
-      args: { ix: new types.ViewPermission({ address: this.address }) },
+      args: {
+        ix: new types.ViewPermission({ address: this.address }).toSerde(),
+      },
     });
     return types.Permission.fromSerde(data);
   }
@@ -1384,9 +1397,14 @@ export class PermissionAccount {
   }): Action {
     return functionCall(
       "permission_set",
-      { ix: new types.PermissionSet({ address: this.address, ...params }) },
+      {
+        ix: new types.PermissionSet({
+          address: this.address,
+          ...params,
+        }).toSerde(),
+      },
       DEFAULT_FUNCTION_CALL_GAS,
-      new BN(0)
+      DEFAULT_FUNDCTION_CALL_STORAGE_DEPOSIT
     );
   }
 }

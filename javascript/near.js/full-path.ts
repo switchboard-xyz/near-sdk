@@ -41,9 +41,9 @@ if (process.argv.length > 2) {
   console.log(`Creating queue ...`);
   const queue = await sbv2.QueueAccount.create(program, {
     authority: program.account.accountId,
-    mint: "wrap.test",
-    reward: 0,
-    minStake: 100,
+    mint: program.mint.address,
+    reward: new BN(0),
+    minStake: new BN(100),
     queueSize: 100,
     oracleTimeout: 180,
     unpermissionedFeeds: true,
@@ -53,37 +53,37 @@ if (process.argv.length > 2) {
   console.log("queue", queueState.toJSON());
 
   // build another queue action then send
-  const newQueueAddress = KeyPair.fromRandom("ed25519").getPublicKey().data;
-  const queueInitAction = new sbv2.actions.OracleQueueInitAction(
-    sbv2.types.OracleQueueInit.fromJSON({
-      address: [...newQueueAddress],
-      authority: program.account.accountId,
-      mint: "wrap.test",
-      reward: "0",
-      minStake: "100",
-      queueSize: 100,
-      oracleTimeout: 180,
-      unpermissionedFeeds: true,
-      // optionals
-      name: [...new Uint8Array([...(Buffer.from("My Queue") ?? [])])],
-      metadata: [
-        ...new Uint8Array([...(Buffer.from("My Queue metadata ...") ?? [])]),
-      ],
-      feedProbationPeriod: 0,
-      slashingEnabled: false,
-      unpermissionedVrf: false,
-      enableBufferRelayers: false,
-      varianceToleranceMultiplier: { mantissa: "0", scale: 0 },
-      consecutiveFeedFailureLimit: "0",
-      consecutiveOracleFailureLimit: "0",
-      maxGasCost: "0",
-    })
-  );
-  const queueReceipt = await queueInitAction.send(program);
-  console.log(queueReceipt);
-  const newQueue = new QueueAccount({ program, address: newQueueAddress });
-  const newQueueState = await newQueue.loadData();
-  console.log(newQueueState.toJSON());
+  // const newQueueAddress = KeyPair.fromRandom("ed25519").getPublicKey().data;
+  // const queueInitAction = new sbv2.actions.OracleQueueInitAction(
+  //   sbv2.types.OracleQueueInit.fromJSON({
+  //     address: [...newQueueAddress],
+  //     authority: program.account.accountId,
+  //     mint: program.mint.address,
+  //     reward: "0",
+  //     minStake: "100",
+  //     queueSize: 100,
+  //     oracleTimeout: 180,
+  //     unpermissionedFeeds: true,
+  //     // optionals
+  //     name: [...new Uint8Array([...(Buffer.from("My Queue") ?? [])])],
+  //     metadata: [
+  //       ...new Uint8Array([...(Buffer.from("My Queue metadata ...") ?? [])]),
+  //     ],
+  //     feedProbationPeriod: 0,
+  //     slashingEnabled: false,
+  //     unpermissionedVrf: false,
+  //     enableBufferRelayers: false,
+  //     varianceToleranceMultiplier: { mantissa: "0", scale: 0 },
+  //     consecutiveFeedFailureLimit: "0",
+  //     consecutiveOracleFailureLimit: "0",
+  //     maxGasCost: "0",
+  //   })
+  // );
+  // const queueReceipt = await queueInitAction.send(program);
+  // console.log(queueReceipt);
+  // const newQueue = new QueueAccount({ program, address: newQueueAddress });
+  // const newQueueState = await newQueue.loadData();
+  // console.log(newQueueState.toJSON());
 
   // Create Crank
   console.log(`Creating crank ...`);
@@ -99,7 +99,7 @@ if (process.argv.length > 2) {
   console.log(`Creating escrow ...`);
   const escrow = await sbv2.EscrowAccount.create(program, {
     authority: program.account.accountId,
-    mint: "wrap.test",
+    mint: program.mint.address,
   });
   console.log(`escrow (base58): ${sbv2.toBase58(escrow.address)}`);
   const escrowState = await escrow.loadData();
@@ -120,12 +120,19 @@ if (process.argv.length > 2) {
     varianceThreshold: sbv2.SwitchboardDecimal.fromBig(new Big(0)),
     forceReportPeriod: 0,
     crank: crank.address,
-    rewardEscrow: escrow.address,
+    // rewardEscrow: escrow.address,
     historyLimit: 1000,
   });
+  console.log(`aggregator (base58): ${sbv2.toBase58(aggregator.address)}`);
+  const aggregatorState = await aggregator.loadData();
+  console.log("aggregator", aggregatorState.toJSON());
 
   console.log(`Getting aggregator escrow ...`);
   const aggregatorEscrow = aggregator.escrow;
+  console.log(`aggregator escrow (bytes): [${aggregatorEscrow.address}]`);
+  console.log(
+    `aggregator escrow (base58): ${sbv2.toBase58(aggregatorEscrow.address)}`
+  );
   const aggregatorEscrowState = await aggregatorEscrow.loadData();
   console.log(aggregatorEscrowState.toJSON());
 
@@ -229,17 +236,17 @@ if (process.argv.length > 2) {
     }
   );
   console.log(await crank.pop({ rewardRecipient: escrow.address }));
-  const jobs = await sbv2.JobAccount.loadJobs(program, [
-    job.address,
-    job.address,
-  ]);
-  const jobsChecksum = await sbv2.JobAccount.produceJobsHash(jobs).digest();
+  const jobs = await sbv2.JobAccount.loadJobs(program, {
+    addrs: [job.address, job.address],
+  });
+  const oracleJobs = jobs.map((job) => OracleJob.decodeDelimited(job.data));
+  const jobsChecksum = sbv2.JobAccount.produceJobsHash(oracleJobs).digest();
   await aggregator.saveResult({
     oracleIdx: 0,
     error: false,
     value: sbv2.SwitchboardDecimal.fromBig(new Big(50)),
     jobsChecksum,
-    minRespose: sbv2.SwitchboardDecimal.fromBig(new Big(40)),
+    minResponse: sbv2.SwitchboardDecimal.fromBig(new Big(40)),
     maxResponse: sbv2.SwitchboardDecimal.fromBig(new Big(60)),
   });
   return;
