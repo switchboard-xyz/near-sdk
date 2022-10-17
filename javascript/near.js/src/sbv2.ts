@@ -863,7 +863,7 @@ export class JobAccount {
   public static async loadJobs(
     program: SwitchboardProgram,
     params: { addrs: Uint8Array[] }
-  ): Promise<OracleJob[]> {
+  ): Promise<types.Job[]> {
     const addresses = params.addrs.map((addr) => [...addr]);
     return roClient(program.connection)
       .viewFunction({
@@ -871,9 +871,7 @@ export class JobAccount {
         methodName: "view_jobs",
         args: { ix: { addresses } },
       })
-      .then((results) =>
-        results.map((result) => OracleJob.decodeDelimited(result.data))
-      );
+      .then((results) => results.map((result) => types.Job.fromSerde(result)));
   }
 
   static produceJobsHash(jobs: Array<OracleJob>): crypto.Hash {
