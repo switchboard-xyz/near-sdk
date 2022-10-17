@@ -66,7 +66,8 @@ export class AggregatorAccount {
       rewardEscrow: Uint8Array;
       historyLimit: number;
       crank?: Uint8Array;
-      maxGasCost?: number;
+      maxGasCost?: BN;
+      readCharge?: BN;
     }
   ): Promise<AggregatorAccount> {
     const [action, aggregator] = AggregatorAccount.createAction(
@@ -95,7 +96,8 @@ export class AggregatorAccount {
       rewardEscrow: Uint8Array;
       historyLimit: number;
       crank?: Uint8Array;
-      maxGasCost?: number;
+      maxGasCost?: BN;
+      readCharge?: BN;
     }
   ): [Action, AggregatorAccount] {
     const address = KeyPair.fromRandom("ed25519").getPublicKey().data;
@@ -122,7 +124,8 @@ export class AggregatorAccount {
           expiration: new BN(0),
           rewardEscrow: params.rewardEscrow ?? new Uint8Array(32),
           historyLimit: new BN(params.historyLimit),
-          maxGasCost: new BN(params.maxGasCost ?? 0),
+          maxGasCost: params.maxGasCost ?? new BN(0),
+          readCharge: params.readCharge ?? new BN(0),
         }),
       },
       DEFAULT_FUNCTION_CALL_GAS,
@@ -211,6 +214,7 @@ export class AggregatorAccount {
     forceReportPeriod?: number;
     crank?: Uint8Array;
     rewardEscrow?: Uint8Array;
+    readCharge?: BN;
   }): Action {
     return functionCall(
       "aggregator_set_configs",
@@ -239,6 +243,7 @@ export class AggregatorAccount {
               : new BN(params.forceReportPeriod),
           crank: params.crank,
           rewardEscrow: params.rewardEscrow,
+          readCharge: params.readCharge ?? new BN(0),
         }),
       },
       DEFAULT_FUNCTION_CALL_GAS,
