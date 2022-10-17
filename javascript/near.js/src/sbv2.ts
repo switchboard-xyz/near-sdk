@@ -241,7 +241,7 @@ export class AggregatorAccount {
           startAfter:
             params === undefined ? undefined : new BN(params.startAfter),
           varianceThreshold: params.varianceThreshold
-            ? new types.JsonDecimal({
+            ? new types.SwitchboardDecimal({
                 mantissa: params.varianceThreshold.mantissa,
                 scale: params.varianceThreshold.scale,
               })
@@ -313,11 +313,11 @@ export class AggregatorAccount {
           aggregatorKey: this.address,
           oracleIdx: params.oracleIdx,
           error: params.error,
+          jobsChecksum: params.jobsChecksum,
           value: new types.JsonDecimal({
             mantissa: params.value.mantissa,
             scale: params.value.scale,
-          }),
-          jobsChecksum: params.jobsChecksum,
+          }), // for some reason i128 needs to be a string and not number ??
           minResponse: new types.JsonDecimal({
             mantissa: params.minResponse.mantissa,
             scale: params.minResponse.scale,

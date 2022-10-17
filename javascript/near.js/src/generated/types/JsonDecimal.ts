@@ -12,7 +12,7 @@ export interface JsonDecimalJSON {
 }
 
 export interface JsonDecimalSerde {
-  mantissa: number;
+  mantissa: string;
   scale: number;
 }
 
@@ -34,7 +34,7 @@ export class JsonDecimal implements IJsonDecimal {
 
   toSerde(): JsonDecimalSerde {
     return {
-      mantissa: this.mantissa.toNumber(),
+      mantissa: this.mantissa.toString(),
       scale: this.scale,
     };
   }
@@ -48,9 +48,7 @@ export class JsonDecimal implements IJsonDecimal {
 
   static fromSerde(obj: JsonDecimalSerde) {
     return new JsonDecimal({
-      mantissa: new BN(
-        obj.mantissa.toLocaleString("fullwide", { useGrouping: false })
-      ),
+      mantissa: new BN(obj.mantissa),
       scale: obj.scale,
     });
   }
