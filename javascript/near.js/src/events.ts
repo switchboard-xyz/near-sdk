@@ -54,6 +54,9 @@ export class NearEvent {
             }
 
             outcome.executionOutcome.outcome.logs.map((log: string) => {
+              if ("Failure" in outcome.executionOutcome.outcome.status) {
+                return;
+              }
               const matches = log.matchAll(
                 /(?<=EVENT_JSON:)(?<event>{.+?})(?=,EVENT_JSON|$)/g
               );

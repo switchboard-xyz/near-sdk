@@ -245,7 +245,7 @@ export class CrankInitAction extends SwitchboardAction<types.CrankInit> {
 export class CrankPopAction extends SwitchboardAction<types.CrankPop> {
   static actionName: SwitchboardActionType = "crank_pop";
   static gas = DEFAULT_FUNCTION_CALL_GAS;
-  static storageDeposit = ONE_YOCTO;
+  static storageDeposit = STORAGE_COST_PER_BYTE.mul(new BN(100));
 
   constructor(
     params: types.CrankPop,
