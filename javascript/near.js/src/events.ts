@@ -130,9 +130,14 @@ export class WebsocketEventListener extends SwitchboardEventListener {
 
     // these dont change
 
+    // OPEN
+    this.ws.onopen = () => {
+      this.start();
+    };
+
     // CLOSE
     this.ws.onclose = () => {
-      setImmediate(() => this.start());
+      this.start();
     };
 
     // MESSAGE
@@ -144,19 +149,25 @@ export class WebsocketEventListener extends SwitchboardEventListener {
 
     // ERROR
     this.ws.onerror = (err) => this.errorHandler;
+
+    setInterval(() => {
+      try {
+        this.ws.ping();
+      } catch (error) {
+        console.error(`Failed to ping WebsocketEventListener: ${error}`);
+        this.start();
+      }
+    }, 5 * 60 * 1000);
   }
 
   start = () => {
-    // OPEN
-    this.ws.onopen = () => {
-      this.ws.send(
-        JSON.stringify({
-          secret: this.id,
-          filter: this.filter,
-          fetch_past_events: 20,
-        })
-      );
-    };
+    this.ws.send(
+      JSON.stringify({
+        secret: this.id,
+        filter: this.filter,
+        fetch_past_events: 20,
+      })
+    );
   };
 }
 
