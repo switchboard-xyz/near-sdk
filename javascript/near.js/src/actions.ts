@@ -187,7 +187,7 @@ export class AggregatorRemoveJobAction extends SwitchboardAction<types.Aggregato
 export class AggregatorSaveResultAction extends SwitchboardAction<types.AggregatorSaveResult> {
   static actionName: SwitchboardActionType = "aggregator_save_result";
   static gas = DEFAULT_FUNCTION_CALL_GAS;
-  static storageDeposit = STORAGE_COST_PER_BYTE.mul(new BN(150));
+  static storageDeposit = STORAGE_COST_PER_BYTE.mul(new BN(400));
 
   constructor(
     params: types.AggregatorSaveResult,
@@ -245,7 +245,7 @@ export class CrankInitAction extends SwitchboardAction<types.CrankInit> {
 export class CrankPopAction extends SwitchboardAction<types.CrankPop> {
   static actionName: SwitchboardActionType = "crank_pop";
   static gas = DEFAULT_FUNCTION_CALL_GAS;
-  static storageDeposit = STORAGE_COST_PER_BYTE.mul(new BN(100));
+  static storageDeposit = STORAGE_COST_PER_BYTE.mul(new BN(200));
 
   constructor(
     params: types.CrankPop,
