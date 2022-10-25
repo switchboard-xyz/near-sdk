@@ -423,6 +423,59 @@ export class AggregatorAccount {
       actions.AggregatorRemoveJobAction.storageDeposit
     );
   }
+
+  static shouldReportValue(
+    value: Big,
+    aggregator: types.AggregatorView
+  ): boolean {
+    if ((aggregator.latestConfirmedRound?.numSuccess ?? 0) === 0) {
+      return true;
+    }
+    const timestamp = new BN(Math.floor(Date.now() / 1000), 10);
+    const startAfter = new BN(aggregator.startAfter, 10);
+    if (startAfter.gt(timestamp)) {
+      return false;
+    }
+
+    const varianceThreshold = new SwitchboardDecimal(
+      aggregator.varianceThreshold.mantissa,
+      aggregator.varianceThreshold.scale
+    ).toBig();
+
+    const latestResult = new SwitchboardDecimal(
+      aggregator.latestConfirmedRound.result.mantissa,
+      aggregator.latestConfirmedRound.result.scale
+    ).toBig();
+
+    if (
+      aggregator.latestConfirmedRound.roundOpenTimestamp
+        .add(aggregator.forceReportPeriod)
+        .lt(timestamp)
+    ) {
+      return true;
+    }
+
+    let diff = safeDiv(latestResult, value);
+    if (diff.abs().gt(1)) {
+      diff = safeDiv(value, latestResult);
+    }
+
+    // I dont want to think about variance percentage when values cross 0.
+    // Changes the scale of what we consider a "percentage".
+    if (diff.lt(0)) {
+      return true;
+    }
+    const change = new Big(1).minus(diff);
+    return change.gt(varianceThreshold);
+  }
+}
+
+function safeDiv(number_: Big, denominator: Big, decimals = 20): Big {
+  const oldDp = Big.DP;
+  Big.DP = decimals;
+  const result = number_.div(denominator);
+  Big.DP = oldDp;
+  return result;
 }
 
 export class QueueAccount {
