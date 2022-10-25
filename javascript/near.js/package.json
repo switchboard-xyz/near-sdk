@@ -1,6 +1,6 @@
 {
   "name": "@switchboard-xyz/near.js",
-  "version": "2.0.48",
+  "version": "2.0.49",
   "author": "",
   "license": "ISC",
   "description": "API wrapper for intergating with the Switchboardv2 program on Near",
@@ -32,7 +32,8 @@
     "near-lake-framework": "^1.0.4",
     "near-units": "^0.1.9",
     "typedoc": "^0.23.16",
-    "wait-for-event": "^2.0.1"
+    "wait-for-event": "^2.0.1",
+    "ws": "^8.10.0"
   },
   "devDependencies": {
     "@types/big.js": "^6.1.5",
@@ -41,6 +42,7 @@
     "@types/lodash": "^4.14.186",
     "@types/mocha": "^10.0.0",
     "@types/node": "^18.7.23",
+    "@types/ws": "^8.5.3",
     "assert": "^2.0.0",
     "mocha": "^10.0.0",
     "shx": "^0.3.4",
