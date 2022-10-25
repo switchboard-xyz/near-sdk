@@ -22,6 +22,7 @@ export * from "./OracleUnstake.js";
 export * from "./PermissionInit.js";
 export * from "./PermissionSet.js";
 export * from "./OracleQueueInit.js";
+export * from "./OracleQueueSetConfigs.js";
 export * from "./Error.js";
 export * from "./AggregatorOpenRoundEvent.js";
 export * from "./AggregatorValueUpdateEvent.js";

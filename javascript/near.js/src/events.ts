@@ -39,19 +39,30 @@ export interface NearEventListenerMessage<T extends SwitchboardEventSerde> {
   }>;
 }
 
+// export interface OpenRoundMessage {
+//   secret: string;
+//   events: Array<{
+//     block_height: string;
+//     block_hash: string;
+//     block_timestamp: string;
+//     block_epoch_id: string;
+//     receipt_id: string;
+//     log_index: number;
+//     predecessor_id: string;
+//     account_id: string;
+//     status: string;
+//     event: {
+//       standard: string;
+//       version: string;
+//       event: "AggregatorOpenRoundEvent";
+//       data: types.AggregatorOpenRoundEventSerde;
+//     };
+//   }>;
+// }
+
 export type SwitchboardEventCallback<T extends SwitchboardEventSerde> = (
   event: T
 ) => void | Promise<void>;
-
-export type IGenericSbv2EventCallback = Record<
-  SwitchboardEventType,
-  SwitchboardEventCallback<any>
->;
-
-export type ISbv2EventCallback<T = IGenericSbv2EventCallback> = {
-  [P in keyof T]: T;
-};
-
 
 export interface ISwitchboardEventCallback {
   AggregatorOpenRoundEvent?: SwitchboardEventCallback<types.AggregatorOpenRoundEventSerde>;
@@ -82,7 +93,9 @@ export abstract class SwitchboardEventListener {
     });
   }
 
-  async callback(message: NearEventListenerMessage<SwitchboardEventSerde>) {
+  async handleMessage(
+    message: NearEventListenerMessage<SwitchboardEventSerde>
+  ) {
     if (message.secret === this.id && message.events.length > 0) {
       for await (const event of message.events) {
         if (event.event.event in this.callbacks) {
@@ -114,6 +127,23 @@ export class WebsocketEventListener extends SwitchboardEventListener {
     }
 
     this.ws = new WebSocket(this.url);
+
+    // these dont change
+
+    // CLOSE
+    this.ws.onclose = () => {
+      setImmediate(() => this.start());
+    };
+
+    // MESSAGE
+    this.ws.onmessage = async (e) => {
+      const message: NearEventListenerMessage<SwitchboardEventSerde> =
+        JSON.parse(e.data as any);
+      this.handleMessage(message);
+    };
+
+    // ERROR
+    this.ws.onerror = (err) => this.errorHandler;
   }
 
   start = () => {
@@ -127,22 +157,6 @@ export class WebsocketEventListener extends SwitchboardEventListener {
         })
       );
     };
-
-    // CLOSE
-    this.ws.onclose = () => {
-      // console.log(`WS Connection has been closed`);
-      // scheduleReconnect(1);
-    };
-
-    // MESSAGE
-    this.ws.onmessage = async (e) => {
-      const message: NearEventListenerMessage<SwitchboardEventSerde> =
-        JSON.parse(e.data as any);
-      this.callback(message);
-    };
-
-    // ERROR
-    this.ws.onerror = (err) => this.errorHandler;
   };
 }
 

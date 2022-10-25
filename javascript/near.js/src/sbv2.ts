@@ -837,6 +837,89 @@ export class QueueAccount {
     });
     return types.OracleQueueView.fromSerde(data);
   }
+
+  setConfigsAction(
+    params: Partial<{
+      authority: string;
+      mint: string;
+      name: Buffer;
+      metadata: Buffer;
+      reward: number;
+      minStake: number;
+      feedProbationPeriod: number;
+      oracleTimeout: number;
+      slashingEnabled: boolean;
+      varianceToleranceMultiplier: SwitchboardDecimal;
+      consecutiveFeedFailureLimit: BN;
+      consecutiveOracleFailureLimit: BN;
+      unpermissionedFeeds: boolean;
+      unpermissionedVrf: boolean;
+      enableBufferRelayers: boolean;
+      maxGasCost: number;
+    }>
+  ): Action {
+    return functionCall(
+      actions.OracleQueueSetConfigsAction.actionName,
+      {
+        ix: new types.OracleQueueSetConfigs({
+          address: this.address,
+          authority: params.authority ?? null,
+          mint: params.mint ?? null,
+          name: params.name ?? null,
+          metadata: params.metadata ?? null,
+          reward: params.reward ? NEAR.parse(`${params.reward} N`) : null,
+          minStake: params.minStake ? NEAR.parse(`${params.minStake} N`) : null,
+          feedProbationPeriod: params.feedProbationPeriod ?? null,
+          oracleTimeout: params.oracleTimeout ?? null,
+          slashingEnabled: params.slashingEnabled ?? null,
+          varianceToleranceMultiplier: params.varianceToleranceMultiplier
+            ? new types.SwitchboardDecimal({
+                mantissa: params.varianceToleranceMultiplier.mantissa,
+                scale: params.varianceToleranceMultiplier.scale,
+              })
+            : null,
+          consecutiveFeedFailureLimit:
+            params.consecutiveFeedFailureLimit ?? null,
+          consecutiveOracleFailureLimit:
+            params.consecutiveOracleFailureLimit ?? null,
+          unpermissionedFeeds: params.unpermissionedFeeds ?? null,
+          unpermissionedVrf: params.unpermissionedVrf ?? null,
+          enableBufferRelayers: params.enableBufferRelayers ?? null,
+          maxGasCost: params.maxGasCost
+            ? NEAR.parse(`${params.maxGasCost} N`)
+            : null,
+        }).toSerde(),
+      },
+      actions.OracleQueueSetConfigsAction.gas,
+      actions.OracleQueueSetConfigsAction.storageDeposit
+    );
+  }
+
+  async setConfigs(
+    params: Partial<{
+      authority: string;
+      mint: string;
+      name: Buffer;
+      metadata: Buffer;
+      reward: number;
+      minStake: number;
+      feedProbationPeriod: number;
+      oracleTimeout: number;
+      slashingEnabled: boolean;
+      varianceToleranceMultiplier: SwitchboardDecimal;
+      consecutiveFeedFailureLimit: BN;
+      consecutiveOracleFailureLimit: BN;
+      unpermissionedFeeds: boolean;
+      unpermissionedVrf: boolean;
+      enableBufferRelayers: boolean;
+      maxGasCost: number;
+    }>
+  ): Promise<FinalExecutionOutcome> {
+    const txnReceipt = await this.program.sendAction(
+      this.setConfigsAction(params)
+    );
+    return txnReceipt;
+  }
 }
 
 export class CrankAccount {

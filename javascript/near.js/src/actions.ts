@@ -37,7 +37,8 @@ export type SwitchboardActionType =
   | "oracle_unstake"
   | "permission_init"
   | "permission_set"
-  | "oracle_queue_init";
+  | "oracle_queue_init"
+  | "oracle_queue_set_configs";
 
 export interface ISwitchboardAction {
   name: SwitchboardActionType;
@@ -451,5 +452,19 @@ export class OracleQueueInitAction extends SwitchboardAction<types.OracleQueueIn
     storage = OracleQueueInitAction.storageDeposit
   ) {
     super(OracleQueueInitAction.actionName, params, gas, storage);
+  }
+}
+
+export class OracleQueueSetConfigsAction extends SwitchboardAction<types.OracleQueueSetConfigs> {
+  static actionName: SwitchboardActionType = "oracle_queue_set_configs";
+  static gas = DEFAULT_FUNCTION_CALL_GAS;
+  static storageDeposit = DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT;
+
+  constructor(
+    params: types.OracleQueueSetConfigs,
+    gas = OracleQueueSetConfigsAction.gas,
+    storage = OracleQueueSetConfigsAction.storageDeposit
+  ) {
+    super(OracleQueueSetConfigsAction.actionName, params, gas, storage);
   }
 }
