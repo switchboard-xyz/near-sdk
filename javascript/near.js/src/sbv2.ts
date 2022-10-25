@@ -863,31 +863,37 @@ export class QueueAccount {
       {
         ix: new types.OracleQueueSetConfigs({
           address: this.address,
-          authority: params.authority ?? null,
-          mint: params.mint ?? null,
-          name: params.name ?? null,
-          metadata: params.metadata ?? null,
-          reward: params.reward ? NEAR.parse(`${params.reward} N`) : null,
-          minStake: params.minStake ? NEAR.parse(`${params.minStake} N`) : null,
-          feedProbationPeriod: params.feedProbationPeriod ?? null,
-          oracleTimeout: params.oracleTimeout ?? null,
-          slashingEnabled: params.slashingEnabled ?? null,
-          varianceToleranceMultiplier: params.varianceToleranceMultiplier
-            ? new types.SwitchboardDecimal({
-                mantissa: params.varianceToleranceMultiplier.mantissa,
-                scale: params.varianceToleranceMultiplier.scale,
-              })
-            : null,
-          consecutiveFeedFailureLimit:
-            params.consecutiveFeedFailureLimit ?? null,
-          consecutiveOracleFailureLimit:
-            params.consecutiveOracleFailureLimit ?? null,
-          unpermissionedFeeds: params.unpermissionedFeeds ?? null,
-          unpermissionedVrf: params.unpermissionedVrf ?? null,
-          enableBufferRelayers: params.enableBufferRelayers ?? null,
-          maxGasCost: params.maxGasCost
-            ? NEAR.parse(`${params.maxGasCost} N`)
-            : null,
+          authority: params.authority,
+          mint: params.mint,
+          name: params.name,
+          metadata: params.metadata,
+          reward:
+            params.reward !== undefined
+              ? NEAR.parse(`${params.reward ?? 0} N`)
+              : undefined,
+          minStake:
+            params.minStake !== undefined
+              ? NEAR.parse(`${params.minStake ?? 0} N`)
+              : undefined,
+          feedProbationPeriod: params.feedProbationPeriod,
+          oracleTimeout: params.oracleTimeout,
+          slashingEnabled: params.slashingEnabled,
+          varianceToleranceMultiplier:
+            params.varianceToleranceMultiplier !== undefined
+              ? new types.SwitchboardDecimal({
+                  mantissa: params.varianceToleranceMultiplier.mantissa,
+                  scale: params.varianceToleranceMultiplier.scale,
+                })
+              : undefined,
+          consecutiveFeedFailureLimit: params.consecutiveFeedFailureLimit,
+          consecutiveOracleFailureLimit: params.consecutiveOracleFailureLimit,
+          unpermissionedFeeds: params.unpermissionedFeeds,
+          unpermissionedVrf: params.unpermissionedVrf,
+          enableBufferRelayers: params.enableBufferRelayers,
+          maxGasCost:
+            params.maxGasCost !== undefined
+              ? NEAR.parse(`${params.maxGasCost ?? 0} N`)
+              : undefined,
         }).toSerde(),
       },
       actions.OracleQueueSetConfigsAction.gas,
