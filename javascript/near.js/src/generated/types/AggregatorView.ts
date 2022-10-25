@@ -24,8 +24,6 @@ export interface IAggregatorView {
   jobs: Array<Uint8Array>;
   jobsChecksum: Uint8Array;
   authority: string;
-  history: Array<types.AggregatorHistoryRow>;
-  historyWriteIdx: BN;
   historyLimit: BN;
   previousConfirmedRoundResult: types.SwitchboardDecimal;
   previousConfirmedRoundSlot: BN;
@@ -58,8 +56,6 @@ export interface AggregatorViewJSON {
   jobs: Array<Array<number>>;
   jobsChecksum: Array<number>;
   authority: string;
-  history: Array<types.AggregatorHistoryRowJSON>;
-  historyWriteIdx: string;
   historyLimit: string;
   previousConfirmedRoundResult: types.SwitchboardDecimalJSON;
   previousConfirmedRoundSlot: string;
@@ -92,8 +88,6 @@ export interface AggregatorViewSerde {
   jobs: Array<Array<number>>;
   jobs_checksum: Array<number>;
   authority: string;
-  history: Array<types.AggregatorHistoryRowSerde>;
-  history_write_idx: number;
   history_limit: number;
   previous_confirmed_round_result: types.SwitchboardDecimalSerde;
   previous_confirmed_round_slot: number;
@@ -126,8 +120,6 @@ export class AggregatorView implements IAggregatorView {
   readonly jobs: Array<Uint8Array>;
   readonly jobsChecksum: Uint8Array;
   readonly authority: string;
-  readonly history: Array<types.AggregatorHistoryRow>;
-  readonly historyWriteIdx: BN;
   readonly historyLimit: BN;
   readonly previousConfirmedRoundResult: types.SwitchboardDecimal;
   readonly previousConfirmedRoundSlot: BN;
@@ -159,8 +151,6 @@ export class AggregatorView implements IAggregatorView {
     this.jobs = fields.jobs;
     this.jobsChecksum = fields.jobsChecksum;
     this.authority = fields.authority;
-    this.history = fields.history;
-    this.historyWriteIdx = fields.historyWriteIdx;
     this.historyLimit = fields.historyLimit;
     this.previousConfirmedRoundResult = fields.previousConfirmedRoundResult;
     this.previousConfirmedRoundSlot = fields.previousConfirmedRoundSlot;
@@ -194,8 +184,6 @@ export class AggregatorView implements IAggregatorView {
       jobs: this.jobs.map((item) => [...item]),
       jobsChecksum: [...this.jobsChecksum],
       authority: this.authority,
-      history: this.history.map((item) => item.toJSON()),
-      historyWriteIdx: this.historyWriteIdx.toString(),
       historyLimit: this.historyLimit.toString(),
       previousConfirmedRoundResult: this.previousConfirmedRoundResult.toJSON(),
       previousConfirmedRoundSlot: this.previousConfirmedRoundSlot.toString(),
@@ -230,8 +218,6 @@ export class AggregatorView implements IAggregatorView {
       jobs: this.jobs.map((item) => [...item]),
       jobs_checksum: [...this.jobsChecksum],
       authority: this.authority,
-      history: this.history.map((item) => item.toSerde()),
-      history_write_idx: this.historyWriteIdx.toNumber(),
       history_limit: this.historyLimit.toNumber(),
       previous_confirmed_round_result:
         this.previousConfirmedRoundResult.toSerde(),
@@ -271,10 +257,6 @@ export class AggregatorView implements IAggregatorView {
       jobs: obj.jobs.map((item) => new Uint8Array(item)),
       jobsChecksum: new Uint8Array(obj.jobsChecksum),
       authority: obj.authority,
-      history: obj.history.map((item) =>
-        types.AggregatorHistoryRow.fromJSON(item)
-      ),
-      historyWriteIdx: new BN(obj.historyWriteIdx),
       historyLimit: new BN(obj.historyLimit),
       previousConfirmedRoundResult: types.SwitchboardDecimal.fromJSON(
         obj.previousConfirmedRoundResult
@@ -331,12 +313,6 @@ export class AggregatorView implements IAggregatorView {
       jobs: obj.jobs.map((item) => new Uint8Array(item)),
       jobsChecksum: new Uint8Array(obj.jobs_checksum),
       authority: obj.authority,
-      history: obj.history.map((item) =>
-        types.AggregatorHistoryRow.fromSerde(item)
-      ),
-      historyWriteIdx: new BN(
-        obj.history_write_idx.toLocaleString("fullwide", { useGrouping: false })
-      ),
       historyLimit: new BN(
         obj.history_limit.toLocaleString("fullwide", { useGrouping: false })
       ),

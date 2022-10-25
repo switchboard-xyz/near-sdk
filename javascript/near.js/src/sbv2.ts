@@ -7,7 +7,11 @@ import { KeyPair, utils } from "near-api-js";
 import { FinalExecutionOutcome } from "near-api-js/lib/providers/provider";
 import { Action, functionCall } from "near-api-js/lib/transaction";
 import { Gas, NEAR } from "near-units";
-import { AggregatorView, AggregatorViewSerde } from "./generated/index.js";
+import {
+  AggregatorHistoryRow,
+  AggregatorView,
+  AggregatorViewSerde,
+} from "./generated/index.js";
 import { types } from "./index.js";
 import * as actions from "./actions.js";
 import { roClient, SwitchboardProgram } from "./program.js";
@@ -71,7 +75,6 @@ export class AggregatorAccount {
       varianceThreshold: SwitchboardDecimal;
       forceReportPeriod: number;
       rewardEscrow?: Uint8Array;
-      historyLimit: number;
       crank?: Uint8Array;
       maxGasCost?: number;
       readCharge?: number;
@@ -101,7 +104,6 @@ export class AggregatorAccount {
       varianceThreshold: SwitchboardDecimal;
       forceReportPeriod: number;
       rewardEscrow?: Uint8Array;
-      historyLimit: number;
       crank?: Uint8Array;
       maxGasCost?: number;
       readCharge?: number;
@@ -130,7 +132,6 @@ export class AggregatorAccount {
           crank: params.crank ?? new Uint8Array(32),
           expiration: new BN(0),
           rewardEscrow: params.rewardEscrow ?? new Uint8Array(32),
-          historyLimit: new BN(params.historyLimit),
           maxGasCost: NEAR.parse(`${params.maxGasCost ?? 0} N`),
           readCharge: NEAR.parse(`${params.readCharge ?? 0} N`),
         }).toSerde(),
@@ -189,6 +190,46 @@ export class AggregatorAccount {
       },
     });
     return types.AggregatorView.fromSerde(data);
+  }
+
+  async loadHistoryPage(
+    page: number
+  ): Promise<types.AggregatorHistoryPageView> {
+    const data: types.AggregatorHistoryPageViewSerde = await roClient(
+      this.program.connection
+    ).viewFunction({
+      contractId: this.program.programId,
+      methodName: "view_aggregator_history",
+      args: {
+        ix: new types.ViewAggregatorHistory({
+          address: this.address,
+          page: page,
+        }).toSerde(),
+      },
+    });
+    return types.AggregatorHistoryPageView.fromSerde(data);
+  }
+
+  async loadHistory(): Promise<Array<types.AggregatorHistoryRow>> {
+    const aggregator = await this.loadData();
+    const numPages = Math.ceil(aggregator.historyLimit.toNumber() / 1000);
+    const pages: types.AggregatorHistoryPageView[] = await Promise.all(
+      Array.from(Array(numPages).keys()).map((n) => this.loadHistoryPage(n))
+    );
+    const history = pages
+      .reduce(
+        (
+          rows: Array<types.AggregatorHistoryRow>,
+          page: types.AggregatorHistoryPageView
+        ) => {
+          rows.push(...page.history);
+          return rows;
+        },
+        []
+      )
+      .filter((r) => r.roundId.gt(new BN(0)))
+      .sort((a, b) => b.roundId.cmp(a.roundId));
+    return history;
   }
 
   async setConfigs(params: {
@@ -424,6 +465,25 @@ export class AggregatorAccount {
     );
   }
 
+  async addHistory(params: {
+    numRows: number;
+  }): Promise<FinalExecutionOutcome> {
+    const txnReceipt = await this.program.sendAction(
+      this.addHistoryAction(params)
+    );
+    return txnReceipt;
+  }
+
+  addHistoryAction(params: { numRows: number }): Action {
+    const switchboardAction = new actions.AggregatorAddHistoryAction(
+      new types.AggregatorAddHistory({
+        address: this.address,
+        numRows: params.numRows,
+      })
+    );
+    return switchboardAction.action;
+  }
+
   static shouldReportValue(
     value: Big,
     aggregator: types.AggregatorView
@@ -600,7 +660,6 @@ export class QueueAccount {
         minUpdateDelaySeconds: params.minUpdateDelaySeconds ?? 30,
         startAfter: params.startAfter ?? 0,
         rewardEscrow: params.rewardEscrow ?? undefined,
-        historyLimit: params.historySize ?? 1000,
         varianceThreshold: params.varianceThreshold
           ? SwitchboardDecimal.fromBig(params.varianceThreshold)
           : SwitchboardDecimal.fromBig(new Big(0)),

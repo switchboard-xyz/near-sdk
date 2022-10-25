@@ -45,6 +45,7 @@ export enum SwitchboardErrorEnum {
   PredecessorFailed = "PredecessorFailed",
   InvalidAmount = "InvalidAmount",
   InsufficientDeposit = "InsufficientDeposit",
+  InvalidNumberOfHistoryRows = "InvalidNumberOfHistoryRows",
 }
 export const SwitchboardErrorTypes: string[] =
   Object.keys(SwitchboardErrorEnum);
@@ -92,7 +93,8 @@ export type SwitchboardErrorType =
   | ViewOnlyFunction
   | PredecessorFailed
   | InvalidAmount
-  | InsufficientDeposit;
+  | InsufficientDeposit
+  | InvalidNumberOfHistoryRows;
 
 export abstract class SwitchboardError extends Error {
   readonly action?: Action;
@@ -206,6 +208,8 @@ export abstract class SwitchboardError extends Error {
         return new InvalidAmount(txnReceipt, action, logs);
       case "InsufficientDeposit":
         return new InsufficientDeposit(txnReceipt, action, logs);
+      case "InvalidNumberOfHistoryRows":
+        return new InvalidNumberOfHistoryRows(txnReceipt, action, logs);
       default:
         return new Generic(txnReceipt, action, logs);
     }
@@ -739,5 +743,24 @@ export class InsufficientDeposit extends SwitchboardError {
     readonly logs?: string[]
   ) {
     super(6042, "InsufficientDeposit", txnReceipt, undefined, action, logs);
+  }
+}
+
+export class InvalidNumberOfHistoryRows extends SwitchboardError {
+  static readonly code = 6043;
+
+  constructor(
+    readonly txnReceipt: FinalExecutionOutcome,
+    readonly action?: Action,
+    readonly logs?: string[]
+  ) {
+    super(
+      6043,
+      "InvalidNumberOfHistoryRows",
+      txnReceipt,
+      undefined,
+      action,
+      logs
+    );
   }
 }

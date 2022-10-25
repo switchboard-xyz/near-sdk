@@ -1,3 +1,4 @@
+export * from "./AggregatorAddHistory.js";
 export * from "./AggregatorAddJob.js";
 export * from "./AggregatorFund.js";
 export * from "./AggregatorInit.js";
@@ -45,9 +46,11 @@ export * from "./JsonDecimal.js";
 export * from "./Contract.js";
 export * from "./State.js";
 export * from "./AggregatorView.js";
+export * from "./AggregatorHistoryPageView.js";
 export * from "./ViewAggregator.js";
 export * from "./ViewAggregatorExpandedInfo.js";
 export * from "./AggregatorExpandedInfo.js";
+export * from "./ViewAggregatorHistory.js";
 export * from "./ViewAggregatorKeys.js";
 export * from "./ViewAggregatorsOnQueue.js";
 export * from "./ViewAggregatorsStateWithAuthority.js";

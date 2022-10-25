@@ -17,7 +17,6 @@ export interface IAggregatorInit {
   expiration: BN;
   crank: Uint8Array;
   rewardEscrow: Uint8Array;
-  historyLimit: BN;
   maxGasCost: BN;
   readCharge: BN;
 }
@@ -38,7 +37,6 @@ export interface AggregatorInitJSON {
   expiration: string;
   crank: Array<number>;
   rewardEscrow: Array<number>;
-  historyLimit: string;
   maxGasCost: string;
   readCharge: string;
 }
@@ -59,7 +57,6 @@ export interface AggregatorInitSerde {
   expiration: number;
   crank: Array<number>;
   reward_escrow: Array<number>;
-  history_limit: number;
   max_gas_cost: string;
   read_charge: string;
 }
@@ -80,7 +77,6 @@ export class AggregatorInit implements IAggregatorInit {
   readonly expiration: BN;
   readonly crank: Uint8Array;
   readonly rewardEscrow: Uint8Array;
-  readonly historyLimit: BN;
   readonly maxGasCost: BN;
   readonly readCharge: BN;
 
@@ -100,7 +96,6 @@ export class AggregatorInit implements IAggregatorInit {
     this.expiration = fields.expiration;
     this.crank = fields.crank;
     this.rewardEscrow = fields.rewardEscrow;
-    this.historyLimit = fields.historyLimit;
     this.maxGasCost = fields.maxGasCost;
     this.readCharge = fields.readCharge;
   }
@@ -122,7 +117,6 @@ export class AggregatorInit implements IAggregatorInit {
       expiration: this.expiration.toString(),
       crank: [...this.crank],
       rewardEscrow: [...this.rewardEscrow],
-      historyLimit: this.historyLimit.toString(),
       maxGasCost: this.maxGasCost.toString(),
       readCharge: this.readCharge.toString(),
     };
@@ -145,7 +139,6 @@ export class AggregatorInit implements IAggregatorInit {
       expiration: this.expiration.toNumber(),
       crank: [...this.crank],
       reward_escrow: [...this.rewardEscrow],
-      history_limit: this.historyLimit.toNumber(),
       max_gas_cost: this.maxGasCost.toString(10),
       read_charge: this.readCharge.toString(10),
     };
@@ -170,7 +163,6 @@ export class AggregatorInit implements IAggregatorInit {
       expiration: new BN(obj.expiration),
       crank: new Uint8Array(obj.crank),
       rewardEscrow: new Uint8Array(obj.rewardEscrow),
-      historyLimit: new BN(obj.historyLimit),
       maxGasCost: new BN(obj.maxGasCost),
       readCharge: new BN(obj.readCharge),
     });
@@ -203,9 +195,6 @@ export class AggregatorInit implements IAggregatorInit {
       ),
       crank: new Uint8Array(obj.crank),
       rewardEscrow: new Uint8Array(obj.reward_escrow),
-      historyLimit: new BN(
-        obj.history_limit.toLocaleString("fullwide", { useGrouping: false })
-      ),
       maxGasCost: new BN(obj.max_gas_cost),
       readCharge: new BN(obj.read_charge),
     });

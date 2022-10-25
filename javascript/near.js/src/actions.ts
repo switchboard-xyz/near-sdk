@@ -14,6 +14,7 @@ const ZERO_NEAR = NEAR.parse("0");
 const ONE_YOCTO = NEAR.parse("0.000000000000000000000001");
 
 export type SwitchboardActionType =
+  | "aggregator_add_history"
   | "aggregator_add_job"
   | "aggregator_fund"
   | "aggregator_init"
@@ -99,6 +100,25 @@ export abstract class SwitchboardAction<
 }
 
 /** AGGREGATOR ACTIONS */
+
+export class AggregatorAddHistoryAction extends SwitchboardAction<types.AggregatorAddHistory> {
+  static actionName: SwitchboardActionType = "aggregator_add_history";
+  static gas = Gas.parse(`300 Tgas`);
+  static storageDeposit = STORAGE_COST_PER_BYTE.mul(new BN(124)); // per row, do not lower
+
+  constructor(
+    params: types.AggregatorAddHistory,
+    gas = AggregatorAddHistoryAction.gas,
+    storage = AggregatorAddHistoryAction.storageDeposit // per row amount, we'll handle the conversion
+  ) {
+    super(
+      AggregatorAddHistoryAction.actionName,
+      params,
+      gas,
+      storage.mul(new BN(params.numRows))
+    );
+  }
+}
 
 export class AggregatorAddJobAction extends SwitchboardAction<types.AggregatorAddJob> {
   static actionName: SwitchboardActionType = "aggregator_add_job";
