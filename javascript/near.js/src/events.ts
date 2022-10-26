@@ -82,7 +82,7 @@ export abstract class SwitchboardEventListener {
   abstract programId: string;
   abstract errorHandler: (error: unknown) => Promise<void> | void;
 
-  abstract start: (...args: any[]) => Promise<void> | void;
+  abstract start(...args: any[]): Promise<void> | void;
 
   get filter() {
     return Object.keys(this.callbacks).map((eventName) => {
@@ -135,18 +135,11 @@ export class WebsocketEventListener extends SwitchboardEventListener {
       // startClosed: false,
     });
 
-    // src: https://github.com/ViewBlock/binance-api-node/blob/master/src/open-websocket.js
-    // TODO Maybe we have to pass the proxy to this line
-    // https://github.com/pladaria/reconnecting-websocket/blob/05a2f7cb0e31f15dff5ff35ad53d07b1bec5e197/reconnecting-websocket.ts#L383
-    // const pong = () => (this.ws as any)._ws.pong(() => null);
-
-    // these dont change
-
     // OPEN
-    this.ws.addEventListener("open", () => this.start());
+    this.ws.addEventListener("open", () => this.ws.send(this.subscription));
 
     // CLOSE
-    this.ws.addEventListener("close", () => this.start());
+    this.ws.addEventListener("close", () => this.ws.send(this.subscription));
 
     // MESSAGE
     this.ws.addEventListener("message", (msgInRaw) => {
@@ -161,26 +154,19 @@ export class WebsocketEventListener extends SwitchboardEventListener {
     this.ws.addEventListener("error", (err) => {
       this.errorHandler(err);
     });
-
-    // setInterval(() => {
-    //   try {
-    //     this.ws.ping();
-    //   } catch (error) {
-    //     console.error(`Failed to ping WebsocketEventListener: ${error}`);
-    //     this.start();
-    //   }
-    // }, 5 * 60 * 1000);
   }
 
-  start = () => {
-    this.ws.send(
-      JSON.stringify({
-        secret: this.id,
-        filter: this.filter,
-        fetch_past_events: 20,
-      })
-    );
-  };
+  get subscription(): string {
+    return JSON.stringify({
+      secret: this.id,
+      filter: this.filter,
+      fetch_past_events: 20,
+    });
+  }
+
+  start() {
+    this.ws.send(this.subscription);
+  }
 }
 
 // export class NearLakeEventListener extends SwitchboardEventListener {
