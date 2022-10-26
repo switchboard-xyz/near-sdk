@@ -132,6 +132,11 @@ export class WebsocketEventListener extends SwitchboardEventListener {
 
     this.ws = new ReconnectingWebSocket(this.url, [], {
       WebSocket: ws,
+      connectionTimeout: 4e3,
+      debug: false,
+      maxReconnectionDelay: 10e3,
+      maxRetries: Infinity,
+      minReconnectionDelay: 4e3,
       // startClosed: false,
     });
 
