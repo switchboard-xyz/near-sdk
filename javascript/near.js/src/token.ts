@@ -98,13 +98,6 @@ export class FungibleToken {
   }
 
   createAccountAction(account: Account): Action {
-    if (this.isUserAccountCreated(account)) {
-      throw new FungibleTokenAccountAlreadyCreated(
-        this.address,
-        account.accountId
-      );
-    }
-
     return functionCall(
       "storage_deposit",
       {
