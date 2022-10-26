@@ -26,7 +26,7 @@ export class FungibleTokenAccountDoesNotExist extends Error {
     super(
       `fungible token account for mint ${mint} and user ${accountId} has not been created`
     );
-    Object.setPrototypeOf(this, FungibleTokenAccountAlreadyCreated.prototype);
+    Object.setPrototypeOf(this, FungibleTokenAccountDoesNotExist.prototype);
   }
 }
 
