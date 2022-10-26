@@ -1,4 +1,4 @@
-import * as sbv2 from "@switchboard-xyz/near.js";
+import * as sbv2 from "../lib/cjs";
 import BN from "bn.js";
 import { EventEmitter } from "events";
 import { keyStores } from "near-api-js";

@@ -1,7 +1,6 @@
-import * as sbv2 from "./lib/cjs";
+import * as sbv2 from "../lib/cjs";
 import { keyStores, Account, KeyPair } from "near-api-js";
 import Big from "big.js";
-import { homedir } from "os";
 import bs58 from "bs58";
 import { waitFor } from "wait-for-event";
 import { EventEmitter } from "events";
@@ -86,7 +85,7 @@ if (process.argv.length > 2) {
       forceReportPeriod: 0,
       crank: crank.address,
       rewardEscrow: escrow.address,
-      historyLimit: 1000,
+      // historyLimit: 1000,
     });
   actions.push(createAggregatorAction);
   console.log(`aggregator (base58): ${toBase58(aggregator.address)}`);

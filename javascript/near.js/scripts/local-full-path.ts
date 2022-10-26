@@ -1,8 +1,5 @@
-import * as sbv2 from "./lib/cjs";
-import { keyStores, Account } from "near-api-js";
+import * as sbv2 from "../lib/cjs";
 import Big from "big.js";
-import { homedir } from "os";
-import bs58 from "bs58";
 import { waitFor } from "wait-for-event";
 import { EventEmitter } from "events";
 import { OracleJob } from "@switchboard-xyz/common";
@@ -84,7 +81,7 @@ if (process.argv.length > 2) {
     forceReportPeriod: 0,
     crank: crank.address,
     rewardEscrow: escrow.address,
-    historyLimit: 1000,
+    // historyLimit: 1000,
   });
   // Create Oracle
   console.log(`Creating oracle ...`);

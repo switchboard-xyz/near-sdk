@@ -1,5 +1,4 @@
-import { WebSocket } from "ws";
-import * as sbv2 from "./lib/cjs";
+import * as sbv2 from "../lib/cjs";
 
 export const sleep = (ms: number): Promise<any> =>
   new Promise((s) => setTimeout(s, ms));

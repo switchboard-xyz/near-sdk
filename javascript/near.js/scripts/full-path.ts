@@ -1,11 +1,8 @@
-import * as sbv2 from "./lib/cjs";
+import * as sbv2 from "../lib/cjs";
 import Big from "big.js";
 import { waitFor } from "wait-for-event";
 import { EventEmitter } from "events";
 import { OracleJob } from "@switchboard-xyz/common";
-import { KeyPair } from "near-api-js";
-import { BN } from "bn.js";
-import { QueueAccount } from "./lib/cjs";
 
 export function waitForever(): Promise<void> {
   return waitFor("", new EventEmitter());
@@ -121,7 +118,7 @@ if (process.argv.length > 2) {
     forceReportPeriod: 0,
     crank: crank.address,
     // rewardEscrow: escrow.address,
-    historyLimit: 1000,
+    // historyLimit: 1000,
   });
   console.log(`aggregator (base58): ${sbv2.toBase58(aggregator.address)}`);
   const aggregatorState = await aggregator.loadData();
