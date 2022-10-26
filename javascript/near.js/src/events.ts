@@ -1,28 +1,34 @@
+import * as types from "./generated/index.js";
 import { connect } from "near-api-js";
 import { startStream, types as nearLakeTypes } from "near-lake-framework";
-import * as types from "./generated/index.js";
-import { MAINNET_PROGRAM_ID } from "./generated/programId.js";
-// import ReconnectingWebSocket from "reconnecting-websocket";
-// import WebSocket from "isomorphic-ws";
-
 import ws from "isomorphic-ws";
 import ReconnectingWebSocket from "reconnecting-websocket";
+import { MAINNET_PROGRAM_ID } from "./generated/index.js";
+import { getProgramId } from "./program.js";
+import { ExecutionOutcomeWithReceipt } from "near-lake-framework/dist/types.js";
 
-export type SwitchboardEventType =
-  | "AggregatorOpenRoundEvent"
-  | "AggregatorValueUpdateEvent"
-  | "OracleBootedEvent"
-  | "OracleRewardEvent"
-  | "OracleSlashEvent";
+export interface IEvent {
+  AggregatorOpenRoundEvent: types.AggregatorOpenRoundEventSerde;
+  AggregatorValueUpdateEvent: types.AggregatorValueUpdateEventSerde;
+  OracleBootedEvent: types.OracleBootedEventSerde;
+  OracleRewardEvent: types.OracleRewardEventSerde;
+  OracleSlashEvent: types.OracleSlashEventSerde;
+}
 
-export type SwitchboardEventSerde =
-  | types.AggregatorOpenRoundEventSerde
-  | types.AggregatorValueUpdateEventSerde
-  | types.OracleBootedEventSerde
-  | types.OracleRewardEventSerde
-  | types.OracleSlashEventSerde;
+export type SwitchboardEventType = keyof IEvent;
 
-export interface NearEventListenerMessage<T extends SwitchboardEventSerde> {
+export type EventCallback = (
+  event: IEvent[SwitchboardEventType]
+) => Promise<void> | void;
+
+export type EventErrorCallback = (error: unknown) => Promise<void> | void;
+
+export interface ISwitchboardEvent {
+  event: SwitchboardEventType;
+  callback: EventCallback;
+}
+
+export interface NearEventListenerMessage {
   secret: string;
   events: Array<{
     block_height: string;
@@ -38,97 +44,75 @@ export interface NearEventListenerMessage<T extends SwitchboardEventSerde> {
       standard: string;
       version: string;
       event: SwitchboardEventType;
-      data: T;
+      data: IEvent[SwitchboardEventType];
     };
   }>;
 }
 
-// export interface OpenRoundMessage {
-//   secret: string;
-//   events: Array<{
-//     block_height: string;
-//     block_hash: string;
-//     block_timestamp: string;
-//     block_epoch_id: string;
-//     receipt_id: string;
-//     log_index: number;
-//     predecessor_id: string;
-//     account_id: string;
-//     status: string;
-//     event: {
-//       standard: string;
-//       version: string;
-//       event: "AggregatorOpenRoundEvent";
-//       data: types.AggregatorOpenRoundEventSerde;
-//     };
-//   }>;
-// }
+export abstract class NearEventListener {
+  constructor(
+    readonly _events: Array<ISwitchboardEvent>,
+    readonly errorHandler: EventErrorCallback
+  ) {}
 
-export type SwitchboardEventCallback<T extends SwitchboardEventSerde> = (
-  event: T
-) => void | Promise<void>;
+  /** Starts the listener */
+  abstract start(): void | Promise<void>;
 
-export interface ISwitchboardEventCallback {
-  AggregatorOpenRoundEvent?: SwitchboardEventCallback<types.AggregatorOpenRoundEventSerde>;
-  AggregatorValueUpdateEvent?: SwitchboardEventCallback<types.AggregatorValueUpdateEventSerde>;
-  OracleBootedEvent?: SwitchboardEventCallback<types.OracleBootedEventSerde>;
-  OracleRewardEvent?: SwitchboardEventCallback<types.OracleRewardEventSerde>;
-  OracleSlashEvent?: SwitchboardEventCallback<types.OracleSlashEventSerde>;
-}
+  get callbacks(): Map<SwitchboardEventType, Array<EventCallback>> {
+    return this._events.reduce((map, event) => {
+      if (map.has(event.event)) {
+        map.set(event.event, [...map.get(event.event), event.callback]);
+      } else {
+        map.set(event.event, [event.callback]);
+      }
+      return map;
+    }, new Map());
+  }
 
-export abstract class SwitchboardEventListener {
-  abstract id: string;
-  abstract callbacks: ISwitchboardEventCallback;
-  abstract programId: string;
-  abstract errorHandler: (error: unknown) => Promise<void> | void;
+  get events(): Array<SwitchboardEventType> {
+    return Array.from(new Set(this._events.map((e) => e.event)));
+  }
 
-  abstract start(...args: any[]): Promise<void> | void;
+  /** Adds a new event callback */
+  on(event: SwitchboardEventType, callback: EventCallback): void {
+    this._events.push({ event, callback });
+  }
 
-  get filter() {
-    return Object.keys(this.callbacks).map((eventName) => {
-      return {
-        status: "SUCCESS",
-        account_id: this.programId,
-        event: {
-          standard: "nep297",
-          event: eventName,
-        },
-      };
+  /** Maps the event name to the array of callbacks and executes them concurrently */
+  async handleMessage(
+    event: SwitchboardEventType,
+    payload: IEvent[SwitchboardEventType]
+  ) {
+    const callbacks = this.callbacks.get(event);
+    if (!callbacks || callbacks.length === 0) {
+      return;
+    }
+
+    await Promise.allSettled(
+      callbacks.map((callback) => {
+        callback(payload);
+      })
+    ).then((values) => {
+      values.forEach((v) => {
+        if (v.status === "rejected") {
+          this.errorHandler(v.reason);
+        }
+      });
     });
   }
-
-  async handleMessage(
-    message: NearEventListenerMessage<SwitchboardEventSerde>
-  ) {
-    if (message.secret === this.id && message.events.length > 0) {
-      for await (const event of message.events) {
-        if (event.event.event in this.callbacks) {
-          try {
-            await this.callbacks[event.event.event](event.event.data as any);
-          } catch (error) {
-            this.errorHandler(error);
-          }
-        }
-      }
-    }
-  }
 }
 
-export class WebsocketEventListener extends SwitchboardEventListener {
+export class NearWebsocketListener extends NearEventListener {
   ws: ReconnectingWebSocket;
 
   constructor(
     readonly id: string,
-    readonly callbacks: ISwitchboardEventCallback,
-    readonly errorHandler: (error: unknown) => Promise<void> | void,
+    events: Array<ISwitchboardEvent>,
+    errorHandler: (error: unknown) => Promise<void> | void,
     readonly programId: string = MAINNET_PROGRAM_ID,
     readonly url: string = "wss://events.near.stream/ws"
   ) {
-    super();
-    const events = Object.keys(this.callbacks);
-    if (events.length === 0) {
-      throw new Error(`No events to watch`);
-    }
+    super(events, errorHandler);
 
     this.ws = new ReconnectingWebSocket(this.url, [], {
       WebSocket: ws,
@@ -140,202 +124,126 @@ export class WebsocketEventListener extends SwitchboardEventListener {
       // startClosed: false,
     });
 
+    // ERROR
+    this.ws.addEventListener("error", (event) => {
+      this.errorHandler(event.error);
+    });
+
     // OPEN
-    this.ws.addEventListener("open", () => this.ws.send(this.subscription));
+    this.ws.addEventListener("open", (event) => this.start());
 
     // CLOSE
-    this.ws.addEventListener("close", () => this.ws.send(this.subscription));
+    // this.ws.addEventListener("close", (event) => this.start());
 
     // MESSAGE
-    this.ws.addEventListener("message", (msgInRaw) => {
-      this.handleMessage(
-        JSON.parse(
-          msgInRaw.data as any
-        ) as NearEventListenerMessage<SwitchboardEventSerde>
-      );
-    });
-
-    // ERROR
-    this.ws.addEventListener("error", (err) => {
-      this.errorHandler(err);
+    this.ws.addEventListener("message", (event) => {
+      const parsedEvent: NearEventListenerMessage = JSON.parse(event.data);
+      parsedEvent.events.map((e) => {
+        this.handleMessage(e.event.event, e.event.data);
+      });
     });
   }
 
-  get subscription(): string {
-    return JSON.stringify({
-      secret: this.id,
-      filter: this.filter,
-      fetch_past_events: 20,
-    });
-  }
-
-  start() {
-    this.ws.send(this.subscription);
+  start(): void {
+    this.ws.send(
+      JSON.stringify({
+        secret: this.id,
+        fetch_past_events: 20,
+        filter: Array.from(this.callbacks.keys()).map((e) => {
+          return {
+            status: "SUCCESS",
+            account_id: this.programId,
+            event: {
+              standard: "nep297",
+              event: e,
+            },
+          };
+        }),
+      })
+    );
   }
 }
 
-// export class NearLakeEventListener extends SwitchboardEventListener {
-//   constructor(
-//     readonly id: string,
-//     readonly callbacks: ISwitchboardEventCallback,
-//     readonly programId: string = MAINNET_PROGRAM_ID,
-//     readonly errorHandler: (error: unknown) => Promise<void> | void
-//   ) {
-//     super();
-//   }
-
-//   static async loadConfig(
-//     network: "testnet" | "mainnet"
-//   ): Promise<nearLakeTypes.LakeConfig> {
-//     const nearCon = await connect({
-//       headers: {},
-//       networkId: network,
-//       nodeUrl: `https://rpc.${network}.near.org`,
-//     });
-//     const startingBlock = (await nearCon.connection.provider.status()).sync_info
-//       .latest_block_height;
-//     const lakeConfig: nearLakeTypes.LakeConfig = {
-//       s3BucketName: `near-lake-data-${network}`,
-//       s3RegionName: "eu-central-1",
-//       startBlockHeight: startingBlock,
-//     };
-//     return lakeConfig;
-//   }
-
-//   start = (
-//     streamCallback: NearEventCallback,
-//     errorHandler?: (error: unknown) => Promise<void> | void
-//   ) => {
-//     const processShard = async (
-//       streamerMessage: nearLakeTypes.StreamerMessage
-//     ): Promise<void> => {
-//       try {
-//         streamerMessage.shards
-//           .flatMap((shard) => shard.receiptExecutionOutcomes)
-//           .map(async (outcome) => {
-//             if (
-//               outcome.executionOutcome.outcome.executorId !== this.programId
-//             ) {
-//               return;
-//             }
-
-//             outcome.executionOutcome.outcome.logs.map((log: string) => {
-//               if ("Failure" in outcome.executionOutcome.outcome.status) {
-//                 return;
-//               }
-//               const matches = log.matchAll(
-//                 /(?<=EVENT_JSON:)(?<event>{.+?})(?=,EVENT_JSON|$)/g
-//               );
-//               for (const m of matches) {
-//                 const eventJson = m.groups["event"];
-//                 const event = JSON.parse(eventJson);
-
-//                 if (event.event_type !== this.eventType) {
-//                   return;
-//                 }
-
-//                 streamCallback(event.event).catch(errorHandler);
-//               }
-//             });
-//           });
-//       } catch (error) {
-//         if (errorHandler) {
-//           errorHandler(error);
-//         }
-//       }
-//     };
-//     await startStream(this.lakeConfig, processShard);
-//   };
-// }
-
-async function loadNearConf(
-  network: "testnet" | "mainnet"
-): Promise<nearLakeTypes.LakeConfig> {
-  const nearCon = await connect({
-    headers: {},
-    networkId: network,
-    nodeUrl: `https://rpc.${network}.near.org`,
-  });
-  const startingBlock = (await nearCon.connection.provider.status()).sync_info
-    .latest_block_height;
-  const lakeConfig: nearLakeTypes.LakeConfig = {
-    s3BucketName: `near-lake-data-${network}`,
-    s3RegionName: "eu-central-1",
-    startBlockHeight: startingBlock,
-  };
-  return lakeConfig;
-}
-
-export type NearEventCallback = (...args: any[]) => Promise<void>;
-
-export class NearEvent {
+export class NearLakeListener extends NearEventListener {
   constructor(
+    events: Array<ISwitchboardEvent>,
+    errorHandler: (error: unknown) => Promise<void> | void,
     readonly lakeConfig: nearLakeTypes.LakeConfig,
-    readonly programId: string,
-    readonly eventType: SwitchboardEventType
-  ) {}
+    readonly programId: string
+  ) {
+    super(events, errorHandler);
+  }
+
+  static async loadConfig(
+    network: "testnet" | "mainnet"
+  ): Promise<nearLakeTypes.LakeConfig> {
+    const nearCon = await connect({
+      headers: {},
+      networkId: network,
+      nodeUrl: `https://rpc.${network}.near.org`,
+    });
+    const startingBlock = (await nearCon.connection.provider.status()).sync_info
+      .latest_block_height;
+    const lakeConfig: nearLakeTypes.LakeConfig = {
+      s3BucketName: `near-lake-data-${network}`,
+      s3RegionName: "eu-central-1",
+      startBlockHeight: startingBlock,
+    };
+    return lakeConfig;
+  }
 
   static async fromNetwork(
     network: "testnet" | "mainnet",
-    pid: string,
-    eventType: SwitchboardEventType
-  ): Promise<NearEvent> {
-    const lakeConfig = await loadNearConf(network);
-
-    return new NearEvent(lakeConfig, pid, eventType);
+    events: Array<ISwitchboardEvent>,
+    errorHandler: EventErrorCallback,
+    pid: string = getProgramId(network)
+  ): Promise<NearLakeListener> {
+    const lakeConfig = await NearLakeListener.loadConfig(network);
+    return new NearLakeListener(events, errorHandler, lakeConfig, pid);
   }
 
-  async start(
-    streamCallback: NearEventCallback,
-    errorHandler?: (error: unknown) => Promise<void> | void
-  ): Promise<void> {
-    // TODO: Match this logic for processing logs/events by action and success filter
-    // https://github.com/near-examples/indexer-tx-watcher-example/blob/main/src/main.rs
+  async start() {
+    await startStream(
+      this.lakeConfig,
+      async (data: nearLakeTypes.StreamerMessage) => {
+        try {
+          // get all receipts
+          const receipts: Array<ExecutionOutcomeWithReceipt> =
+            data.shards.flatMap((shard) => shard.receiptExecutionOutcomes);
 
-    // Bug: We currently process events for failed transactions
+          // only get receipts with a success value and contains the program ID
+          const filteredReceipts = receipts.filter(
+            (r) =>
+              r.receipt.receiverId === this.programId &&
+              ("SuccessValue" in r.executionOutcome.outcome.status ||
+                "SuccessReceiptId" in r.executionOutcome.outcome.status)
+          );
 
-    const processShard = async (
-      streamerMessage: nearLakeTypes.StreamerMessage
-    ): Promise<void> => {
-      try {
-        streamerMessage.shards
-          .flatMap((shard) => shard.receiptExecutionOutcomes)
-          .map(async (outcome) => {
-            if (
-              outcome.executionOutcome.outcome.executorId !== this.programId
-            ) {
-              return;
-            }
-
-            outcome.executionOutcome.outcome.logs.map((log: string) => {
-              if ("Failure" in outcome.executionOutcome.outcome.status) {
-                return;
-              }
+          // iterate over receipts
+          for await (const receipt of filteredReceipts) {
+            // iterate over log entries
+            for await (const log of receipt.executionOutcome.outcome.logs) {
               const matches = log.matchAll(
                 /(?<=EVENT_JSON:)(?<event>{.+?})(?=,EVENT_JSON|$)/g
               );
+
+              // iterate over matches
               for (const m of matches) {
                 const eventJson = m.groups["event"];
                 const event: {
                   standard: string;
                   version: string;
-                  event: string;
-                  data: Record<string, any>;
+                  event: SwitchboardEventType;
+                  data: IEvent[SwitchboardEventType];
                 } = JSON.parse(eventJson);
-                if (event.event !== this.eventType) {
-                  return;
-                }
-
-                streamCallback(event.data).catch(errorHandler);
+                this.handleMessage(event.event, event.data);
               }
-            });
-          });
-      } catch (error) {
-        if (errorHandler) {
-          errorHandler(error);
+            }
+          }
+        } catch (error) {
+          this.errorHandler(error);
         }
       }
-    };
-    await startStream(this.lakeConfig, processShard);
+    );
   }
 }
