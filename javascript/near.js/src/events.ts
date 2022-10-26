@@ -2,7 +2,7 @@ import { connect } from "near-api-js";
 import { startStream, types as nearLakeTypes } from "near-lake-framework";
 import * as types from "./generated/index.js";
 import { MAINNET_PROGRAM_ID } from "./generated/programId.js";
-import { WebSocket } from "ws";
+import ReconnectingWebSocket from "reconnecting-websocket";
 
 export type SwitchboardEventType =
   | "AggregatorOpenRoundEvent"
@@ -111,7 +111,7 @@ export abstract class SwitchboardEventListener {
 }
 
 export class WebsocketEventListener extends SwitchboardEventListener {
-  ws: WebSocket;
+  ws: ReconnectingWebSocket;
 
   constructor(
     readonly id: string,
@@ -126,38 +126,40 @@ export class WebsocketEventListener extends SwitchboardEventListener {
       throw new Error(`No events to watch`);
     }
 
-    this.ws = new WebSocket(this.url);
+    this.ws = new ReconnectingWebSocket(this.url);
 
     // these dont change
 
     // OPEN
-    this.ws.onopen = () => {
+    this.ws.addEventListener("open", () => {
       this.start();
-    };
+    });
 
     // CLOSE
-    this.ws.onclose = () => {
+    this.ws.addEventListener("close", () => {
       this.start();
-    };
+    });
 
     // MESSAGE
-    this.ws.onmessage = async (e) => {
+    this.ws.addEventListener("message", (e) => {
       const message: NearEventListenerMessage<SwitchboardEventSerde> =
         JSON.parse(e.data as any);
       this.handleMessage(message);
-    };
+    });
 
     // ERROR
-    this.ws.onerror = (err) => this.errorHandler;
+    this.ws.addEventListener("error", (err) => {
+      this.errorHandler(err);
+    });
 
-    setInterval(() => {
-      try {
-        this.ws.ping();
-      } catch (error) {
-        console.error(`Failed to ping WebsocketEventListener: ${error}`);
-        this.start();
-      }
-    }, 5 * 60 * 1000);
+    // setInterval(() => {
+    //   try {
+    //     this.ws.ping();
+    //   } catch (error) {
+    //     console.error(`Failed to ping WebsocketEventListener: ${error}`);
+    //     this.start();
+    //   }
+    // }, 5 * 60 * 1000);
   }
 
   start = () => {
