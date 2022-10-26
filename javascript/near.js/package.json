@@ -1,6 +1,6 @@
 {
   "name": "@switchboard-xyz/near.js",
-  "version": "2.0.64",
+  "version": "2.0.65",
   "author": "",
   "license": "ISC",
   "description": "API wrapper for intergating with the Switchboardv2 program on Near",

@@ -2,8 +2,11 @@ import { connect } from "near-api-js";
 import { startStream, types as nearLakeTypes } from "near-lake-framework";
 import * as types from "./generated/index.js";
 import { MAINNET_PROGRAM_ID } from "./generated/programId.js";
+// import ReconnectingWebSocket from "reconnecting-websocket";
+// import WebSocket from "isomorphic-ws";
+
+import ws from "isomorphic-ws";
 import ReconnectingWebSocket from "reconnecting-websocket";
-import WebSocket from "isomorphic-ws";
 
 export type SwitchboardEventType =
   | "AggregatorOpenRoundEvent"
@@ -128,9 +131,14 @@ export class WebsocketEventListener extends SwitchboardEventListener {
     }
 
     this.ws = new ReconnectingWebSocket(this.url, [], {
-      WebSocket: WebSocket,
-      startClosed: true,
+      WebSocket: ws,
+      // startClosed: false,
     });
+
+    // src: https://github.com/ViewBlock/binance-api-node/blob/master/src/open-websocket.js
+    // TODO Maybe we have to pass the proxy to this line
+    // https://github.com/pladaria/reconnecting-websocket/blob/05a2f7cb0e31f15dff5ff35ad53d07b1bec5e197/reconnecting-websocket.ts#L383
+    // const pong = () => (this.ws as any)._ws.pong(() => null);
 
     // these dont change
 
