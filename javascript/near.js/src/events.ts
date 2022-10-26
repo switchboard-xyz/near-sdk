@@ -3,6 +3,7 @@ import { startStream, types as nearLakeTypes } from "near-lake-framework";
 import * as types from "./generated/index.js";
 import { MAINNET_PROGRAM_ID } from "./generated/programId.js";
 import ReconnectingWebSocket from "reconnecting-websocket";
+import WebSocket from "isomorphic-ws";
 
 export type SwitchboardEventType =
   | "AggregatorOpenRoundEvent"
@@ -126,25 +127,26 @@ export class WebsocketEventListener extends SwitchboardEventListener {
       throw new Error(`No events to watch`);
     }
 
-    this.ws = new ReconnectingWebSocket(this.url);
+    this.ws = new ReconnectingWebSocket(this.url, [], {
+      WebSocket: WebSocket,
+      startClosed: true,
+    });
 
     // these dont change
 
     // OPEN
-    this.ws.addEventListener("open", () => {
-      this.start();
-    });
+    this.ws.addEventListener("open", () => this.start());
 
     // CLOSE
-    this.ws.addEventListener("close", () => {
-      this.start();
-    });
+    this.ws.addEventListener("close", () => this.start());
 
     // MESSAGE
-    this.ws.addEventListener("message", (e) => {
-      const message: NearEventListenerMessage<SwitchboardEventSerde> =
-        JSON.parse(e.data as any);
-      this.handleMessage(message);
+    this.ws.addEventListener("message", (msgInRaw) => {
+      this.handleMessage(
+        JSON.parse(
+          msgInRaw.data as any
+        ) as NearEventListenerMessage<SwitchboardEventSerde>
+      );
     });
 
     // ERROR
