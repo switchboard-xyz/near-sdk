@@ -1,6 +1,6 @@
 {
   "name": "@switchboard-xyz/near.js",
-  "version": "2.0.63",
+  "version": "2.0.64",
   "author": "",
   "license": "ISC",
   "description": "API wrapper for intergating with the Switchboardv2 program on Near",
@@ -34,7 +34,8 @@
     "near-units": "^0.1.9",
     "reconnecting-websocket": "^4.4.0",
     "typedoc": "^0.23.16",
-    "wait-for-event": "^2.0.1"
+    "wait-for-event": "^2.0.1",
+    "ws": "^8.10.0"
   },
   "devDependencies": {
     "@types/big.js": "^6.1.5",
