@@ -1,6 +1,6 @@
 import { BN } from "bn.js";
 import { DEFAULT_FUNCTION_CALL_GAS } from "near-api-js";
-import * as sbv2 from "./lib/cjs";
+import * as sbv2 from "../lib/cjs";
 
 let keypairName: string;
 if (process.argv.length > 2) {
