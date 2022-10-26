@@ -23,10 +23,10 @@ export type EventCallback = (
 
 export type EventErrorCallback = (error: unknown) => Promise<void> | void;
 
-export interface ISwitchboardEvent {
-  event: SwitchboardEventType;
-  callback: EventCallback;
-}
+export type ISwitchboardEvent<P extends keyof IEvent = keyof IEvent> = {
+  event: P;
+  callback: (event: IEvent[P]) => void | Promise<void>;
+};
 
 export interface NearEventListenerMessage {
   secret: string;
