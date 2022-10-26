@@ -1,11 +1,6 @@
-import * as sbv2 from "./lib/cjs";
-import Big from "big.js";
+import * as sbv2 from "../lib/cjs";
 import { waitFor } from "wait-for-event";
 import { EventEmitter } from "events";
-import { OracleJob } from "@switchboard-xyz/common";
-import { KeyPair } from "near-api-js";
-import { BN } from "bn.js";
-import { QueueAccount, SwitchboardTransaction, toBase58 } from "./lib/cjs";
 import base58 from "bs58";
 import _ from "lodash";
 
@@ -48,7 +43,8 @@ if (process.argv.length > 2) {
       minJobResults: 1,
       minUpdateDelaySeconds: 10,
       historySize: 2000,
-      // fundUpTo: 13.2,
+      maxGasCost: 0,
+      // fundUpTo: 1,
       jobs: [
         {
           authority: program.account.accountId,
@@ -176,7 +172,7 @@ if (process.argv.length > 2) {
             },
           ],
         },
-        toBase58(
+        sbv2.toBase58(
           new Uint8Array([
             232, 173, 76, 86, 210, 210, 248, 3, 251, 240, 244, 5, 198, 152, 196,
             151, 210, 235, 95, 198, 47, 91, 5, 55, 160, 101, 173, 201, 13, 135,

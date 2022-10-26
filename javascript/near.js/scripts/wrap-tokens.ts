@@ -1,18 +1,15 @@
-import * as sbv2 from "./lib/cjs";
-import Big from "big.js";
+import * as sbv2 from "../lib/cjs";
 import { waitFor } from "wait-for-event";
 import { EventEmitter } from "events";
-import { OracleJob } from "@switchboard-xyz/common";
-import { KeyPair } from "near-api-js";
-import { BN } from "bn.js";
-import { EscrowAccount, SwitchboardDecimal, toBase58 } from "./lib/cjs";
-import base58 from "bs58";
 import _ from "lodash";
 import assert from "assert";
 
 export function waitForever(): Promise<void> {
   return waitFor("", new EventEmitter());
 }
+
+const roundNumber = (amount: number): number =>
+  Number.parseFloat(amount.toFixed(2));
 
 export const sleep = (ms: number): Promise<any> =>
   new Promise((s) => setTimeout(s, ms));
@@ -34,7 +31,9 @@ if (process.argv.length > 2) {
 
   // get wrap.testnet token balance
   // the users token account owned by the wrap.testnet contract
-  const wrappedBalance = await program.mint.getBalance(program.account);
+  const wrappedBalance = roundNumber(
+    (await program.mint.getBalance(program.account)).toNumber()
+  );
   console.log(`User (${program.mint.address}): ${wrappedBalance} wNEAR`);
 
   // wrap 2.5 NEAR into the users token wallet
@@ -44,40 +43,51 @@ if (process.argv.length > 2) {
     program.account,
     wrapAction
   );
-  const newWrappedBalance = await program.mint.getBalance(program.account);
+  const newWrappedBalance = roundNumber(
+    (await program.mint.getBalance(program.account)).toNumber()
+  );
   console.log(`\u2714  ${wrapReceipt.transaction.hash}`);
   console.log(`User (${program.mint.address}): ${newWrappedBalance} wNEAR`);
   assert(
-    newWrappedBalance.toNumber() === wrappedBalance.toNumber() + 2.5,
-    "WrapBalanceMismatch"
+    newWrappedBalance === wrappedBalance + 2.5,
+    `WrapBalanceMismatch - Expected: ${
+      wrappedBalance + 2.5
+    }, Received: ${newWrappedBalance}`
   );
 
   // unwrap 1.25 NEAR
   console.log(`\nUnwrapping 1.25 NEAR from the users token wallet ...`);
+  const expectedNewWrappedBalance = roundNumber(newWrappedBalance - 1.25);
   const unwrapAction = program.mint.unwrapAction(program.account, 1.25);
   const unwrapReceipt = await program.mint.sendAction(
     program.account,
     unwrapAction
   );
-  const finalWrappedBalance = await program.mint.getBalance(program.account);
+  const finalWrappedBalance = roundNumber(
+    (await program.mint.getBalance(program.account)).toNumber()
+  );
   console.log(`\u2714  ${unwrapReceipt.transaction.hash}`);
   console.log(`User (${program.mint.address}): ${finalWrappedBalance} wNEAR`);
   assert(
-    finalWrappedBalance.toNumber() === newWrappedBalance.toNumber() - 1.25,
-    "UnwrapBalanceMismatch"
+    finalWrappedBalance === expectedNewWrappedBalance,
+    `UnwrapBalanceMismatch - Expected: ${expectedNewWrappedBalance}, Received: ${finalWrappedBalance}`
   );
 
   // get the users switchboard controlled escrow
   console.log(`\nFetching the users switchboard token wallet ...`);
-  const escrowAccount = await EscrowAccount.getOrCreateStaticAccount(program);
+  const escrowAccount = await sbv2.EscrowAccount.getOrCreateStaticAccount(
+    program
+  );
   let escrowState = await escrowAccount.loadData();
-  const initialEscrowAmount = new SwitchboardDecimal(
-    escrowState.amount,
-    program.mint.metadata.decimals
-  )
-    .toBig()
-    .toNumber();
-  console.log(`\u2714  ${toBase58(escrowAccount.address)}`);
+  const initialEscrowAmount = roundNumber(
+    new sbv2.SwitchboardDecimal(
+      escrowState.amount,
+      program.mint.metadata.decimals
+    )
+      .toBig()
+      .toNumber()
+  );
+  console.log(`\u2714  ${sbv2.toBase58(escrowAccount.address)}`);
   console.log(`User (${program.programId}): ${initialEscrowAmount} wNEAR`);
 
   // test depositing near into the switchboard program
@@ -95,23 +105,28 @@ if (process.argv.length > 2) {
   );
   console.log(`\u2714  ${depositReceipt.transaction.hash}`);
   escrowState = await escrowAccount.loadData();
-  const newEscrowAmount = new SwitchboardDecimal(
-    escrowState.amount,
-    program.mint.metadata.decimals
-  )
-    .toBig()
-    .toNumber();
+  const newEscrowAmount = roundNumber(
+    new sbv2.SwitchboardDecimal(
+      escrowState.amount,
+      program.mint.metadata.decimals
+    )
+      .toBig()
+      .toNumber()
+  );
   console.log(`User (${program.mint.address}): ${newEscrowAmount} wNEAR`);
   assert(
     newEscrowAmount === initialEscrowAmount + 0.75,
-    "DepositBalanceMismatch"
+    `DepositBalanceMismatch - Expected: ${
+      initialEscrowAmount + 0.75
+    }, Received: ${newEscrowAmount}`
   );
 
   // test funding a balance up to a certain number
+  const expectedFinalEscrowAmount = roundNumber(newEscrowAmount + 0.15);
   console.log(`\nFunding a users escrow up to a given number ...`);
-  const fundUpToActions = await escrowAccount.fundUpToActions(
-    newEscrowAmount + 0.15
-  );
+  const fundUpToActions = await escrowAccount.fundUpToActions({
+    amount: expectedFinalEscrowAmount,
+  });
   const fundUpToReceipt = await program.mint.sendActions(
     program.keystore,
     program.account,
@@ -119,15 +134,17 @@ if (process.argv.length > 2) {
   );
   console.log(`\u2714  ${fundUpToReceipt.transaction.hash}`);
   escrowState = await escrowAccount.loadData();
-  const finalEscrowAmount = new SwitchboardDecimal(
-    escrowState.amount,
-    program.mint.metadata.decimals
-  )
-    .toBig()
-    .toNumber();
+  const finalEscrowAmount = roundNumber(
+    new sbv2.SwitchboardDecimal(
+      escrowState.amount,
+      program.mint.metadata.decimals
+    )
+      .toBig()
+      .toNumber()
+  );
   console.log(`User (${program.mint.address}): ${finalEscrowAmount} wNEAR`);
   assert(
-    finalEscrowAmount === newEscrowAmount + 0.15,
-    "FundUpToBalanceMismatch"
+    finalEscrowAmount === expectedFinalEscrowAmount,
+    `FundUpToBalanceMismatch - Expected: ${expectedFinalEscrowAmount}, Received: ${finalEscrowAmount}`
   );
 })();
