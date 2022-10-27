@@ -1017,18 +1017,20 @@ export class CrankAccount {
 
   async pop(params: {
     rewardRecipient: Uint8Array;
+    popIdx?: number;
   }): Promise<FinalExecutionOutcome> {
     const txnReceipt = await this.program.sendAction(this.popAction(params));
     return txnReceipt;
   }
 
-  popAction(params: { rewardRecipient: Uint8Array }): Action {
+  popAction(params: { rewardRecipient: Uint8Array; popIdx?: number }): Action {
     return functionCall(
       actions.CrankPopAction.actionName,
       {
         ix: new types.CrankPop({
           crank: this.address,
           rewardRecipient: params.rewardRecipient,
+          popIdx: params.popIdx ? new BN(params.popIdx) : null,
         }).toSerde(),
       },
       actions.CrankPopAction.gas,
