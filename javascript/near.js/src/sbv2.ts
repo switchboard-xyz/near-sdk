@@ -1423,18 +1423,25 @@ export class EscrowAccount {
       {
         receiver_id: this.program.programId,
         amount: nearAmount,
-        msg: JSON.stringify({
-          address: [...this.address],
-          amount: nearAmount,
-        }),
+        msg: JSON.stringify(
+          new types.EscrowFund({
+            address: this.address,
+            amount: nearAmount,
+          }).toSerde()
+        ),
       },
       actions.EscrowFundAction.gas,
       actions.EscrowFundAction.storageDeposit
     );
   }
 
-  async fundUpTo(params: { amount: number }): Promise<FinalExecutionOutcome> {
+  async fundUpTo(params: {
+    amount: number;
+  }): Promise<FinalExecutionOutcome | undefined> {
     const actions = await this.fundUpToActions(params);
+    if (actions.length === 0) {
+      return;
+    }
     const txnReceipt = await this.program.sendActions(
       actions,
       this.program.mint.address
@@ -1458,9 +1465,16 @@ export class EscrowAccount {
       .getBalance(this.program.account)
       .then((balance) => balance.toNumber())
       .catch(() => 0);
+
     // Try to load the balance on `this` EscrowAccount. Return 0 if the account can't be loaded.
     const escrowBalance: number = await this.loadData()
-      .then((data) => +utils.format.formatNearAmount(data.amount.toString()))
+      .then((data) =>
+        Number.parseFloat(
+          utils.format.formatNearAmount(
+            data.amount.sub(data.amountLocked).toString()
+          )
+        )
+      )
       .catch(() => 0);
 
     const depositAmount = params.amount - escrowBalance;
@@ -1471,8 +1485,8 @@ export class EscrowAccount {
         this.program.mint.wrapAction(
           this.program.account,
           userAccountExists // If the user account doesn't already exist, we need to attach a storage deposit.
-            ? wrappedBalance
-            : wrappedBalance + DEFAULT_FT_STORAGE_DEPOSIT
+            ? wrapAmount
+            : wrapAmount
         )
       );
     }

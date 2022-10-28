@@ -3,6 +3,7 @@ import { waitFor } from "wait-for-event";
 import { EventEmitter } from "events";
 import base58 from "bs58";
 import _ from "lodash";
+import { EscrowAccount } from "../lib/cjs";
 
 export function waitForever(): Promise<void> {
   return waitFor("", new EventEmitter());
@@ -28,7 +29,7 @@ if (process.argv.length > 2) {
 
   const queueAccount = new sbv2.QueueAccount({
     program,
-    address: base58.decode("w7L265ULDFfypoAhZP4Eam4UAUy6mu3NgVqs54JbYiq"),
+    address: base58.decode("HFSJrvA1w2uhciLGLUfE4sADGwGBpUiAjxZPgeFSs61M"),
   });
   const queue = await queueAccount.loadData();
 
@@ -174,9 +175,9 @@ if (process.argv.length > 2) {
         },
         sbv2.toBase58(
           new Uint8Array([
-            232, 173, 76, 86, 210, 210, 248, 3, 251, 240, 244, 5, 198, 152, 196,
-            151, 210, 235, 95, 198, 47, 91, 5, 55, 160, 101, 173, 201, 13, 135,
-            227, 0,
+            193, 130, 130, 183, 232, 81, 123, 240, 7, 99, 180, 103, 233, 143,
+            27, 199, 235, 213, 7, 223, 11, 57, 121, 42, 25, 157, 235, 213, 119,
+            170, 255, 133,
           ])
         ),
       ],
@@ -184,19 +185,46 @@ if (process.argv.length > 2) {
 
   // console.log(`NUM ACTIONS: ${actions.length}`);
 
-  for await (const [i, batch] of batches.entries()) {
-    const txnReceipt = await program.sendActions(batch);
+  // for await (const [i, batch] of batches.entries()) {
+  //   const txnReceipt = await program.sendActions(batch);
 
-    const result = sbv2.handleReceipt(txnReceipt);
-    if (result instanceof sbv2.types.SwitchboardError) {
-      sbv2.types.SwitchboardError.captureStackTrace(result);
-      throw result;
+  //   const result = sbv2.handleReceipt(txnReceipt);
+  //   if (result instanceof sbv2.types.SwitchboardError) {
+  //     sbv2.types.SwitchboardError.captureStackTrace(result);
+  //     throw result;
+  //   }
+
+  //   // console.log(JSON.stringify(txnReceipt.transaction.hash, undefined, 2));
+
+  //   console.log(`Batch #${i}: ${txnReceipt.transaction.hash}`);
+  // }
+
+  // console.log((await aggregator.loadData()).toJSON());
+
+  console.log(`Mint decimals: ${program.mint.metadata.decimals}`);
+  const escrow = await EscrowAccount.getOrCreateStaticAccount(program);
+  const txnReceipt = await escrow.fundUpTo({ amount: 41.15 });
+  if (!txnReceipt) {
+    console.log(`Already funded`);
+  } else {
+    const escrowResult = sbv2.handleReceipt(txnReceipt!);
+    if (escrowResult instanceof sbv2.types.SwitchboardError) {
+      sbv2.types.SwitchboardError.captureStackTrace(escrowResult);
+      throw escrowResult;
     }
 
-    console.log(JSON.stringify(txnReceipt, undefined, 2));
+    // console.log(JSON.stringify(escrowResult, undefined, 2));
 
-    console.log(`Batch #${i}: ${txnReceipt.transaction.hash}`);
+    console.log(escrowResult.transaction.hash);
+
+    const escrowState = await escrow.loadData();
+
+    const balance = await program.mint.getBalance(program.account);
+    console.log(`Token Balance: ${balance.toString()}`);
+    console.log(
+      `Switchboard Balance: ${escrowState.amount
+        .sub(escrowState.amountLocked)
+        .toString()}`
+    );
   }
-
-  console.log((await aggregator.loadData()).toJSON());
 })();
