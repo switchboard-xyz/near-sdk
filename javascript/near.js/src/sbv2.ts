@@ -15,7 +15,10 @@ import {
 import { types } from "./index.js";
 import * as actions from "./actions.js";
 import { roClient, SwitchboardProgram } from "./program.js";
-import { DEFAULT_FT_STORAGE_DEPOSIT } from "./token";
+import {
+  DEFAULT_FT_STORAGE_DEPOSIT,
+  DEFAULT_FT_STORAGE_DEPOSIT_NUMBER,
+} from "./token";
 import { fromBase58, isBase58, parseAddressString } from "./utils.js";
 import { SwitchboardDecimal } from "./generated/types/SwitchboardDecimal.js";
 
@@ -1482,7 +1485,7 @@ export class EscrowAccount {
           this.program.account,
           userAccountExists // If the user account doesn't already exist, we need to attach a storage deposit.
             ? wrapAmount
-            : wrapAmount + DEFAULT_FT_STORAGE_DEPOSIT
+            : wrapAmount + DEFAULT_FT_STORAGE_DEPOSIT_NUMBER
         )
       );
     }

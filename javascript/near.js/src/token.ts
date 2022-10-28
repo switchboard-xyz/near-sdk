@@ -11,7 +11,11 @@ import { roClient } from "./program.js";
 import { DEFAULT_FUNCTION_CALL_GAS, SwitchboardDecimal } from "./sbv2.js";
 import { SwitchboardTransaction } from "./transaction.js";
 
-export const DEFAULT_FT_STORAGE_DEPOSIT = 0.00125; // Described in units of NEAR.
+export const DEFAULT_FT_STORAGE_DEPOSIT_NUMBER = 0.00125;
+
+export const DEFAULT_FT_STORAGE_DEPOSIT = NEAR.parse(
+  DEFAULT_FT_STORAGE_DEPOSIT_NUMBER.toString()
+);
 
 export class FungibleTokenAccountAlreadyCreated extends Error {
   constructor(mint: string, accountId: string) {
@@ -76,12 +80,15 @@ export class FungibleToken {
           account_id: account.accountId,
         },
       });
+
+    console.log(storage_balance);
+
     if (!storage_balance) {
       return null;
     }
     return {
-      total: NEAR.parse(storage_balance.total),
-      available: NEAR.parse(storage_balance.available),
+      total: NEAR.from(new BN(storage_balance.total)),
+      available: NEAR.from(new BN(storage_balance.available)),
     };
   }
 
@@ -89,7 +96,7 @@ export class FungibleToken {
     const storageDeposit = await this.getStorageDeposit(account);
     if (
       storageDeposit === null ||
-      storageDeposit.total.lt(NEAR.from(DEFAULT_FT_STORAGE_DEPOSIT))
+      storageDeposit.total.lt(DEFAULT_FT_STORAGE_DEPOSIT)
     ) {
       return false;
     }
@@ -105,7 +112,7 @@ export class FungibleToken {
         account_id: account.accountId,
       },
       Gas.parse("20 Tgas"),
-      NEAR.from(DEFAULT_FT_STORAGE_DEPOSIT)
+      DEFAULT_FT_STORAGE_DEPOSIT
     );
   }
 
@@ -134,12 +141,12 @@ export class FungibleToken {
     // TODO: Check if its even a wrapped asset
 
     // Verify token account is created
-    if (!this.isUserAccountCreated(account)) {
-      throw new FungibleTokenAccountDoesNotExist(
-        this.address,
-        account.accountId
-      );
-    }
+    // if (!(await this.isUserAccountCreated(account))) {
+    //   throw new FungibleTokenAccountDoesNotExist(
+    //     this.address,
+    //     account.accountId
+    //   );
+    // }
 
     const nearAmount = NEAR.parse(amount.toFixed(20));
     return functionCall("near_deposit", {}, Gas.parse("20 Tgas"), nearAmount);
@@ -154,12 +161,12 @@ export class FungibleToken {
     // TODO: Check if its even a wrapped asset
 
     // Verify token account is created
-    if (!this.isUserAccountCreated(account)) {
-      throw new FungibleTokenAccountDoesNotExist(
-        this.address,
-        account.accountId
-      );
-    }
+    // if (!(await this.isUserAccountCreated(account))) {
+    //   throw new FungibleTokenAccountDoesNotExist(
+    //     this.address,
+    //     account.accountId
+    //   );
+    // }
 
     const nearAmount = NEAR.parse(amount.toFixed(20));
     return functionCall(
@@ -182,12 +189,12 @@ export class FungibleToken {
     // TODO: Check if its even a wrapped asset
 
     // Verify token account is created
-    if (!this.isUserAccountCreated(account)) {
-      throw new FungibleTokenAccountDoesNotExist(
-        this.address,
-        account.accountId
-      );
-    }
+    // if (!(await this.isUserAccountCreated(account))) {
+    //   throw new FungibleTokenAccountDoesNotExist(
+    //     this.address,
+    //     account.accountId
+    //   );
+    // }
 
     const nearAmount = NEAR.parse(amount.toFixed(20));
     return functionCall(
@@ -195,10 +202,12 @@ export class FungibleToken {
       {
         receiver_id: this.switchboardPid,
         amount: nearAmount,
-        msg: JSON.stringify({
-          address: [...escrowAddress],
-          amount: nearAmount,
-        }),
+        msg: JSON.stringify(
+          new types.EscrowFund({
+            address: escrowAddress,
+            amount: nearAmount,
+          }).toSerde()
+        ),
       },
       Gas.parse("40 Tgas"),
       new BN(1) // transferring requires 1 yOcto to be attached
