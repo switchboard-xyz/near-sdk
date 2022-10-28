@@ -1486,7 +1486,7 @@ export class EscrowAccount {
           this.program.account,
           userAccountExists // If the user account doesn't already exist, we need to attach a storage deposit.
             ? wrapAmount
-            : wrapAmount
+            : wrapAmount + DEFAULT_FT_STORAGE_DEPOSIT
         )
       );
     }

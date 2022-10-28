@@ -127,7 +127,7 @@ export class FungibleToken {
       new BN(userBalance),
       this.metadata.decimals
     );
-    return amount.toBig().minus(new Big(DEFAULT_FT_STORAGE_DEPOSIT));
+    return amount.toBig();
   }
 
   wrapAction(account: Account, amount: number) {

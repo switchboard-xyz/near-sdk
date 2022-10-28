@@ -203,7 +203,7 @@ if (process.argv.length > 2) {
 
   console.log(`Mint decimals: ${program.mint.metadata.decimals}`);
   const escrow = await EscrowAccount.getOrCreateStaticAccount(program);
-  const txnReceipt = await escrow.fundUpTo({ amount: 41.15 });
+  const txnReceipt = await escrow.fundUpTo({ amount: 41.25 });
   if (!txnReceipt) {
     console.log(`Already funded`);
   } else {
