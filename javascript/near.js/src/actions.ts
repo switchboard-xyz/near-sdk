@@ -310,7 +310,7 @@ export class EscrowFundAction extends SwitchboardAction<types.EscrowFund> {
 export class EscrowInitAction extends SwitchboardAction<types.EscrowInit> {
   static actionName: SwitchboardActionType = "escrow_init";
   static gas = DEFAULT_FUNCTION_CALL_GAS;
-  static storageDeposit = STORAGE_COST_PER_BYTE.mul(new BN(400));
+  static storageDeposit = STORAGE_COST_PER_BYTE.mul(new BN(1000));
 
   constructor(
     params: types.EscrowInit,

@@ -1435,13 +1435,9 @@ export class EscrowAccount {
     );
   }
 
-  async fundUpTo(params: {
-    amount: number;
-  }): Promise<FinalExecutionOutcome | undefined> {
+  async fundUpTo(params: { amount: number }): Promise<FinalExecutionOutcome> {
     const actions = await this.fundUpToActions(params);
-    if (actions.length === 0) {
-      return;
-    }
+
     const txnReceipt = await this.program.sendActions(
       actions,
       this.program.mint.address
