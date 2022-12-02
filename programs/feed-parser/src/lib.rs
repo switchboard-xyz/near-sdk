@@ -7,6 +7,7 @@ use near_sdk::Promise;
 use near_sdk::PromiseResult::Successful;
 use serde::{Deserialize, Serialize};
 use serde_json;
+use std::convert::TryInto;
 
 use sbv2_near::{AggregatorRound, Uuid, SWITCHBOARD_PROGRAM_ID};
 
@@ -50,7 +51,8 @@ impl Contract {
         let maybe_round = near_sdk::env::promise_result(0);
         if let Successful(serialized_round) = maybe_round {
             let round: AggregatorRound = serde_json::from_slice(&serialized_round).unwrap();
-            log!("{:?}", round);
+            let val: f64 = round.result.try_into().unwrap();
+            log!("Feed value: {:?}", val);
         } else {
             log_str("error");
         }
