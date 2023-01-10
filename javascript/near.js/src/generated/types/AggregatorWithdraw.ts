@@ -16,7 +16,7 @@ export interface AggregatorWithdrawJSON {
 export interface AggregatorWithdrawSerde {
   address: Array<number>;
   destination: Array<number>;
-  amount: number;
+  amount: string;
 }
 
 export class AggregatorWithdraw implements IAggregatorWithdraw {
@@ -42,7 +42,7 @@ export class AggregatorWithdraw implements IAggregatorWithdraw {
     return {
       address: [...this.address],
       destination: [...this.destination],
-      amount: this.amount.toNumber(),
+      amount: this.amount.toString(10),
     };
   }
 
@@ -58,9 +58,7 @@ export class AggregatorWithdraw implements IAggregatorWithdraw {
     return new AggregatorWithdraw({
       address: new Uint8Array(obj.address),
       destination: new Uint8Array(obj.destination),
-      amount: new BN(
-        obj.amount.toLocaleString("fullwide", { useGrouping: false })
-      ),
+      amount: new BN(obj.amount),
     });
   }
 }
