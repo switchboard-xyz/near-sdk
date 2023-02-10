@@ -1,6 +1,5 @@
 import * as types from "./generated/index.js";
-import { FinalExecutionOutcome } from "near-api-js/lib/providers";
-import { Action, functionCall } from "near-api-js/lib/transaction";
+import { providers, transactions } from "near-api-js";
 import {
   DEFAULT_FUNCTION_CALL_GAS,
   DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT,
@@ -56,7 +55,7 @@ export abstract class SwitchboardAction<
       }
 > implements ISwitchboardAction
 {
-  readonly action: Action;
+  readonly action: transactions.Action;
 
   constructor(
     readonly name: SwitchboardActionType,
@@ -75,7 +74,7 @@ export abstract class SwitchboardAction<
       throw new Error(`Failed to get instruction arguements`);
     }
 
-    this.action = functionCall(
+    this.action = transactions.functionCall(
       this.name,
       {
         ix,
@@ -87,9 +86,11 @@ export abstract class SwitchboardAction<
 
   async send<
     T extends {
-      sendAction(action: Action): Promise<FinalExecutionOutcome>;
+      sendAction(
+        action: transactions.Action
+      ): Promise<providers.FinalExecutionOutcome>;
     }
-  >(program: T): Promise<FinalExecutionOutcome> {
+  >(program: T): Promise<providers.FinalExecutionOutcome> {
     const txnReceipt = await program.sendAction(this.action);
     const result = handleReceipt(txnReceipt);
     if (result instanceof types.SwitchboardError || result instanceof Error) {

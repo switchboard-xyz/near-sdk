@@ -3,9 +3,7 @@ import Big from "big.js";
 import BN from "bn.js";
 import * as crypto from "crypto";
 import _ from "lodash";
-import { KeyPair, utils } from "near-api-js";
-import { FinalExecutionOutcome } from "near-api-js/lib/providers/provider";
-import { Action, functionCall } from "near-api-js/lib/transaction";
+import { KeyPair, providers, transactions, utils } from "near-api-js";
 import { Gas, NEAR } from "near-units";
 import {
   AggregatorHistoryRow,
@@ -114,9 +112,9 @@ export class AggregatorAccount {
       maxGasCost?: number;
       readCharge?: number;
     }
-  ): [Action, AggregatorAccount] {
+  ): [transactions.Action, AggregatorAccount] {
     const address = KeyPair.fromRandom("ed25519").getPublicKey().data;
-    const action = functionCall(
+    const action = transactions.functionCall(
       actions.AggregatorInitAction.actionName,
       {
         ix: new types.AggregatorInit({
@@ -251,7 +249,7 @@ export class AggregatorAccount {
     varianceThreshold?: SwitchboardDecimal;
     forceReportPeriod?: number;
     crank?: Uint8Array;
-  }): Promise<FinalExecutionOutcome> {
+  }): Promise<providers.FinalExecutionOutcome> {
     const txnReceipt = await this.program.sendAction(
       this.setConfigsAction(params)
     );
@@ -273,8 +271,8 @@ export class AggregatorAccount {
     crank?: Uint8Array;
     rewardEscrow?: Uint8Array;
     readCharge?: BN;
-  }): Action {
-    return functionCall(
+  }): transactions.Action {
+    return transactions.functionCall(
       actions.AggregatorSetConfigsAction.actionName,
       {
         ix: new types.AggregatorSetConfigs({
@@ -311,15 +309,17 @@ export class AggregatorAccount {
 
   async openRound(params: {
     rewardRecipient: Uint8Array;
-  }): Promise<FinalExecutionOutcome> {
+  }): Promise<providers.FinalExecutionOutcome> {
     const txnReceipt = await this.program.sendAction(
       this.openRoundAction(params)
     );
     return txnReceipt;
   }
 
-  openRoundAction(params: { rewardRecipient: Uint8Array }): Action {
-    return functionCall(
+  openRoundAction(params: {
+    rewardRecipient: Uint8Array;
+  }): transactions.Action {
+    return transactions.functionCall(
       actions.AggregatorOpenRoundAction.actionName,
       {
         ix: new types.AggregatorOpenRound({
@@ -340,7 +340,7 @@ export class AggregatorAccount {
     jobsChecksum: Uint8Array;
     minResponse: SwitchboardDecimal;
     maxResponse: SwitchboardDecimal;
-  }): Promise<FinalExecutionOutcome> {
+  }): Promise<providers.FinalExecutionOutcome> {
     const txnReceipt = await this.program.sendAction(
       this.saveResultAction(params)
     );
@@ -354,8 +354,8 @@ export class AggregatorAccount {
     jobsChecksum: Uint8Array;
     minResponse: SwitchboardDecimal;
     maxResponse: SwitchboardDecimal;
-  }): Action {
-    return functionCall(
+  }): transactions.Action {
+    return transactions.functionCall(
       actions.AggregatorSaveResultAction.actionName,
       {
         ix: new types.AggregatorSaveResult({
@@ -385,13 +385,16 @@ export class AggregatorAccount {
   async fund(params: {
     funder: Uint8Array;
     amount: number;
-  }): Promise<FinalExecutionOutcome> {
+  }): Promise<providers.FinalExecutionOutcome> {
     const txnReceipt = await this.program.sendAction(this.fundAction(params));
     return txnReceipt;
   }
 
-  fundAction(params: { funder: Uint8Array; amount: number }): Action {
-    return functionCall(
+  fundAction(params: {
+    funder: Uint8Array;
+    amount: number;
+  }): transactions.Action {
+    return transactions.functionCall(
       actions.AggregatorFundAction.actionName,
       {
         ix: new types.AggregatorFund({
@@ -408,12 +411,15 @@ export class AggregatorAccount {
   async withdraw(params: {
     authority: Uint8Array;
     amount: number;
-  }): Promise<FinalExecutionOutcome> {
+  }): Promise<providers.FinalExecutionOutcome> {
     return this.program.sendAction(this.withdrawAction(params));
   }
 
-  withdrawAction(params: { authority: Uint8Array; amount: number }): Action {
-    return functionCall(
+  withdrawAction(params: {
+    authority: Uint8Array;
+    amount: number;
+  }): transactions.Action {
+    return transactions.functionCall(
       actions.AggregatorWithdrawAction.actionName,
       {
         ix: new types.AggregatorWithdraw({
@@ -430,13 +436,16 @@ export class AggregatorAccount {
   async addJob(params: {
     job: Uint8Array;
     weight?: number;
-  }): Promise<FinalExecutionOutcome> {
+  }): Promise<providers.FinalExecutionOutcome> {
     const txnReceipt = await this.program.sendAction(this.addJobAction(params));
     return txnReceipt;
   }
 
-  addJobAction(params: { job: Uint8Array; weight?: number }): Action {
-    return functionCall(
+  addJobAction(params: {
+    job: Uint8Array;
+    weight?: number;
+  }): transactions.Action {
+    return transactions.functionCall(
       actions.AggregatorAddJobAction.actionName,
       {
         ix: new types.AggregatorAddJob({
@@ -450,15 +459,17 @@ export class AggregatorAccount {
     );
   }
 
-  async removeJob(params: { idx: number }): Promise<FinalExecutionOutcome> {
+  async removeJob(params: {
+    idx: number;
+  }): Promise<providers.FinalExecutionOutcome> {
     const txnReceipt = await this.program.sendAction(
       this.removeJobAction(params)
     );
     return txnReceipt;
   }
 
-  removeJobAction(params: { idx: number }): Action {
-    return functionCall(
+  removeJobAction(params: { idx: number }): transactions.Action {
+    return transactions.functionCall(
       actions.AggregatorRemoveJobAction.actionName,
       {
         ix: new types.AggregatorRemoveJob({
@@ -473,14 +484,14 @@ export class AggregatorAccount {
 
   async addHistory(params: {
     numRows: number;
-  }): Promise<FinalExecutionOutcome> {
+  }): Promise<providers.FinalExecutionOutcome> {
     const txnReceipt = await this.program.sendAction(
       this.addHistoryAction(params)
     );
     return txnReceipt;
   }
 
-  addHistoryAction(params: { numRows: number }): Action {
+  addHistoryAction(params: { numRows: number }): transactions.Action {
     const switchboardAction = new actions.AggregatorAddHistoryAction(
       new types.AggregatorAddHistory({
         address: this.address,
@@ -595,10 +606,10 @@ export class QueueAccount {
     aggregator: AggregatorAccount;
     permission: PermissionAccount;
     jobs: JobAccount[];
-    actions: [string, Action][];
-    batches: Action[][];
+    actions: [string, transactions.Action][];
+    batches: transactions.Action[][];
   }> {
-    const actions: [string, Action][] = [];
+    const actions: [string, transactions.Action][] = [];
 
     const queue = await this.loadData();
 
@@ -686,7 +697,7 @@ export class QueueAccount {
     actions.push(["permission_init", createPermissionAction]);
 
     // set permissions if required
-    let setPermissionAction: Action | undefined;
+    let setPermissionAction: transactions.Action | undefined;
     if (!queue.unpermissionedFeedsEnabled && params.enable) {
       setPermissionAction = permission.setAction({
         permission: SwitchboardPermission.PERMIT_ORACLE_QUEUE_USAGE,
@@ -696,7 +707,7 @@ export class QueueAccount {
     }
 
     // add to crank
-    let crankPushAction: Action | undefined;
+    let crankPushAction: transactions.Action | undefined;
     if (params.crankAddress) {
       const crankAccount = new CrankAccount({
         program: this.program,
@@ -793,9 +804,9 @@ export class QueueAccount {
       enableBufferRelayers?: boolean;
       maxGasCost?: number;
     }
-  ): [Action, QueueAccount] {
+  ): [transactions.Action, QueueAccount] {
     const address = KeyPair.fromRandom("ed25519").getPublicKey().data;
-    const action = functionCall(
+    const action = transactions.functionCall(
       actions.OracleQueueInitAction.actionName,
       {
         ix: new types.OracleQueueInit({
@@ -860,8 +871,8 @@ export class QueueAccount {
       enableBufferRelayers: boolean;
       maxGasCost: number;
     }>
-  ): Action {
-    return functionCall(
+  ): transactions.Action {
+    return transactions.functionCall(
       actions.OracleQueueSetConfigsAction.actionName,
       {
         ix: new types.OracleQueueSetConfigs({
@@ -923,7 +934,7 @@ export class QueueAccount {
       enableBufferRelayers: boolean;
       maxGasCost: number;
     }>
-  ): Promise<FinalExecutionOutcome> {
+  ): Promise<providers.FinalExecutionOutcome> {
     const txnReceipt = await this.program.sendAction(
       this.setConfigsAction(params)
     );
@@ -966,9 +977,9 @@ export class CrankAccount {
       name?: Buffer;
       metadata?: Buffer;
     }
-  ): [Action, CrankAccount] {
+  ): [transactions.Action, CrankAccount] {
     const address = KeyPair.fromRandom("ed25519").getPublicKey().data;
-    const action = functionCall(
+    const action = transactions.functionCall(
       actions.CrankInitAction.actionName,
       {
         ix: new types.CrankInit({
@@ -999,13 +1010,13 @@ export class CrankAccount {
 
   async push(params: {
     aggregator: Uint8Array;
-  }): Promise<FinalExecutionOutcome> {
+  }): Promise<providers.FinalExecutionOutcome> {
     const txnReceipt = await this.program.sendAction(this.pushAction(params));
     return txnReceipt;
   }
 
-  pushAction(params: { aggregator: Uint8Array }): Action {
-    return functionCall(
+  pushAction(params: { aggregator: Uint8Array }): transactions.Action {
+    return transactions.functionCall(
       actions.CrankPushAction.actionName,
       {
         ix: new types.CrankPush({
@@ -1021,13 +1032,16 @@ export class CrankAccount {
   async pop(params: {
     rewardRecipient: Uint8Array;
     popIdx?: number;
-  }): Promise<FinalExecutionOutcome> {
+  }): Promise<providers.FinalExecutionOutcome> {
     const txnReceipt = await this.program.sendAction(this.popAction(params));
     return txnReceipt;
   }
 
-  popAction(params: { rewardRecipient: Uint8Array; popIdx?: number }): Action {
-    return functionCall(
+  popAction(params: {
+    rewardRecipient: Uint8Array;
+    popIdx?: number;
+  }): transactions.Action {
+    return transactions.functionCall(
       actions.CrankPopAction.actionName,
       {
         ix: new types.CrankPop({
@@ -1078,9 +1092,9 @@ export class JobAccount {
       name?: Buffer;
       metadata?: Buffer;
     }
-  ): [Action, JobAccount] {
+  ): [transactions.Action, JobAccount] {
     const address = KeyPair.fromRandom("ed25519").getPublicKey().data;
-    const action = functionCall(
+    const action = transactions.functionCall(
       actions.JobInitAction.actionName,
       {
         ix: new types.JobInit({
@@ -1179,9 +1193,9 @@ export class OracleAccount {
       name?: Buffer;
       metadata?: Buffer;
     }
-  ): [Action, OracleAccount] {
+  ): [transactions.Action, OracleAccount] {
     const address = KeyPair.fromRandom("ed25519").getPublicKey().data;
-    const action = functionCall(
+    const action = transactions.functionCall(
       actions.OracleInitAction.actionName,
       {
         ix: new types.OracleInit({
@@ -1210,13 +1224,13 @@ export class OracleAccount {
     return types.Oracle.fromSerde(data);
   }
 
-  async heartbeat(): Promise<FinalExecutionOutcome> {
+  async heartbeat(): Promise<providers.FinalExecutionOutcome> {
     const txnReceipt = await this.program.sendAction(this.heartbeatAction());
     return txnReceipt;
   }
 
-  heartbeatAction(): Action {
-    return functionCall(
+  heartbeatAction(): transactions.Action {
+    return transactions.functionCall(
       actions.OracleHeartbeatAction.actionName,
       { ix: new types.OracleHeartbeat({ address: this.address }).toSerde() },
       actions.OracleHeartbeatAction.gas,
@@ -1227,13 +1241,16 @@ export class OracleAccount {
   async stake(params: {
     funderEscrow: EscrowAccount;
     amount: number;
-  }): Promise<FinalExecutionOutcome> {
+  }): Promise<providers.FinalExecutionOutcome> {
     const txnReceipt = await this.program.sendAction(this.stakeAction(params));
     return txnReceipt;
   }
 
-  stakeAction(params: { funderEscrow: EscrowAccount; amount: number }): Action {
-    return functionCall(
+  stakeAction(params: {
+    funderEscrow: EscrowAccount;
+    amount: number;
+  }): transactions.Action {
+    return transactions.functionCall(
       actions.OracleStakeAction.actionName,
       {
         ix: new types.OracleStake({
@@ -1251,7 +1268,7 @@ export class OracleAccount {
     destinationEscrow: EscrowAccount;
     amount: number;
     delegate?: boolean;
-  }): Promise<FinalExecutionOutcome> {
+  }): Promise<providers.FinalExecutionOutcome> {
     return this.program.sendAction(this.unstakeAction(params));
   }
 
@@ -1259,8 +1276,8 @@ export class OracleAccount {
     destinationEscrow: EscrowAccount;
     amount: number;
     delegate?: boolean;
-  }): Action {
-    return functionCall(
+  }): transactions.Action {
+    return transactions.functionCall(
       actions.OracleUnstakeAction.actionName,
       {
         ix: new types.OracleUnstake({
@@ -1315,9 +1332,9 @@ export class EscrowAccount {
       authority: string;
       mint: string;
     }
-  ): [Action, EscrowAccount] {
+  ): [transactions.Action, EscrowAccount] {
     const seed = KeyPair.fromRandom("ed25519").getPublicKey().data;
-    const action = functionCall(
+    const action = transactions.functionCall(
       actions.EscrowInitAction.actionName,
       {
         ix: new types.EscrowInit({
@@ -1353,7 +1370,7 @@ export class EscrowAccount {
   static async getOrCreateStaticAccountAction(
     program: SwitchboardProgram,
     seedString = DEFAULT_ESCROW_SEED
-  ): Promise<[EscrowAccount, Action | undefined]> {
+  ): Promise<[EscrowAccount, transactions.Action | undefined]> {
     const seedHash = crypto.createHash("sha256");
     seedHash.update(Buffer.from(program.account.accountId));
     seedHash.update(Buffer.from(program.mint.address));
@@ -1380,7 +1397,7 @@ export class EscrowAccount {
       return [escrowAccount, undefined];
     } catch (error) {
       // TODO: Check error matches resource not found
-      const createEscrowAction = functionCall(
+      const createEscrowAction = transactions.functionCall(
         actions.EscrowInitAction.actionName,
         {
           ix: new types.EscrowInit({
@@ -1411,7 +1428,7 @@ export class EscrowAccount {
   async fund(
     params: { amount: number },
     gas = "40 Tgas"
-  ): Promise<FinalExecutionOutcome> {
+  ): Promise<providers.FinalExecutionOutcome> {
     const txnReceipt = await this.program.sendAction(
       this.fundAction(params, gas),
       this.program.mint.address
@@ -1419,9 +1436,9 @@ export class EscrowAccount {
     return txnReceipt;
   }
 
-  fundAction(params: { amount: number }, gas = "40 Tgas"): Action {
+  fundAction(params: { amount: number }, gas = "40 Tgas"): transactions.Action {
     const nearAmount = NEAR.parse(params.amount.toFixed(20));
-    return functionCall(
+    return transactions.functionCall(
       "ft_transfer_call",
       {
         receiver_id: this.program.programId,
@@ -1438,7 +1455,9 @@ export class EscrowAccount {
     );
   }
 
-  async fundUpTo(params: { amount: number }): Promise<FinalExecutionOutcome> {
+  async fundUpTo(params: {
+    amount: number;
+  }): Promise<providers.FinalExecutionOutcome> {
     const actions = await this.fundUpToActions(params);
 
     const txnReceipt = await this.program.sendActions(
@@ -1448,8 +1467,10 @@ export class EscrowAccount {
     return txnReceipt;
   }
 
-  async fundUpToActions(params: { amount: number }): Promise<Action[]> {
-    const actions: Action[] = [];
+  async fundUpToActions(params: {
+    amount: number;
+  }): Promise<transactions.Action[]> {
+    const actions: transactions.Action[] = [];
     const userAccountExists = await this.program.mint.isUserAccountCreated(
       this.program.account
     );
@@ -1500,12 +1521,15 @@ export class EscrowAccount {
   async withdraw(params: {
     amount: number;
     destination: string;
-  }): Promise<FinalExecutionOutcome> {
+  }): Promise<providers.FinalExecutionOutcome> {
     return this.program.sendAction(this.withdrawAction(params));
   }
 
-  withdrawAction(params: { amount: number; destination: string }): Action {
-    return functionCall(
+  withdrawAction(params: {
+    amount: number;
+    destination: string;
+  }): transactions.Action {
+    return transactions.functionCall(
       actions.EscrowWithdrawAction.actionName,
       {
         ix: new types.EscrowWithdraw({
@@ -1570,8 +1594,8 @@ export class PermissionAccount {
       granter: Uint8Array;
       grantee: Uint8Array;
     }
-  ): [Action, PermissionAccount] {
-    const action = functionCall(
+  ): [transactions.Action, PermissionAccount] {
+    const action = transactions.functionCall(
       actions.PermissionInitAction.actionName,
       { ix: new types.PermissionInit(params).toSerde() },
       actions.PermissionInitAction.gas,
@@ -1604,7 +1628,7 @@ export class PermissionAccount {
   async set(params: {
     permission: SwitchboardPermission;
     enable: boolean;
-  }): Promise<FinalExecutionOutcome> {
+  }): Promise<providers.FinalExecutionOutcome> {
     const txnReceipt = await this.program.sendAction(this.setAction(params));
     return txnReceipt;
   }
@@ -1612,8 +1636,8 @@ export class PermissionAccount {
   setAction(params: {
     permission: SwitchboardPermission;
     enable: boolean;
-  }): Action {
-    return functionCall(
+  }): transactions.Action {
+    return transactions.functionCall(
       actions.PermissionSetAction.actionName,
       {
         ix: new types.PermissionSet({

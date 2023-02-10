@@ -1,11 +1,10 @@
 import * as sbv2 from "../lib/cjs";
-import { keyStores, Account, KeyPair } from "near-api-js";
+import { KeyPair, transactions } from "near-api-js";
 import Big from "big.js";
 import bs58 from "bs58";
 import { waitFor } from "wait-for-event";
 import { EventEmitter } from "events";
 import { OracleJob } from "@switchboard-xyz/common";
-import { Action } from "near-api-js/lib/transaction";
 
 const toBase58 = (address: Uint8Array): string => {
   return bs58.encode(address);
@@ -41,7 +40,7 @@ if (process.argv.length > 2) {
   // const accessKeyInfo = await txn.getAccessKey(keypair);
   // console.log(JSON.stringify(accessKeyInfo, undefined, 2));
 
-  const actions: Action[] = [];
+  const actions: transactions.Action[] = [];
 
   const escrow = await sbv2.EscrowAccount.getOrCreateStaticAccount(program);
 
