@@ -5,8 +5,9 @@ import {
   KeyPair,
   keyStores,
   Near,
+  providers,
+  transactions,
 } from "near-api-js";
-import { KeyStore } from "near-api-js/lib/key_stores";
 import {
   LOCALNET_PROGRAM_ID,
   MAINNET_PROGRAM_ID,
@@ -15,8 +16,6 @@ import {
 import path from "path";
 import { homedir } from "os";
 import { SwitchboardTransaction } from "./transaction.js";
-import { FinalExecutionOutcome } from "near-api-js/lib/providers/provider.js";
-import { Action } from "near-api-js/lib/transaction.js";
 import { handleReceipt } from "./errors.js";
 import { DEFAULT_FUNCTION_CALL_GAS, types } from "./index.js";
 import { FungibleToken } from "./token";
@@ -78,7 +77,7 @@ export class SwitchboardProgram {
   private _account: Account;
 
   constructor(
-    readonly keystore: KeyStore,
+    readonly keystore: keyStores.KeyStore,
     _account: Account,
     readonly mint: FungibleToken,
     programId?: string
@@ -207,9 +206,9 @@ export class SwitchboardProgram {
   }
 
   async sendAction(
-    action: Action,
+    action: transactions.Action,
     contractId = this.programId
-  ): Promise<FinalExecutionOutcome> {
+  ): Promise<providers.FinalExecutionOutcome> {
     if (this.isReadOnly) {
       throw new SwitchboardProgramReadOnly();
     }
@@ -225,9 +224,9 @@ export class SwitchboardProgram {
   }
 
   async sendActions(
-    actions: Action[],
+    actions: transactions.Action[],
     contractId = this.programId
-  ): Promise<FinalExecutionOutcome> {
+  ): Promise<providers.FinalExecutionOutcome> {
     if (this.isReadOnly) {
       throw new SwitchboardProgramReadOnly();
     }

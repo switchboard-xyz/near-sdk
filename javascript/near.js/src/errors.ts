@@ -1,6 +1,4 @@
-import { FinalExecutionOutcome } from "near-api-js/lib/providers";
-import { Action } from "near-api-js/lib/transaction.js";
-import { Generic } from "./generated/index.js";
+import { providers, transactions } from "near-api-js";
 import { types } from "./index.js";
 
 /** This function takes a txnReceipt and parses the logs for any internal Switchboard errors
@@ -8,8 +6,8 @@ import { types } from "./index.js";
  * @throws SwitchboardError if found
  */
 export function handleReceipt(
-  txnReceipt: FinalExecutionOutcome
-): FinalExecutionOutcome | types.SwitchboardError {
+  txnReceipt: providers.FinalExecutionOutcome
+): providers.FinalExecutionOutcome | types.SwitchboardError {
   // Find success cases and return outcome
   if (
     typeof txnReceipt.status === "string" &&
@@ -30,7 +28,7 @@ export function handleReceipt(
     const errorString = JSON.stringify(txnReceipt.status);
     const logs = txnReceipt.transaction_outcome.outcome.logs;
 
-    let action: Action | undefined = undefined;
+    let action: transactions.Action | undefined = undefined;
     if (
       "actions" in txnReceipt.transaction &&
       Array.isArray(txnReceipt.transaction.actions) &&

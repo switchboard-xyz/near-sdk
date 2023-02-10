@@ -1,14 +1,13 @@
-import assert from "assert";
 import "mocha";
-import { FinalExecutionOutcome } from "near-api-js/lib/providers";
 import InvalidEscrowReceipt from "./data/invalidEscrowReceipt.json";
 import SuccessReceipt from "./data/success.json";
 import NonSwitchboardErrorReceipt from "./data/nonSwitchboardError.json";
 import * as sbv2 from "../lib/cjs";
+import { providers } from "near-api-js";
 
 describe("Errors tests", () => {
   it("returns FinalExecutionOutcome if transaction is successful", async () => {
-    const successReceipt: FinalExecutionOutcome = SuccessReceipt;
+    const successReceipt: providers.FinalExecutionOutcome = SuccessReceipt;
 
     const result = sbv2.handleReceipt(successReceipt);
     if (
@@ -20,7 +19,8 @@ describe("Errors tests", () => {
   });
 
   it("handles parsing an Sbv2Error from a FinalExecutionOutcome", async () => {
-    const invalidEscrowReceipt: FinalExecutionOutcome = InvalidEscrowReceipt;
+    const invalidEscrowReceipt: providers.FinalExecutionOutcome =
+      InvalidEscrowReceipt;
 
     const result = sbv2.handleReceipt(invalidEscrowReceipt);
     if (
@@ -35,7 +35,7 @@ describe("Errors tests", () => {
   });
 
   it("throws a generic error when it cant match", async () => {
-    const nonSwitchboardErrorReceipt: FinalExecutionOutcome =
+    const nonSwitchboardErrorReceipt: providers.FinalExecutionOutcome =
       NonSwitchboardErrorReceipt;
 
     const result = sbv2.handleReceipt(nonSwitchboardErrorReceipt);

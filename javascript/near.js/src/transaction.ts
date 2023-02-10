@@ -1,11 +1,4 @@
-import { KeyPair, Signer, utils, Account, transactions } from "near-api-js";
-import { FinalExecutionOutcome } from "near-api-js/lib/providers";
-import {
-  Action,
-  SignedTransaction,
-  Transaction,
-} from "near-api-js/lib/transaction";
-import { PublicKey } from "near-api-js/lib/utils";
+import { Signer, utils, Account, transactions, providers } from "near-api-js";
 import sha256 from "js-sha256";
 
 export class SwitchboardTransaction {
@@ -14,13 +7,13 @@ export class SwitchboardTransaction {
   constructor(
     readonly programId: string,
     readonly account: Account,
-    readonly actions: Action[] = [],
+    readonly actions: transactions.Action[] = [],
     signer?: Signer
   ) {
     this.signer = signer || account.connection.signer;
   }
 
-  add(action: Action | Action[]) {
+  add(action: transactions.Action | transactions.Action[]) {
     const actions = this.actions;
 
     if (Array.isArray(action)) {
@@ -32,8 +25,8 @@ export class SwitchboardTransaction {
     return;
   }
 
-  async getAccessKey(accessKeyKeypair: KeyPair): Promise<{
-    publicKey: PublicKey;
+  async getAccessKey(accessKeyKeypair: utils.KeyPair): Promise<{
+    publicKey: utils.PublicKey;
     accessKey: any;
     nonce: number;
     recentBlockhash: Buffer;
@@ -60,7 +53,9 @@ export class SwitchboardTransaction {
     };
   }
 
-  async send(accessKeyKeypair: KeyPair): Promise<FinalExecutionOutcome> {
+  async send(
+    accessKeyKeypair: utils.KeyPair
+  ): Promise<providers.FinalExecutionOutcome> {
     if (this.actions.length === 0) {
       throw new Error(`No actions to send`);
     }
@@ -88,7 +83,10 @@ export class SwitchboardTransaction {
     return txnReceipt;
   }
 
-  sign(transaction: Transaction, keyPair: KeyPair): SignedTransaction {
+  sign(
+    transaction: transactions.Transaction,
+    keyPair: utils.KeyPair
+  ): transactions.SignedTransaction {
     // before we can sign the transaction we must perform three steps...
     // 1) serialize the transaction in Serde
     const serializedTx = utils.serialize.serialize(

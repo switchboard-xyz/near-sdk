@@ -1,5 +1,5 @@
 import bs58 from "bs58";
-import { FinalExecutionOutcome } from "near-api-js/lib/providers";
+import { providers } from "near-api-js";
 
 export const toBase58 = (address: Uint8Array): string => {
   return bs58.encode(address);
@@ -30,7 +30,9 @@ export const parseAddressString = (address: string): Uint8Array => {
   throw new Error(`Failed to parse address string ${address}`);
 };
 
-export const isTxnSuccessful = (txnReceipt: FinalExecutionOutcome): boolean => {
+export const isTxnSuccessful = (
+  txnReceipt: providers.FinalExecutionOutcome
+): boolean => {
   return !Boolean(
     txnReceipt.status === "Failure" ||
       txnReceipt.transaction_outcome.outcome.status === "Failure" ||
