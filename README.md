@@ -19,7 +19,7 @@
   </p>
 
   <h4>
-    <a href="https://docs.switchboard.xyz">docs.switchboard.xyz</a>
+    <strong>Official Documentation: </strong><a href="https://docs.switchboard.xyz">docs.switchboard.xyz</a>
   </h4>
 </div>
 
