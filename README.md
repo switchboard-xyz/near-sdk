@@ -36,10 +36,10 @@ git clone https://github.com/switchboard-xyz/sbv2-near
 
 ## SDKs
 
-- [Rust](/rust/sbv2-near/): Rust crate to deserialize Switchboard aggregator's
-  on-chain
-- [Typescript](/javascript/near.js/): Typescript package to create and manage
-  Switchboard accounts
+- [Rust](/rust/sbv2-near/): Rust crate to deserialize and read Switchboard data
+  feeds
+- [Typescript](/javascript/near.js/): Typescript package to interact with
+  Switchboard V2
 
 ## Programs
 
