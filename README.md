@@ -1,5 +1,7 @@
 <div align="center">
-  <img height="170" style="border-radius:25px" src="https://github.com/switchboard-xyz/sbv2-core/raw/main/website/static/img/icons/switchboard/avatar.svg" />
+  <a href="#">
+    <img height="170" src="https://github.com/switchboard-xyz/sbv2-core/raw/main/website/static/img/icons/switchboard/avatar.svg" />
+  </a>
 
   <h1>Switchboard V2</h1>
 
