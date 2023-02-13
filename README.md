@@ -4,11 +4,13 @@
   <h1>Switchboard V2</h1>
 
   <p>
-	<a href="https://www.npmjs.com/package/@switchboard-xyz/near.js"><img alt="NPM Badge" src="https://img.shields.io/github/package-json/v/switchboard-xyz/sbv2-near?filename=javascript%2Fnear.js%2Fpackage.json&logo=npm"></a>
+	<a href="https://www.npmjs.com/package/@switchboard-xyz/near.js">
+    <img alt="NPM Badge" src="https://img.shields.io/github/package-json/v/switchboard-xyz/sbv2-near?color=red&filename=javascript%2Fnear.js%2Fpackage.json&label=%40switchboard-xyz%2Fnear.js&logo=npm">
+  </a>
   </p>
 
   <p>
-    <a href="https://discord.gg/switchboardxyz"><img alt="Discord" src="https://img.shields.io/discord/841525135311634443"></a>
+    <a href="https://discord.gg/switchboardxyz"><img alt="Discord" src="https://img.shields.io/discord/841525135311634443?logo=discord"></a>
     <a href="https://twitter.com/switchboardxyz"><img alt="Twitter" src="https://img.shields.io/twitter/follow/switchboardxyz?label=Follow+Switchboard" /></a>
   </p>
 
