@@ -23,6 +23,9 @@
   <h4>
     <strong>Typedocs: </strong><a href="https://docs.switchboard.xyz/api/@switchboard-xyz/near.js">docs.switchboard.xyz/api/@switchboard-xyz/near.js</a>
   </h4>
+  <h4>
+    <strong>Sbv2 NEAR SDK: </strong><a href="https://github.com/switchboard-xyz/sbv2-near">github.com/switchboard-xyz/sbv2-near</a>
+  </h4>
 </div>
 
 ## Install
