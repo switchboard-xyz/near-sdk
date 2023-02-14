@@ -5,7 +5,7 @@
 
   <h1>sbv2-near</h1>
 
-  <p>A Rust crate to deserialize and read a Switchboard data feed.</p>
+  <p>A Rust crate to deserialize and read a Switchboard data feed within a NEAR contract.</p>
 
   <p>
   	<a href="https://crates.io/crates/sbv2-near">
