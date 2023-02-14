@@ -5,6 +5,8 @@
 
   <h1>sbv2-near</h1>
 
+  <p>A Rust crate to deserialize and read a Switchboard data feed.</p>
+
   <p>
   	<a href="https://crates.io/crates/sbv2-near">
       <img alt="Crates.io" src="https://img.shields.io/crates/v/sbv2-near?label=sbv2-near&logo=rust">

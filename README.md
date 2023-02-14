@@ -5,6 +5,8 @@
 
   <h1>Switchboard V2</h1>
 
+  <p>A collection of libraries and examples for interacting with Switchboard V2 on NEAR.</p>
+
   <p>
   	<a href="https://crates.io/crates/sbv2-near">
       <img alt="Crates.io" src="https://img.shields.io/crates/v/sbv2-near?label=sbv2-near&logo=rust">
@@ -36,6 +38,13 @@ To get started, clone the
 ```bash
 git clone https://github.com/switchboard-xyz/sbv2-near
 ```
+
+## Program IDs
+
+| Network | Program ID               |
+| ------- | ------------------------ |
+| Mainnet | `switchboard-v2.near`    |
+| Testnet | `switchboard-v2.testnet` |
 
 ## Libraries
 

@@ -5,6 +5,8 @@
 
   <h1>@switchboard-xyz/near.js</h1>
 
+  <p>A Typescript client to interact with Switchboard V2 on NEAR.</p>
+
   <p>
 	  <a href="https://www.npmjs.com/package/@switchboard-xyz/near.js">
       <img alt="NPM Badge" src="https://img.shields.io/github/package-json/v/switchboard-xyz/sbv2-near?color=red&filename=javascript%2Fnear.js%2Fpackage.json&label=%40switchboard-xyz%2Fnear.js&logo=npm">
