@@ -24,15 +24,16 @@
     <strong>Typedocs: </strong><a href="https://docs.switchboard.xyz/api/@switchboard-xyz/near.js">docs.switchboard.xyz/api/@switchboard-xyz/near.js</a>
   </h4>
 </div>
-Install
+
+## Install
 
 ```bash
-npm i @switchboard-xyz/near.js
+npm i --save @switchboard-xyz/near.js
 ```
 
-SDK for interacting with Switchboard V2 on Near.
+## Usage
 
-## Load the Switchboard Program
+Load the Switchboard Program
 
 ```ts
 import { SwitchboardProgram } from "@switchboard-xyz/near.js";
@@ -51,7 +52,7 @@ const program = await SwitchboardProgram.loadFromBrowser(
 );
 ```
 
-## Create a Queue
+Create a Queue
 
 ```ts
 import { QueueAccount } from "@switchboard-xyz/near.js";
@@ -68,7 +69,7 @@ const queue = await QueueAccount.create(program, {
 console.log(await queue.loadData());
 ```
 
-## Create a Feed
+Create a Feed
 
 ```ts
 import { AggregatorAccount } from "@switchboard-xyz/near.js";
@@ -92,7 +93,7 @@ const aggregator = await AggregatorAccount.create(program, {
 console.log(await aggregator.loadData());
 ```
 
-## Create a Job
+Create a Job
 
 ```ts
 import { JobAccount } from "@switchboard-xyz/near.js";
@@ -105,7 +106,7 @@ const job = await JobAccount.create(program, {
 console.log(await job.loadData());
 ```
 
-## Add Job to Feed
+Add Job to Feed
 
 ```ts
 await aggregator.addJob({
@@ -114,7 +115,7 @@ await aggregator.addJob({
 });
 ```
 
-## Create Feed Permissions
+Create Feed Permissions
 
 ```ts
 import { PermissionAccount } from "@switchboard-xyz/near.js";
@@ -126,7 +127,7 @@ const permission = await PermissionAccount.create(program, {
 });
 ```
 
-## Set Feed Permissions
+Set Feed Permissions
 
 ```ts
 await permission.set({
@@ -135,7 +136,7 @@ await permission.set({
 });
 ```
 
-## Add Feed to Crank
+Add Feed to Crank
 
 ```ts
 import { CrankAccount } from "@switchboard-xyz/near.js";
@@ -146,7 +147,7 @@ await crank.push({
 });
 ```
 
-## Request a Feed Update
+Request a Feed Update
 
 ```ts
 import { EscrowAccount } from "@switchboard-xyz/near.js";
