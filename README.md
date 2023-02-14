@@ -48,10 +48,10 @@ git clone https://github.com/switchboard-xyz/sbv2-near
 
 ## Libraries
 
-| **Lang** | **Name**                                                                                                                                                                                      | **Description**                                           |
-| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| Rust     | [sbv2-near](/rust/sbv2-near/) <br />[Crates.io](https://crates.io/crates/sbv2-near), [Typedocs](https://docs.rs/sbv2-near/latest/sbv2_near/)                                                  | Rust crate to deserialize and read Switchboard data feeds |
-| JS       | [@switchboard-xyz/near.js](/javascript/near.js/) <br />[npmjs](https://www.npmjs.com/package/@switchboard-xyz/near.js), [Typedocs](https://docs.switchboard.xyz/api/@switchboard-xyz/near.js) | Typescript package to interact with Switchboard V2        |
+| **Lang** | **Name**                                                                                                                                                                                        | **Description**                                           |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| Rust     | [sbv2-near](/rust/sbv2-near/) <br />[[Crates.io](https://crates.io/crates/sbv2-near), [Typedocs](https://docs.rs/sbv2-near/latest/sbv2_near/)]                                                  | Rust crate to deserialize and read Switchboard data feeds |
+| JS       | [@switchboard-xyz/near.js](/javascript/near.js/) <br />[[npmjs](https://www.npmjs.com/package/@switchboard-xyz/near.js), [Typedocs](https://docs.switchboard.xyz/api/@switchboard-xyz/near.js)] | Typescript package to interact with Switchboard V2        |
 
 ## Example Programs
 
