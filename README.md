@@ -53,7 +53,7 @@ git clone https://github.com/switchboard-xyz/sbv2-near
 - [Typescript - @switchboard-xyz/near.js](/javascript/near.js/): Typescript
   package to interact with Switchboard V2
 
-## Programs
+## Example Programs
 
 - [feed-parser](/programs/feed-parser/): Read a Switchboard feed on NEAR
 
