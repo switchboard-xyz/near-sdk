@@ -46,6 +46,12 @@ git clone https://github.com/switchboard-xyz/sbv2-near
 | Mainnet     | `switchboard-v2.near`    |
 | Testnet     | `switchboard-v2.testnet` |
 
+See [switchboard.xyz/explorer](https://switchboard.xyz/explorer) for a list of
+feeds deployed on NEAR.
+
+See [app.switchboard.xyz](https://app.switchboard.xyz) to create your own NEAR
+feeds.
+
 ## Libraries
 
 | **Lang** | **Name**                                                                                                                                                                                        | **Description**                                           |
