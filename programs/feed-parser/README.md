@@ -3,9 +3,8 @@
     <img height="170" src="https://github.com/switchboard-xyz/sbv2-core/raw/main/website/static/img/icons/switchboard/avatar.svg" />
   </a>
 
+  <h2>sbv2-near feed-parser</h2>
   <p>An example contract reading the price of a Switchboard V2 data feed on-chain.</p>
-
-  <h1>sbv2-near feed-parser</h1>
 
   <p>
   	<a href="https://crates.io/crates/sbv2-near">
