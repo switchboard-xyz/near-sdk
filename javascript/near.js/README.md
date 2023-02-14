@@ -23,7 +23,7 @@
   </p>
 
   <h4>
-    <strong>Npm: </strong><a href="npmjs.com/package/@switchboard-xyz/near.js"></a>
+    <strong>Npm: </strong><a href="https://www.npmjs.com/package/@switchboard-xyz/near.js">npmjs.com/package/@switchboard-xyz/near.js</a>
   </h4>
   <h4>
     <strong>Typedocs: </strong><a href="https://docs.switchboard.xyz/api/@switchboard-xyz/near.js">docs.switchboard.xyz/api/@switchboard-xyz/near.js</a>
