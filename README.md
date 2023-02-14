@@ -37,12 +37,12 @@ To get started, clone the
 git clone https://github.com/switchboard-xyz/sbv2-near
 ```
 
-## SDKs
+## Libraries
 
-- [Rust](/rust/sbv2-near/): Rust crate to deserialize and read Switchboard data
-  feeds
-- [Typescript](/javascript/near.js/): Typescript package to interact with
-  Switchboard V2
+- [Rust - sbv2-near](/rust/sbv2-near/): Rust crate to deserialize and read
+  Switchboard data feeds
+- [Typescript - @switchboard-xyz/near.js](/javascript/near.js/): Typescript
+  package to interact with Switchboard V2
 
 ## Programs
 

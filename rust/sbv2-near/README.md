@@ -3,7 +3,7 @@
     <img height="170" src="https://github.com/switchboard-xyz/sbv2-core/raw/main/website/static/img/icons/switchboard/avatar.svg" />
   </a>
 
-  <h1>@switchboard-xyz/near.js</h1>
+  <h1>sbv2-near</h1>
 
   <p>
   	<a href="https://crates.io/crates/sbv2-near">
