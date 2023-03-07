@@ -25,9 +25,9 @@ jobs:
           package-name: "@switchboard-xyz/near.js"
           path: javascript/near.js
           monorepo-tags: true
-          changelog-path: javascript/near.js/CHANGELOG.md
       # The logic below handles the npm publication:
       - uses: actions/checkout@v3
+        if: ${{ steps.release.outputs.release_created }}
 
       - name: Install pnpm
         if: ${{ steps.release.outputs.release_created }}
