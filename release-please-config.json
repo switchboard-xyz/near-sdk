@@ -1,5 +1,6 @@
 {
   "packages": {
     "javascript/near.js": {}
-  }
+  },
+  "plugins": ["node-workspace", "cargo-workspace"]
 }
