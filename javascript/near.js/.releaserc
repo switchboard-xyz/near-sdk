@@ -1,0 +1,7 @@
+{
+  "tagFormat": "near.js/v${version}",
+  "branches": [
+    "main"
+  ],
+  "repositoryUrl": "git@github.com:switchboard-xyz/sbv2-near.git"
+}

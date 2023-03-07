@@ -19,7 +19,7 @@
     "test": "ts-mocha -p ./tsconfig.cjs.json --require ts-node/register -t 1000000 ./tests/*.tests.ts",
     "lint": "gts lint ./src",
     "fix": "gts fix ./src ./tests",
-    "publish-packages": "semantic-release --repository-url git@github.com:switchboard-xyz/sbv2-near.git --branches main -t 'near.js/v${version}'"
+    "publish-packages": "semantic-release --repository-url git@github.com:switchboard-xyz/sbv2-near.git --branches main"
   },
   "dependencies": {
     "@switchboard-xyz/common": "^2.0.0",
