@@ -24,7 +24,6 @@
   },
   "dependencies": {
     "@switchboard-xyz/common": "^2.0.0",
-    "@switchboard-xyz/near.js": "^2.0.21",
     "big.js": "^6.2.1",
     "bn.js": "^5.2.1",
     "bs58": "^5.0.0",
