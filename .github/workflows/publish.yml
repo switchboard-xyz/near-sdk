@@ -20,27 +20,55 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 7.28.0
+
+      - name: Install Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: "yarn"
-          cache-dependency-path: "javascript/near.js/yarn.lock"
+          cache: "pnpm"
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v3
+        name: Setup pnpm cache
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
       - name: Install Dependencies
         working-directory: javascript/near.js
-        run: yarn install --frozen-lockfile
-      - name: Setup NEAR SDK Cache
-        id: cache-near-sdk-build
-        uses: actions/cache@v3
-        with:
-          key:
-            ${{ runner.os }}-Near.js-${{ hashFiles('javascript/near.js/src/**')
-            }}
-          path: |
-            javascript/near.js/lib
+        run: pnpm install --frozen-lockfile
+
       - name: Build
         working-directory: javascript/near.js
-        run: yarn build
+        run: pnpm build
+
       - name: Test
         working-directory: javascript/near.js
-        run: yarn test
+        run: pnpm test
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: "pnpm"
+
+      - name: Publish
+        if:
+          github.event_name == 'workflow_dispatch' || (github.ref ==
+          'refs/heads/main' && github.event_name != 'pull_request')
+        run: pnpm publish-packages
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
