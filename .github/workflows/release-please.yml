@@ -56,7 +56,7 @@ jobs:
         working-directory: javascript/near.js
         run: pnpm test
 
-      - uses: google-github-actions/release-please-action@v3
+      - uses: google-github-actions/release-please-action@v3.1.2
         id: release
         with:
           release-type: node
