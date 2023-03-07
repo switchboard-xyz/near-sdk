@@ -1,6 +1,6 @@
 {
   "name": "sbv2-near",
-  "version": "0.0.0-development",
+  "version": "2.2.1",
   "private": true,
   "scripts": {
     "preinstall": "npx only-allow pnpm",
