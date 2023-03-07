@@ -1,16 +1,9 @@
-import {
-  AggregatorHistoryRow,
-  AggregatorView,
-  AggregatorViewSerde,
-} from "./generated/index.js";
+import { AggregatorView, AggregatorViewSerde } from "./generated/index.js";
 import { SwitchboardDecimal } from "./generated/types/SwitchboardDecimal.js";
 import * as actions from "./actions.js";
 import { types } from "./index.js";
 import { roClient, SwitchboardProgram } from "./program.js";
-import {
-  DEFAULT_FT_STORAGE_DEPOSIT,
-  DEFAULT_FT_STORAGE_DEPOSIT_NUMBER,
-} from "./token";
+import { DEFAULT_FT_STORAGE_DEPOSIT_NUMBER } from "./token";
 import { fromBase58, isBase58, parseAddressString } from "./utils.js";
 
 import { OracleJob } from "@switchboard-xyz/common";
