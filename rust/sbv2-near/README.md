@@ -9,7 +9,7 @@
 
   <p>
   	<a href="https://crates.io/crates/sbv2-near">
-      <img alt="Crates.io" src="https://img.shields.io/crates/v/sbv2-near?label=sbv2-near&logo=rust">
+      <img alt="Crates.io" src="https://img.shields.io/crates/v/sbv2-near?label=sbv2-near&logo=rust" />
     </a>
   </p>
 

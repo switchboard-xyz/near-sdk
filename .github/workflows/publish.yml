@@ -1,0 +1,46 @@
+name: Publish @switchboard-xyz/near.js
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "javascript/near.js/src/**"
+      - "javascript/near.js/tests/**"
+      - "javascript/near.js/package.json"
+      - "javascript/near.js/yarn.lock"
+  pull_request:
+    branches: "*"
+
+jobs:
+  build:
+    name: "Build JS SDK"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: "yarn"
+          cache-dependency-path: "javascript/near.js/yarn.lock"
+      - name: Install Dependencies
+        working-directory: javascript/near.js
+        run: yarn install --frozen-lockfile
+      - name: Setup NEAR SDK Cache
+        id: cache-near-sdk-build
+        uses: actions/cache@v3
+        with:
+          key:
+            ${{ runner.os }}-Near.js-${{ hashFiles('javascript/near.js/src/**')
+            }}
+          path: |
+            javascript/near.js/lib
+      - name: Build
+        working-directory: javascript/near.js
+        run: yarn build
+      - name: Test
+        working-directory: javascript/near.js
+        run: yarn test
