@@ -17,27 +17,41 @@ jobs:
       run:
         shell: bash
     steps:
+      - uses: google-github-actions/release-please-action@v3
+        id: release
+        with:
+          release-type: node
+          component: near.js
+          package-name: "@switchboard-xyz/near.js"
+          path: javascript/near.js
+          monorepo-tags: true
+
       # The logic below handles the npm publication:
       - uses: actions/checkout@v3
+        if: ${{ steps.release.outputs.release_created }}
 
       - name: Install pnpm
+        if: ${{ steps.release.outputs.release_created }}
         uses: pnpm/action-setup@v2
         with:
           version: 7.28.0
 
       - name: Install Node.js
+        if: ${{ steps.release.outputs.release_created }}
         uses: actions/setup-node@v3
         with:
           node-version: 18
           cache: "pnpm"
 
       - name: Get pnpm store directory
+        if: ${{ steps.release.outputs.release_created }}
         id: pnpm-cache
         shell: bash
         run: |
           echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
 
       - uses: actions/cache@v3
+        if: ${{ steps.release.outputs.release_created }}
         name: Setup pnpm cache
         with:
           path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
@@ -46,23 +60,18 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - run: pnpm install --frozen-lockfile
+        if: ${{ steps.release.outputs.release_created }}
         working-directory: javascript/near.js
 
       - name: Build
+        if: ${{ steps.release.outputs.release_created }}
         working-directory: javascript/near.js
         run: pnpm build
 
       - name: Test
+        if: ${{ steps.release.outputs.release_created }}
         working-directory: javascript/near.js
         run: pnpm test
-
-      - uses: google-github-actions/release-please-action@v3.1.2
-        id: release
-        with:
-          release-type: node
-          package-name: "@switchboard-xyz/near.js"
-          path: javascript/near.js
-          monorepo-tags: true
 
       - run: npm publish
         if: ${{ steps.release.outputs.release_created }}
