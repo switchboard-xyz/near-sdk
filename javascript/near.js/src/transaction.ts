@@ -1,5 +1,5 @@
-import { Signer, utils, Account, transactions, providers } from "near-api-js";
 import sha256 from "js-sha256";
+import { Account, providers, Signer, transactions, utils } from "near-api-js";
 
 export class SwitchboardTransaction {
   public signer: Signer;

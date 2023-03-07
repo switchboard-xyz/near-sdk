@@ -1,48 +1,56 @@
-name: Build @switchboard-xyz/near.js
+name: Release @switchboard-xyz/near.js
 on:
   workflow_dispatch:
   push:
-    branches: [main]
-    paths:
-      - "javascript/near.js/src/**"
-      - "javascript/near.js/tests/**"
-      - "javascript/near.js/package.json"
-      - "javascript/near.js/yarn.lock"
-  pull_request:
-    branches: "*"
+    branches:
+      - main
 
 permissions:
   contents: write
   pull-requests: write
 
 jobs:
-  build:
-    name: "Build JS SDK"
+  release:
+    name: "Release JS SDK"
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
     steps:
+      - uses: google-github-actions/release-please-action@v3
+        id: release
+        with:
+          release-type: node
+          package-name: "@switchboard-xyz/near.js"
+          token: ${{ secrets.GH_TOKEN }}
+          path: javascript/near.js
+          monorepo-tags: near.js
+          changelog-path: javascript/near.js/CHANGELOG.md
+      # The logic below handles the npm publication:
       - uses: actions/checkout@v3
 
       - name: Install pnpm
+        if: ${{ steps.release.outputs.release_created }}
         uses: pnpm/action-setup@v2
         with:
           version: 7.28.0
 
       - name: Install Node.js
+        if: ${{ steps.release.outputs.release_created }}
         uses: actions/setup-node@v3
         with:
           node-version: 18
           cache: "pnpm"
 
       - name: Get pnpm store directory
+        if: ${{ steps.release.outputs.release_created }}
         id: pnpm-cache
         shell: bash
         run: |
           echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
 
       - uses: actions/cache@v3
+        if: ${{ steps.release.outputs.release_created }}
         name: Setup pnpm cache
         with:
           path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
@@ -50,23 +58,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
-      - name: Install Dependencies
+      - run: pnpm install --frozen-lockfile
+        if: ${{ steps.release.outputs.release_created }}
         working-directory: javascript/near.js
-        run: pnpm install --frozen-lockfile
 
-      - name: Build
+      - run: npm publish
+        if: ${{ steps.release.outputs.release_created }}
         working-directory: javascript/near.js
-        run: pnpm build
-
-      - name: Test
-        working-directory: javascript/near.js
-        run: pnpm test
-
-      # - name: Install Node.js
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     node-version: 18
-      #     cache: "pnpm"
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
       # - name: Publish
       #   if:

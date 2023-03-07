@@ -1,8 +1,11 @@
 import "mocha";
-import InvalidEscrowReceipt from "./data/invalidEscrowReceipt.json";
-import SuccessReceipt from "./data/success.json";
-import NonSwitchboardErrorReceipt from "./data/nonSwitchboardError.json";
+
 import * as sbv2 from "../lib/cjs";
+
+import InvalidEscrowReceipt from "./data/invalidEscrowReceipt.json";
+import NonSwitchboardErrorReceipt from "./data/nonSwitchboardError.json";
+import SuccessReceipt from "./data/success.json";
+
 import { providers } from "near-api-js";
 
 describe("Errors tests", () => {

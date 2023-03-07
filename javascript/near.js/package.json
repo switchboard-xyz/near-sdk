@@ -14,12 +14,13 @@
   "scripts": {
     "build:cjs": "tsc -p tsconfig.cjs.json",
     "build:esm": "tsc",
-    "build": "npm run build:cjs && npm run build:esm",
+    "build": "pnpm run build:cjs && pnpm run build:esm",
     "watch": "tsc -p tsconfig.cjs.json --watch",
     "test": "ts-mocha -p ./tsconfig.cjs.json --require ts-node/register -t 1000000 ./tests/*.tests.ts",
-    "lint": "gts lint ./src",
+    "lint": "gts lint ./src ./tests",
     "fix": "gts fix ./src ./tests",
-    "publish-packages": "semantic-release --repository-url git@github.com:switchboard-xyz/sbv2-near.git"
+    "publish-packages": "semantic-release --repository-url git@github.com:switchboard-xyz/sbv2-near.git",
+    "prepack": "pnpm run build && pnpm run lint && pnpm run test"
   },
   "dependencies": {
     "@switchboard-xyz/common": "^2.0.0",
@@ -49,6 +50,7 @@
     "assert": "^2.0.0",
     "eslint": "^8.18.0",
     "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-simple-import-sort": "^10.0.0",
     "gts": "^3.1.1",
     "mocha": "^10.0.0",
     "prettier": ">=2.0.0",

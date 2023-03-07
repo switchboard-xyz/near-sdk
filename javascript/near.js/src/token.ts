@@ -1,3 +1,9 @@
+import { handleReceipt } from "./errors.js";
+import { types } from "./index.js";
+import { roClient } from "./program.js";
+import { DEFAULT_FUNCTION_CALL_GAS, SwitchboardDecimal } from "./sbv2.js";
+import { SwitchboardTransaction } from "./transaction.js";
+
 import Big from "big.js";
 import { BN } from "bn.js";
 import {
@@ -8,11 +14,6 @@ import {
   transactions,
 } from "near-api-js";
 import { Gas, NEAR } from "near-units";
-import { handleReceipt } from "./errors.js";
-import { types } from "./index.js";
-import { roClient } from "./program.js";
-import { DEFAULT_FUNCTION_CALL_GAS, SwitchboardDecimal } from "./sbv2.js";
-import { SwitchboardTransaction } from "./transaction.js";
 
 export const DEFAULT_FT_STORAGE_DEPOSIT_NUMBER = 0.00125;
 

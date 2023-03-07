@@ -1,4 +1,14 @@
 import {
+  LOCALNET_PROGRAM_ID,
+  MAINNET_PROGRAM_ID,
+  TESTNET_PROGRAM_ID,
+} from "./generated/programId.js";
+import { handleReceipt } from "./errors.js";
+import { DEFAULT_FUNCTION_CALL_GAS, types } from "./index.js";
+import { FungibleToken } from "./token";
+import { SwitchboardTransaction } from "./transaction.js";
+
+import {
   Account,
   connect,
   Connection,
@@ -8,17 +18,8 @@ import {
   providers,
   transactions,
 } from "near-api-js";
-import {
-  LOCALNET_PROGRAM_ID,
-  MAINNET_PROGRAM_ID,
-  TESTNET_PROGRAM_ID,
-} from "./generated/programId.js";
-import path from "path";
 import { homedir } from "os";
-import { SwitchboardTransaction } from "./transaction.js";
-import { handleReceipt } from "./errors.js";
-import { DEFAULT_FUNCTION_CALL_GAS, types } from "./index.js";
-import { FungibleToken } from "./token";
+import path from "path";
 
 export type NearNetwork = "testnet" | "mainnet" | "betanet" | "localnet";
 

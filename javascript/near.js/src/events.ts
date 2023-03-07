@@ -1,11 +1,11 @@
-import { connect } from "near-api-js";
-import { startStream, types as nearLakeTypes } from "near-lake-framework";
 import * as types from "./generated/index.js";
 import { MAINNET_PROGRAM_ID } from "./generated/programId.js";
+
 // import ReconnectingWebSocket from "reconnecting-websocket";
 // import WebSocket from "isomorphic-ws";
-
 import ws from "isomorphic-ws";
+import { connect } from "near-api-js";
+import { startStream, types as nearLakeTypes } from "near-lake-framework";
 import ReconnectingWebSocket from "reconnecting-websocket";
 
 export type SwitchboardEventType =

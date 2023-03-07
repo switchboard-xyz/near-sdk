@@ -33,10 +33,10 @@ export const parseAddressString = (address: string): Uint8Array => {
 export const isTxnSuccessful = (
   txnReceipt: providers.FinalExecutionOutcome
 ): boolean => {
-  return !Boolean(
+  return !(
     txnReceipt.status === "Failure" ||
-      txnReceipt.transaction_outcome.outcome.status === "Failure" ||
-      (typeof txnReceipt.transaction_outcome.outcome.status !== "string" &&
-        "Failure" in txnReceipt.transaction_outcome.outcome.status)
+    txnReceipt.transaction_outcome.outcome.status === "Failure" ||
+    (typeof txnReceipt.transaction_outcome.outcome.status !== "string" &&
+      "Failure" in txnReceipt.transaction_outcome.outcome.status)
   );
 };

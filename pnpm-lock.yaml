@@ -30,6 +30,7 @@ importers:
       bs58: ^5.0.0
       eslint: ^8.18.0
       eslint-plugin-import: ^2.25.3
+      eslint-plugin-simple-import-sort: ^10.0.0
       events: ^3.3.0
       gts: ^3.1.1
       isomorphic-ws: ^5.0.0
@@ -75,6 +76,7 @@ importers:
       assert: 2.0.0
       eslint: 8.35.0
       eslint-plugin-import: 2.27.5_eslint@8.35.0
+      eslint-plugin-simple-import-sort: 10.0.0_eslint@8.35.0
       gts: 3.1.1_typescript@4.8.3
       mocha: 10.0.0
       prettier: 2.8.4
@@ -2793,6 +2795,14 @@ packages:
       eslint-config-prettier: 7.2.0_eslint@7.32.0
       prettier: 2.8.4
       prettier-linter-helpers: 1.0.0
+    dev: true
+
+  /eslint-plugin-simple-import-sort/10.0.0_eslint@8.35.0:
+    resolution: {integrity: sha512-AeTvO9UCMSNzIHRkg8S6c3RPy5YEwKWSQPx3DYghLedo2ZQxowPFLGDN1AZ2evfg6r6mjBSZSLxLFsWSu3acsw==}
+    peerDependencies:
+      eslint: '>=5.0.0'
+    dependencies:
+      eslint: 8.35.0
     dev: true
 
   /eslint-scope/5.1.1:

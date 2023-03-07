@@ -1,3 +1,18 @@
+import {
+  AggregatorHistoryRow,
+  AggregatorView,
+  AggregatorViewSerde,
+} from "./generated/index.js";
+import { SwitchboardDecimal } from "./generated/types/SwitchboardDecimal.js";
+import * as actions from "./actions.js";
+import { types } from "./index.js";
+import { roClient, SwitchboardProgram } from "./program.js";
+import {
+  DEFAULT_FT_STORAGE_DEPOSIT,
+  DEFAULT_FT_STORAGE_DEPOSIT_NUMBER,
+} from "./token";
+import { fromBase58, isBase58, parseAddressString } from "./utils.js";
+
 import { OracleJob } from "@switchboard-xyz/common";
 import Big from "big.js";
 import BN from "bn.js";
@@ -5,20 +20,6 @@ import * as crypto from "crypto";
 import _ from "lodash";
 import { KeyPair, providers, transactions, utils } from "near-api-js";
 import { Gas, NEAR } from "near-units";
-import {
-  AggregatorHistoryRow,
-  AggregatorView,
-  AggregatorViewSerde,
-} from "./generated/index.js";
-import { types } from "./index.js";
-import * as actions from "./actions.js";
-import { roClient, SwitchboardProgram } from "./program.js";
-import {
-  DEFAULT_FT_STORAGE_DEPOSIT,
-  DEFAULT_FT_STORAGE_DEPOSIT_NUMBER,
-} from "./token";
-import { fromBase58, isBase58, parseAddressString } from "./utils.js";
-import { SwitchboardDecimal } from "./generated/types/SwitchboardDecimal.js";
 
 export { SwitchboardDecimal } from "./generated/types/SwitchboardDecimal.js";
 

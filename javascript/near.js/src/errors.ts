@@ -1,5 +1,6 @@
-import { providers, transactions } from "near-api-js";
 import { types } from "./index.js";
+
+import { providers, transactions } from "near-api-js";
 
 /** This function takes a txnReceipt and parses the logs for any internal Switchboard errors
  * before rethrowing them
