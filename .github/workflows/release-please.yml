@@ -23,7 +23,6 @@ jobs:
           release-type: node
           component: near.js
           package-name: "@switchboard-xyz/near.js"
-          path: javascript/near.js
           monorepo-tags: true
 
       # The logic below handles the npm publication:
