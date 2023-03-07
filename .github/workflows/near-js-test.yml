@@ -1,15 +1,8 @@
 name: Test @switchboard-xyz/near.js
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - "javascript/near.js/src/**"
-      - "javascript/near.js/tests/**"
-      - "javascript/near.js/package.json"
-      - "javascript/near.js/yarn.lock"
   pull_request:
-    branches: "*"
+    branches: [main]
 
 permissions:
   contents: write
