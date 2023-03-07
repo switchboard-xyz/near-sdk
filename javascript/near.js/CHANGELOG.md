@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.2.1](https://github.com/switchboard-xyz/sbv2-near/compare/near.js-v2.2.0...near.js-v2.2.1) (2023-03-07)
+
+
+### Bug Fixes
+
+* gitignore ([0af6a80](https://github.com/switchboard-xyz/sbv2-near/commit/0af6a80954086b19e00621f2d61086e51b749d33))
+* remove cyclic import ([a35807b](https://github.com/switchboard-xyz/sbv2-near/commit/a35807ba3b0750b2ad980bb94bc22a037ca7832a))
+
 ## [2.2.0](https://github.com/switchboard-xyz/sbv2-near/compare/near.js-v2.1.2...near.js-v2.2.0) (2023-03-07)
 
 ### Features
