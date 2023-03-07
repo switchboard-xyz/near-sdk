@@ -23,7 +23,6 @@ jobs:
           release-type: node
           component: near.js
           package-name: "@switchboard-xyz/near.js"
-          token: ${{ secrets.GH_TOKEN }}
           path: javascript/near.js
           monorepo-tags: true
           changelog-path: javascript/near.js/CHANGELOG.md
