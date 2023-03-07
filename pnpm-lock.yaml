@@ -50,7 +50,7 @@ importers:
       ws: ^8.10.0
     dependencies:
       '@switchboard-xyz/common': 2.0.0
-      '@switchboard-xyz/near.js': 'link:'
+      '@switchboard-xyz/near.js': 2.0.77_typescript@4.8.3
       big.js: 6.2.1
       bn.js: 5.2.1
       bs58: 5.0.0
@@ -1566,6 +1566,32 @@ packages:
       eslint-plugin-import: ^2.25.3
       prettier: '>=2.0.0'
     dev: true
+
+  /@switchboard-xyz/near.js/2.0.77_typescript@4.8.3:
+    resolution: {integrity: sha512-Yp9w/ckxQInxms3l7Sy8fwXfMIXe2TZmI7yYTDJpQ904NfqAJ3MOKiYV0JnouajRH6uV5xlKzHrfmKJGQMBD3w==}
+    dependencies:
+      '@switchboard-xyz/common': 2.0.0
+      big.js: 6.2.1
+      bn.js: 5.2.1
+      bs58: 5.0.0
+      events: 3.3.0
+      isomorphic-ws: 5.0.0_ws@8.10.0
+      lodash: 4.17.21
+      near-api-js: 1.0.0
+      near-lake-framework: 1.0.4
+      near-units: 0.1.9
+      reconnecting-websocket: 4.4.0
+      typedoc: 0.23.16_typescript@4.8.3
+      wait-for-event: 2.0.1
+      ws: 8.10.0
+    transitivePeerDependencies:
+      - '@aws-sdk/signature-v4-crt'
+      - aws-crt
+      - bufferutil
+      - encoding
+      - typescript
+      - utf-8-validate
+    dev: false
 
   /@tootallnate/once/2.0.0:
     resolution: {integrity: sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==}

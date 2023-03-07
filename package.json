@@ -1,5 +1,6 @@
 {
   "name": "sbv2-near",
+  "version": "0.0.0-development",
   "private": true,
   "scripts": {
     "preinstall": "npx only-allow pnpm",
@@ -17,7 +18,6 @@
     "node": ">=14.0.0"
   },
   "packageManager": "pnpm@7.28.0",
-  "version": "2.0.77-development",
   "repository": {
     "type": "git",
     "url": "https://github.com/switchboard-xyz/sbv2-near.git"
