@@ -24,6 +24,7 @@ jobs:
           component: near.js
           package-name: "@switchboard-xyz/near.js"
           # path: "./javascript/near.js"
+          command: manifest
           monorepo-tags: true
           token: ${{ secrets.GH_TOKEN }}
 
