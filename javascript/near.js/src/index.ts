@@ -1,5 +1,5 @@
 export * as actions from "./actions.js";
-export * from "./errors.js";
+export * as errors from "./errors.js";
 export * from "./events.js";
 export {
   LOCALNET_PROGRAM_ID,

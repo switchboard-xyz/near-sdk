@@ -60,7 +60,6 @@ jobs:
         id: release
         with:
           release-type: node
-          # component: near.js
           package-name: "@switchboard-xyz/near.js"
           path: javascript/near.js
           monorepo-tags: true

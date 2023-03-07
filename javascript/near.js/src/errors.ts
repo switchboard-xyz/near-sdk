@@ -48,10 +48,6 @@ export function handleReceipt(
         );
         if (actionIndex < actions.length) {
           action = actions[actionIndex];
-          // console.log(Buffer.from(action?.functionCall?.args).toString("utf8"));
-          // action.functionCall.args = JSON.parse(
-          //   Buffer.from(action?.functionCall?.args ?? "").toString("utf8")
-          // );
         }
       }
     }
