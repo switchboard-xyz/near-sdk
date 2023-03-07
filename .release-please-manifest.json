@@ -1,5 +1,3 @@
 {
-  "packages": {
-    "javascript/near.js": {}
-  }
+  "javascript/near.js": "2.2.0"
 }
