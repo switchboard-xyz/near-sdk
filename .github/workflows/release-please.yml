@@ -21,6 +21,7 @@ jobs:
         id: release
         with:
           release-type: node
+          component: near.js
           package-name: "@switchboard-xyz/near.js"
           token: ${{ secrets.GH_TOKEN }}
           path: javascript/near.js

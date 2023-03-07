@@ -1,4 +1,4 @@
-name: Build @switchboard-xyz/near.js
+name: Test @switchboard-xyz/near.js
 on:
   workflow_dispatch:
   push:
@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   build:
-    name: "Build JS SDK"
+    name: "Build and Test JS SDK"
     runs-on: ubuntu-latest
     defaults:
       run:
