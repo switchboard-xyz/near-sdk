@@ -40,7 +40,7 @@
     "ws": "^8.10.0"
   },
   "devDependencies": {
-    "@switchboard-xyz/eslint-config": "^0.1.7",
+    "@switchboard-xyz/eslint-config": "latest",
     "@types/big.js": "^6.1.5",
     "@types/bn.js": "^5.1.1",
     "@types/lodash": "^4.14.186",

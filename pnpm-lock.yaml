@@ -10,14 +10,14 @@ importers:
       semantic-release: ^20.1.1
     devDependencies:
       '@commitlint/config-conventional': 17.4.4
-      '@switchboard-xyz/eslint-config': 0.1.7
+      '@switchboard-xyz/eslint-config': 0.1.8
       commitlint: 17.4.4
       semantic-release: 20.1.1
 
   javascript/near.js:
     specifiers:
       '@switchboard-xyz/common': ^2.0.0
-      '@switchboard-xyz/eslint-config': ^0.1.7
+      '@switchboard-xyz/eslint-config': latest
       '@types/big.js': ^6.1.5
       '@types/bn.js': ^5.1.1
       '@types/lodash': ^4.14.186
@@ -66,7 +66,7 @@ importers:
       wait-for-event: 2.0.1
       ws: 8.10.0
     devDependencies:
-      '@switchboard-xyz/eslint-config': 0.1.7
+      '@switchboard-xyz/eslint-config': 0.1.8
       '@types/big.js': 6.1.6
       '@types/bn.js': 5.1.1
       '@types/lodash': 4.14.186
@@ -1561,8 +1561,8 @@ packages:
       protobufjs: 6.11.3
     dev: false
 
-  /@switchboard-xyz/eslint-config/0.1.7:
-    resolution: {integrity: sha512-5eTvNOagJnTVIt2NMBvOtjQMwEZBHbVYFj8ZsV6WYKhGtAiFEhG76U5vRVe6cUaa/gI9gJ6jYEZOJthD/Agdmw==}
+  /@switchboard-xyz/eslint-config/0.1.8:
+    resolution: {integrity: sha512-ZlWCsFuyAqqALEIT6UVHNQGQRs0Oxe3p9fLLI86QpQ52aOtM96Y2N5PkfTRTCKVtGmtpOOm+QaDcDowQcSeeUw==}
     dependencies:
       '@typescript-eslint/eslint-plugin': 5.54.1_cbmk3pidx2nz2sjr6jrgumfn3m
       '@typescript-eslint/parser': 5.54.1_2azzjyys7qik4qkhpicajriepe

@@ -44,7 +44,6 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install Dependencies
-        working-directory: javascript/near.js
         run: pnpm install --frozen-lockfile
 
       - name: Build
