@@ -39,6 +39,13 @@ To get started, clone the
 git clone https://github.com/switchboard-xyz/sbv2-near
 ```
 
+Then install the dependencies
+
+```bash
+cd sbv2-near
+pnpm install
+```
+
 ## Program IDs
 
 | **Network** | **Program ID**           |
