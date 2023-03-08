@@ -17,6 +17,44 @@ jobs:
       run:
         shell: bash
     steps:
+      # The logic below handles the npm publication:
+      - uses: actions/checkout@v3
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 7.28.0
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: "pnpm"
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v3
+        name: Setup pnpm cache
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - run: pnpm install --frozen-lockfile
+        working-directory: javascript/near.js
+
+      - name: Build
+        working-directory: javascript/near.js
+        run: |
+          pnpm build
+          pnpm lint
+          pnpm test
+
       - uses: google-github-actions/release-please-action@v3
         id: release
         with:
@@ -27,53 +65,6 @@ jobs:
           # command: manifest
           monorepo-tags: true
           token: ${{ secrets.GH_TOKEN }}
-
-      # The logic below handles the npm publication:
-      - uses: actions/checkout@v3
-        if: ${{ steps.release.outputs.release_created }}
-
-      - name: Install pnpm
-        if: ${{ steps.release.outputs.release_created }}
-        uses: pnpm/action-setup@v2
-        with:
-          version: 7.28.0
-
-      - name: Install Node.js
-        if: ${{ steps.release.outputs.release_created }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: "pnpm"
-
-      - name: Get pnpm store directory
-        if: ${{ steps.release.outputs.release_created }}
-        id: pnpm-cache
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - uses: actions/cache@v3
-        if: ${{ steps.release.outputs.release_created }}
-        name: Setup pnpm cache
-        with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
-      - run: pnpm install --frozen-lockfile
-        if: ${{ steps.release.outputs.release_created }}
-        working-directory: javascript/near.js
-
-      - name: Build
-        if: ${{ steps.release.outputs.release_created }}
-        working-directory: javascript/near.js
-        run: pnpm build
-
-      - name: Test
-        if: ${{ steps.release.outputs.release_created }}
-        working-directory: javascript/near.js
-        run: pnpm test
 
       - run: npm publish
         if: ${{ steps.release.outputs.release_created }}
