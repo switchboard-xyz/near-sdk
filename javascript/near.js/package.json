@@ -1,6 +1,6 @@
 {
   "name": "@switchboard-xyz/near.js",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "author": "",
   "license": "ISC",
   "description": "API wrapper for intergating with the Switchboardv2 program on Near",
@@ -20,7 +20,7 @@
     "lint": "gts lint ./src ./tests",
     "fix": "gts fix ./src ./tests",
     "publish-packages": "semantic-release --repository-url git@github.com:switchboard-xyz/sbv2-near.git",
-    "prepack": "pnpm run build && pnpm run lint"
+    "prepack": "npm run lint && npm run build"
   },
   "dependencies": {
     "@switchboard-xyz/common": "^2.0.0",
@@ -40,7 +40,7 @@
     "ws": "^8.10.0"
   },
   "devDependencies": {
-    "@switchboard-xyz/eslint-config": "^0.1.3",
+    "@switchboard-xyz/eslint-config": "^0.1.7",
     "@types/big.js": "^6.1.5",
     "@types/bn.js": "^5.1.1",
     "@types/lodash": "^4.14.186",
