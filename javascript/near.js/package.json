@@ -31,7 +31,7 @@
     "isomorphic-ws": "^5.0.0",
     "js-sha256": "^0.9.0",
     "lodash": "^4.17.21",
-    "near-api-js": "^1.0.0",
+    "near-api-js": "^2.0.4",
     "near-lake-framework": "^1.0.4",
     "near-units": "^0.1.9",
     "reconnecting-websocket": "^4.4.0",
