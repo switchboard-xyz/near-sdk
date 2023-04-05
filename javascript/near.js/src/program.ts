@@ -1,9 +1,9 @@
-import { handleReceipt } from "./errors.js";
 import {
   LOCALNET_PROGRAM_ID,
   MAINNET_PROGRAM_ID,
   TESTNET_PROGRAM_ID,
 } from "./generated/programId.js";
+import { handleReceipt } from "./errors.js";
 import { DEFAULT_FUNCTION_CALL_GAS, types } from "./index.js";
 import { FungibleToken } from "./token";
 import { SwitchboardTransaction } from "./transaction.js";
