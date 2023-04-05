@@ -9,6 +9,16 @@ import SuccessReceipt from "./data/success.json";
 import { providers } from "near-api-js";
 
 describe("Errors tests", () => {
+  it("Load read-only SwitchboardProgram", async () => {
+    const program = await sbv2.SwitchboardProgram.loadReadOnly(
+      "mainnet",
+      "https://near-mainnet.gateway.pokt.network/v1/lb/e7049329172e007704fff827"
+    );
+    if (!(program.isReadOnly && program.programId)) {
+      throw new Error(`Error loading the program.`);
+    }
+  });
+
   it("returns FinalExecutionOutcome if transaction is successful", async () => {
     const successReceipt: providers.FinalExecutionOutcome = SuccessReceipt;
 
