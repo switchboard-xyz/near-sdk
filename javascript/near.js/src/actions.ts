@@ -1,5 +1,5 @@
-import * as types from "./generated/index.js";
 import { handleReceipt } from "./errors.js";
+import * as types from "./generated/index.js";
 import {
   DEFAULT_FUNCTION_CALL_GAS,
   DEFAULT_FUNCTION_CALL_STORAGE_DEPOSIT,

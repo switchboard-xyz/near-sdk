@@ -7,7 +7,6 @@ export {
   PROGRAM_ID,
   TESTNET_PROGRAM_ID,
 } from "./generated/index.js";
-export * as types from "./generated/index.js";
 export * from "./program.js";
 export * from "./sbv2.js";
 export * from "./token.js";
