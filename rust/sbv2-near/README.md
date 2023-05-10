@@ -1,33 +1,14 @@
 <div align="center">
-  <a href="#">
-    <img src="https://github.com/switchboard-xyz/sbv2-core/raw/main/website/static/img/icons/switchboard/avatar.png" />
-  </a>
 
-  <h1>sbv2-near</h1>
+![Switchboard Logo](https://github.com/switchboard-xyz/sbv2-core/raw/main/website/static/img/icons/switchboard/avatar.png)
 
-  <p>A Rust crate to deserialize and read a Switchboard data feed within a NEAR contract.</p>
+# sbv2-near
 
-  <p>
-  	<a href="https://crates.io/crates/sbv2-near">
-      <img alt="Crates.io" src="https://img.shields.io/crates/v/sbv2-near?label=sbv2-near&logo=rust" />
-    </a>
-  </p>
+> A Rust crate to deserialize and read a Switchboard data feed within a NEAR
+> contract.
 
-  <p>
-    <a href="https://discord.gg/switchboardxyz">
-      <img alt="Discord" src="https://img.shields.io/discord/841525135311634443?color=blueviolet&logo=discord&logoColor=white" />
-    </a>
-    <a href="https://twitter.com/switchboardxyz">
-      <img alt="Twitter" src="https://img.shields.io/twitter/follow/switchboardxyz?label=Follow+Switchboard" />
-    </a>
-  </p>
+[![Crates.io](https://img.shields.io/crates/v/sbv2-near?label=sbv2-near&logo=rust")](https://crates.io/crates/sbv2-near)
 
-  <h4>
-    <strong>Typedocs: </strong><a href="https://docs.rs/sbv2-near/latest/sbv2_near/">docs.rs/sbv2-near</a>
-  </h4>
-  <h4>
-    <strong>Sbv2 NEAR SDK: </strong><a href="https://github.com/switchboard-xyz/sbv2-near">github.com/switchboard-xyz/sbv2-near</a>
-  </h4>
 </div>
 
 ## Install

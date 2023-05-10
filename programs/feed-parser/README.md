@@ -1,29 +1,13 @@
 <div align="center">
-  <a href="#">
-    <img src="https://github.com/switchboard-xyz/sbv2-core/raw/main/website/static/img/icons/switchboard/avatar.png" />
-  </a>
 
-  <h1>sbv2-near / feed-parser</h1>
-  <p>An example contract reading the price of a Switchboard V2 data feed on-chain.</p>
+![Switchboard Logo](https://github.com/switchboard-xyz/sbv2-core/raw/main/website/static/img/icons/switchboard/avatar.png)
 
-  <p>
-  	<a href="https://crates.io/crates/sbv2-near">
-      <img alt="Crates.io" src="https://img.shields.io/crates/v/sbv2-near?label=sbv2-near&logo=rust" />
-    </a>
-  </p>
+# NEAR feed-parser
 
-  <p>
-    <a href="https://discord.gg/switchboardxyz">
-      <img alt="Discord" src="https://img.shields.io/discord/841525135311634443?color=blueviolet&logo=discord&logoColor=white" />
-    </a>
-    <a href="https://twitter.com/switchboardxyz">
-      <img alt="Twitter" src="https://img.shields.io/twitter/follow/switchboardxyz?label=Follow+Switchboard" />
-    </a>
-  </p>
+> An example contract reading the price of a Switchboard V2 data feed on-chain.
 
-  <h4>
-    <strong>Sbv2 NEAR SDK: </strong><a href="https://github.com/switchboard-xyz/sbv2-near">github.com/switchboard-xyz/sbv2-near</a>
-  </h4>
+[![Crates.io](https://img.shields.io/crates/v/sbv2-near?label=sbv2-near&logo=rust")](https://crates.io/crates/sbv2-near)
+
 </div>
 
 ## Usage
