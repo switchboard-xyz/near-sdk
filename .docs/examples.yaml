@@ -1,0 +1,5 @@
+examples:
+  - name: "feed-parser"
+    description: Read a Switchboard feed on NEAR"
+    language: "rust"
+    path: "programs/feed-parser"

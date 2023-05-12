@@ -1,0 +1,13 @@
+clients:
+  - name: "sbv2-near"
+    slug: "./"
+    description:
+      "A Rust crate to deserialize and read a Switchboard data feed within a
+      NEAR contract."
+    language: "rust"
+    path: "rust/sbv2-near"
+  - name: "@switchboard-xyz/near.js"
+    slug: "./"
+    description: "A Typescript client to interact with Switchboard on NEAR."
+    language: "javascript"
+    path: "javascript/near.js"

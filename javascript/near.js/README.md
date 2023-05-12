@@ -1,36 +1,13 @@
 <div align="center">
-  <a href="#">
-    <img src="https://github.com/switchboard-xyz/sbv2-core/raw/main/website/static/img/icons/switchboard/avatar.png" />
-  </a>
 
-  <h1>@switchboard-xyz/near.js</h1>
+![Switchboard Logo](https://github.com/switchboard-xyz/sbv2-core/raw/main/website/static/img/icons/switchboard/avatar.png)
 
-  <p>A Typescript client to interact with Switchboard V2 on NEAR.</p>
+# @switchboard-xyz/near.js
 
-  <p>
-	  <a href="https://www.npmjs.com/package/@switchboard-xyz/near.js">
-      <img alt="NPM Badge" src="https://img.shields.io/github/package-json/v/switchboard-xyz/sbv2-near?color=red&filename=javascript%2Fnear.js%2Fpackage.json&label=%40switchboard-xyz%2Fnear.js&logo=npm" />
-    </a>
-  </p>
+> A Typescript client to interact with Switchboard on NEAR.
 
-  <p>
-    <a href="https://discord.gg/switchboardxyz">
-      <img alt="Discord" src="https://img.shields.io/discord/841525135311634443?color=blueviolet&logo=discord&logoColor=white" />
-    </a>
-    <a href="https://twitter.com/switchboardxyz">
-      <img alt="Twitter" src="https://img.shields.io/twitter/follow/switchboardxyz?label=Follow+Switchboard" />
-    </a>
-  </p>
+[![NPM Badge](https://img.shields.io/github/package-json/v/switchboard-xyz/sbv2-near?color=red&filename=javascript%2Fnear.js%2Fpackage.json&label=%40switchboard-xyz%2Fnear.js&logo=npm)](https://www.npmjs.com/package/@switchboard-xyz/near.js)
 
-  <h4>
-    <strong>Npm: </strong><a href="https://www.npmjs.com/package/@switchboard-xyz/near.js">npmjs.com/package/@switchboard-xyz/near.js</a>
-  </h4>
-  <h4>
-    <strong>Typedocs: </strong><a href="https://docs.switchboard.xyz/api/@switchboard-xyz/near.js">docs.switchboard.xyz/api/@switchboard-xyz/near.js</a>
-  </h4>
-  <h4>
-    <strong>Sbv2 NEAR SDK: </strong><a href="https://github.com/switchboard-xyz/sbv2-near">github.com/switchboard-xyz/sbv2-near</a>
-  </h4>
 </div>
 
 ## Install
@@ -41,7 +18,19 @@ npm i --save @switchboard-xyz/near.js
 
 ## Usage
 
-### Load the Switchboard Program
+**Directory**
+
+- [Load Switchboard Program](#load-switchboard-program)
+- [Create a Queue](#create-a-queue)
+- [Create a Data Feed](#create-a-data-feed)
+- [Create a Job](#create-a-job)
+- [Add Job to Data Feed](#add-job-to-data-feed)
+- [Create Feed Permissions](#create-feed-permissions)
+- [Set Feed Permissions](#set-feed-permissions)
+- [Add Feed to Crank](#add-feed-to-crank)
+- [Request a Feed Update](#request-a-feed-update)
+
+### Load Switchboard Program
 
 ```ts
 import { SwitchboardProgram } from "@switchboard-xyz/near.js";
@@ -77,7 +66,7 @@ const queue = await QueueAccount.create(program, {
 console.log(await queue.loadData());
 ```
 
-### Create a Feed
+### Create a Data Feed
 
 ```ts
 import { AggregatorAccount } from "@switchboard-xyz/near.js";
@@ -114,7 +103,7 @@ const job = await JobAccount.create(program, {
 console.log(await job.loadData());
 ```
 
-Add Job to Feed
+### Add Job to Data Feed
 
 ```ts
 await aggregator.addJob({
