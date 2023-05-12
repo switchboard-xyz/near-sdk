@@ -1,6 +1,6 @@
 {
   "name": "@switchboard-xyz/near.js",
-  "version": "2.2.3",
+  "version": "2.2.4",
   "author": "",
   "license": "ISC",
   "description": "API wrapper for intergating with the Switchboardv2 program on Near",
@@ -23,7 +23,7 @@
     "prepack": "npm run lint && npm run build"
   },
   "dependencies": {
-    "@switchboard-xyz/common": "^2.0.0",
+    "@switchboard-xyz/common": "^2.2.0",
     "big.js": "^6.2.1",
     "bn.js": "^5.2.1",
     "bs58": "^5.0.0",
